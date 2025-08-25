@@ -42,11 +42,11 @@
 
 ## 메세지 설계
 
-User → UserRegistration : 나 가입 원해
-UserRegistration → UserDuplicateValidator : 이 ID 중복 아닌가?
-UserDuplicateValidator → UserRegistration : 중복 아님
-UserRegistration : User 객체 생성 (new User)
-UserRegistration → UserRepository : 저장해(User)
+- User → UserRegistration : 나 가입 원해
+- UserRegistration → UserDuplicateValidator : 이 ID 중복 아닌가?
+- UserDuplicateValidator → UserRegistration : 중복 아님
+- UserRegistration : User 객체 생성 (new User)
+- UserRegistration → UserRepository : 저장해(User)
 
 가입완료 알림창 찍
 
