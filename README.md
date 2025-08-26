@@ -23,7 +23,6 @@
 ### 실시간 통신
 
 - **WebSocket** (실시간 경매, 채팅)
-- **STOMP** (메시징 프로토콜)
 
 # ‼️‼️설계‼️‼️를 잘하자
 
@@ -35,18 +34,20 @@
 ## 회원가입 요구사항
 
 - 사용자가 회원가입을 요청한다.
-- 이미 가입된 아이디 불가.
-- 중복이 아니면 새 회원을 만든다.
-- 회원을 저장한다.
+- 시스템은 id와 email의 중복 여부를 확인한다.
+  - 이미 존재하는 경우 가입불가.
+- 신규회원을 저장한다.
+  - 회원상태: 활성
+  - 생성일시: 가입일자
 - 가입 완료 알림을 띄운다.
 
 ## 메세지 설계
 
-- User → UserRegistration : 나 가입 원해
-- UserRegistration → UserDuplicateValidator : 이 ID 중복 아닌가?
-- UserDuplicateValidator → UserRegistration : 중복 아님
-- UserRegistration : User 객체 생성 (new User)
-- UserRegistration → UserRepository : 저장해(User)
+- User → UserServiceImpl : 나 가입 원해
+- UserServiceImpl → UserDuplicateValidator : 이 ID 중복 아닌가?
+- UserDuplicateValidator → UserServiceImpl : 중복 아님
+- UserServiceImpl : User 객체 생성 (new User)
+- UserServiceImpl → UserRepository : 저장해(User)
 
 가입완료 알림창 찍
 
@@ -54,12 +55,17 @@
 
 - **User**
     - 회원 객체
-- **UserRegistration**
+- **UserServiceImpl**
     - 가입 흐름만 담당
 - **UserDuplicateValidator**
     - 중복 여부 확인만
 - **UserRepository**
-    - 저장/조회 책임
+    - db 접근만
+- **UserStatus**
+    - 유저 상태값 enum
+- **UserController**
+    - http 요청 처리
+
 
 회원가입 참고용
 
