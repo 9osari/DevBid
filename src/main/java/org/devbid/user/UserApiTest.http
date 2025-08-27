@@ -1,8 +1,0 @@
-POST http://localhost:3000/users/register
-Content-Type: application/json
-
-{
-  "userId": "2222222",
-  "email": "12141@nsfae.com",
-  "password": "a98wdh98a928nd211d21f12f4g343g"
-}

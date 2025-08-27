@@ -51,3 +51,5 @@ application-local.yml
 
 # Obsidian local settings
 docs/.obsidian/
+
+*.http
