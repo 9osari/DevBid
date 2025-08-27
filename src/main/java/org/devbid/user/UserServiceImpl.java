@@ -12,7 +12,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void register(User user) {
-        userValidator.validateDuplicateUserId(user.getUserId());
+        userValidator.validateDuplicateUsername(user.getUsername());
 
         userValidator.validateDuplicateEmail(user.getEmail());
 

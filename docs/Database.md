@@ -8,10 +8,11 @@
 ```mermaid
 erDiagram
     USERS {
-        bigint user_id PK "사용자 ID"
-        varchar username "사용자명(로그인ID)"
-        varchar email "이메일 주소"
+        bigint id PK "내부 식별자(PK, auto_increment)"       
+        varchar username "로그인 ID (사용자가 입력, unique)"  
+        varchar email "이메일 주소 (unique)" 
         varchar password "암호화된 비밀번호"
+        varchar nickname "닉네임 (화면 표시용, optional)"
         varchar phone "전화번호"
         datetime created_at "가입일시"
     }

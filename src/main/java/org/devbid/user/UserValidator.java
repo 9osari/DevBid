@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 public class UserValidator {
     private final UserRepository userRepository;
 
-    public void validateDuplicateUserId(String userId) {
-        if(userRepository.findByUserId(userId).isPresent()) {
+    public void validateDuplicateUsername(String username) {
+        if(userRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 ID");
         }
     }

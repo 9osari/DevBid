@@ -13,40 +13,41 @@ java {
     }
 }
 
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    // Spring Boot 스타터들
+    // Spring Boot 스타터
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-
-    // 개발 편의
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // DB
     runtimeOnly("com.mysql:mysql-connector-j")
 
-    // 테스트
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test")
+    // Lombok
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
 
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly("com.mysql:mysql-connector-j")
+    // MapStruct
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+
+    // 개발 편의
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty("file.encoding", "UTF-8")
 }
