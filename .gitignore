@@ -48,3 +48,6 @@ Thumbs.db
 
 ### Local configs ###
 application-local.yml
+
+# Obsidian local settings
+docs/.obsidian/
