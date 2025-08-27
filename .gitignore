@@ -47,7 +47,9 @@ Thumbs.db
 *.swo
 
 ### Local configs ###
-application-local.yml
+src/main/resources/application-home.yml
+src/main/resources/application-work.yml
+
 
 # Obsidian local settings
 docs/.obsidian/

@@ -15,11 +15,4 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @PostMapping("/register")
-    @ResponseBody
-    public String register(@RequestBody UserDto userDto) {
-        User user = userMapper.toEntity(userDto);
-        userService.register(user);
-        return "success";
-    }
 }
