@@ -39,6 +39,8 @@ dependencies {
 
     // 개발 편의
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("p6spy:p6spy:3.9.1")
+    runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

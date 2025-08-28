@@ -1,5 +1,5 @@
 package org.devbid.user;
 
 public interface UserService {
-    void register(User user);
+    void register(User user, String password);
 }

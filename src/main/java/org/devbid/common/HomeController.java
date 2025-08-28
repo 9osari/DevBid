@@ -13,7 +13,7 @@ public class HomeController {
     }
 
     @GetMapping("/register")
-    public String registerPage() {
+    public String register() {
         return "user/register";
     }
 }

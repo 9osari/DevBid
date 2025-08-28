@@ -1,18 +1,28 @@
 package org.devbid.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@RestController
+@Controller
 @RequestMapping("/users")
 @RequiredArgsConstructor    //생성자 자동생성
 public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+
+    @PostMapping("/register")
+    public String register(@ModelAttribute UserDto userDto, RedirectAttributes redirectAttributes) {
+        User user = userMapper.toEntity(userDto);
+        userService.register(user, userDto.getPassword());
+
+        redirectAttributes.addFlashAttribute("message", "success");
+
+        return "redirect:/";
+    }
 
 }

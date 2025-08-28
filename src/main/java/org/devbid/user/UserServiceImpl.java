@@ -11,7 +11,7 @@ public class UserServiceImpl implements UserService {
     private final UserValidator userValidator;  
 
     @Override
-    public void register(User user) {
+    public void register(User user, String password) {
         userValidator.validateDuplicateUsername(user.getUsername());
 
         userValidator.validateDuplicateEmail(user.getEmail());

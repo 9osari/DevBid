@@ -36,7 +36,7 @@ public class User {
     //@PrePersist, @PreUpdate로 자동 값
     @PrePersist
     protected void onCreate() {
-        createdt = LocalDateTime.now();
+        createdt = LocalDateTime.now().toLocalDate().atStartOfDay();
     }
 
 }
