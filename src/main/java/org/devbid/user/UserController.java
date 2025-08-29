@@ -12,13 +12,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor    //생성자 자동생성
 public class UserController {
 
-    private final UserService userService;
+    private final UserRegistrationService userRegistrationService;
     private final UserMapper userMapper;
 
     @PostMapping("/register")
     public String register(@ModelAttribute UserDto userDto, RedirectAttributes redirectAttributes) {
         User user = userMapper.toEntity(userDto);
-        userService.register(user, userDto.getPassword());
+        userRegistrationService.register(user, userDto.getPassword());
 
         redirectAttributes.addFlashAttribute("message", "success");
 

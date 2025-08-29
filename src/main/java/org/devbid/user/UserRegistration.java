@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor    //생성자 자동생성
-public class UserServiceImpl implements UserService {
+public class UserRegistration implements UserRegistrationService {
 
     private final UserRepository userRepository;
     private final UserValidator userValidator;  
