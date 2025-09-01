@@ -1,4 +1,4 @@
-package org.devbid.user.application.command;
+package org.devbid.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
