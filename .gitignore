@@ -55,3 +55,5 @@ src/main/resources/application-work.yml
 docs/.obsidian/
 
 *.http
+
+~/.gradle/gradle.properties
