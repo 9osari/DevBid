@@ -1,4 +1,4 @@
-package org.devbid.user.domain;
+package org.devbid.user.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

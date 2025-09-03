@@ -33,6 +33,10 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
+    // MapStruct
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+
     // 개발 편의
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("p6spy:p6spy:3.9.1")

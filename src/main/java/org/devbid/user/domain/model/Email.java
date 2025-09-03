@@ -1,4 +1,4 @@
-package org.devbid.user.domain;
+package org.devbid.user.domain.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -8,14 +8,13 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA용
-public class Username {
+public class Email{
     private String value;
 
-    public Username(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("사용자 이름은 필수입니다.");
+    public Email(String value) {
+        if (!value.contains("@")) {
+            throw new IllegalArgumentException("이메일 형식 아님");
         }
-
         this.value = value;
     }
 }

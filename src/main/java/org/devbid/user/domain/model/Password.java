@@ -1,4 +1,4 @@
-package org.devbid.user.domain;
+package org.devbid.user.domain.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -8,13 +8,10 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Nickname {
+public class Password {
     private String value;
 
-    public Nickname(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("사용자 이름은 필수입니다.");
-        }
+    public Password(String value) {
         this.value = value;
     }
 }

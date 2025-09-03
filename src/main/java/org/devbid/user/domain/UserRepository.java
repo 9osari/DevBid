@@ -1,10 +1,12 @@
 package org.devbid.user.domain;
 
-import org.springframework.data.jpa.repository.JpaRepository;   //JPA 기반으로 CRUD(생성, 조회, 수정, 삭제) 기능을 미리 만들어둔 인터페이스
+import org.devbid.user.domain.model.User;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+//도메인에서 쓸 것들
+public interface UserRepository {
     Optional<User> findByUsernameValue(String username);
     Optional<User> findByEmailValue(String email);
+    User save(User user);
 }

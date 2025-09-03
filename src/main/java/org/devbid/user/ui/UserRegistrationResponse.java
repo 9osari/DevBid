@@ -2,7 +2,7 @@ package org.devbid.user.ui;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.devbid.user.application.command.UserRegistrationResult;
+import org.devbid.user.application.UserRegistrationResult;
 
 @AllArgsConstructor
 @Getter

@@ -1,9 +1,9 @@
 package org.devbid.user.ui;
 
 import lombok.RequiredArgsConstructor;
+import org.devbid.user.application.command.UserRegistrationCommand;
 import org.devbid.user.application.command.UserRegistrationCommandHandler;
-import org.devbid.user.application.command.UserRegistrationResult;
-import org.devbid.user.domain.User;
+import org.devbid.user.application.UserRegistrationResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,13 +20,11 @@ public class UserRegistrationController {
 
     @PostMapping("/register")
     public String register(@ModelAttribute UserRegistrationRequest request, RedirectAttributes redirectAttributes) {
-        User user = userMapper.toEntity(request);
+        UserRegistrationCommand command = userMapper.toCommand(request);
+        UserRegistrationResult result = commandHandler.registerUser(command);
+        UserRegistrationResponse response = userMapper.toResponse(result);
 
-        UserRegistrationResult result = commandHandler.handle(request.toCommand());
-
-        // FlashAttribute로 뷰에 전달
-        redirectAttributes.addFlashAttribute("message", "success");
-        redirectAttributes.addFlashAttribute("user", UserRegistrationResponse.from(result));
+        redirectAttributes.addFlashAttribute("message", "회원가입 성공: " + response.getUsername());
 
         return "redirect:/";
     }
