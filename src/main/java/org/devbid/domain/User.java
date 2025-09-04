@@ -7,16 +7,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.devbid.domain.common.BaseEntity;
+import org.devbid.dto.UserRegisterRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name = "users")
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,6 +28,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @Getter(AccessLevel.NONE)   //비밀번호 숨김
     @Column(nullable = false, length = 200)
     private String password;
 
@@ -36,12 +38,37 @@ public class User {
     @Column(nullable = false, length = 20)
     private String phone;
 
-    // 생성용 생성자
-    public User(String username, String email, String password, String nickname, String phone) {
+    public User(String username, String email, String encryptedPassword, String nickname, String phone) {
+        validateEncryptedPassword(encryptedPassword);
+
         this.username = username;
         this.email = email;
-        this.password = password;
+        this.password = encryptedPassword;
         this.nickname = nickname;
         this.phone = phone;
     }
+
+    public boolean matchesPassword(String rawPassword, PasswordEncoder encoder) {
+        return encoder.matches(rawPassword, this.password);
+    }
+
+    private void validateEncryptedPassword(String encryptedPassword) {
+        if (encryptedPassword == null || encryptedPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("암호화된 패스워드는 필수입니다.");
+        }
+        if (encryptedPassword.length() < 60) {
+            throw new IllegalArgumentException("유효하지 않은 암호화된 패스워드입니다.");
+        }
+    }
+
+    public static User register(UserRegisterRequest request, String encryptedPassword) {
+        return new User(
+            request.username(),
+            request.email(),
+            encryptedPassword,
+            request.nickname(),
+            request.phone()
+        );
+    }
+
 }
