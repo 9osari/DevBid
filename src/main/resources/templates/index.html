@@ -2,17 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>DevBid</title>
+    <title>ㅇㅅㅇ</title>
 </head>
 <body>
-<h2>index.html</h2>
-<p><a href="/login">/login</a></p>
-<p><a href="/register">/register</a></p>
-
 <div th:if="${message}">
   <script th:inline="javascript">
     alert([[${message}]]);
   </script>
 </div>
+<div th:if="${isLoggedIn}">
+    <span th:text="${username}"></span>
+    <p><a href="/users/userSearch">userSearch</a></p>
+    <p><a href="/logout">logout</a></p>
+</div>
+
+<div th:unless="${isLoggedIn}">
+    <p>not login</p>
+    <p><a href="/login">login</a></p>
+</div>
+<p><a href="/register">register</a></p>
 </body>
 </html>
