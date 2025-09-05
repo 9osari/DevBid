@@ -48,6 +48,10 @@ public class User extends BaseEntity {
         this.phone = phone;
     }
 
+    public String getEncryptedPassword() {
+        return this.password;
+    }
+
     public boolean matchesPassword(String rawPassword, PasswordEncoder encoder) {
         return encoder.matches(rawPassword, this.password);
     }

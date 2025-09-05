@@ -26,6 +26,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.1")
 
     // DB
     runtimeOnly("com.mysql:mysql-connector-j")
@@ -40,8 +41,7 @@ dependencies {
 
     // 개발 편의
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    implementation("p6spy:p6spy:3.9.1")
-    runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+<h2>List</h2>
+
+<div th:if="${users != null and !users.isEmpty()}">
+  <table border="1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Nickname</th>
+        <th>Phone</th>
+        <th>Created Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="user : ${users}">
+        <td th:text="${user.id}">1</td>
+        <td th:text="${user.username}">username</td>
+        <td th:text="${user.email}">email</td>
+        <td th:text="${user.nickname}">nickname</td>
+        <td th:text="${user.phone}">phone</td>
+        <td th:text="${user.createdAt}">date</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div th:if="${users == null or users.isEmpty()}">
+  <p>null</p>
+</div>
+
+<div>
+    <p><a href="/">home</a></p>
+    <p><a href="/logout">logout</a></p>
+</div>
+</body>
+</html>

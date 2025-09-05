@@ -6,26 +6,26 @@
 </head>
 <body>
 
-<div th:if="${message}" style="color: red;">
-    <p th:text="${message}"></p>
+<div th:if="${param.error}" style="color: red;">
+    <p>check id, pw</p>
 </div>
 
-<form th:action="@{/user/login}" method="post">
+<form method="post" action="/loginProc">
     <div>
-        <label>name</label>
+        <label>username</label>
         <input type="text" name="username" required>
     </div>
     <div>
-        <label>pass</label>
-        <input type="password" name="rawPassword" required>
+        <label>password</label>
+        <input type="password" name="password" required>
     </div>
     <div>
-        <button type="submit">in</button>
+        <button type="submit">로그인</button>
     </div>
 </form>
 
 <div>
-    <p><a href="/register">regi</a></p>
+    <p><a href="/register">register</a></p>
     <p><a href="/">home</a></p>
 </div>
 </body>

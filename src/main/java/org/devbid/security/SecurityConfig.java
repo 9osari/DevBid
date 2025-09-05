@@ -1,5 +1,6 @@
 package org.devbid.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,21 +13,31 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-
-            //URL별 접근 권한을 설정
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-            //누구나 접근 가능
-            .requestMatchers("/", "/register", "/login", "/user/login").permitAll()
-
-            //인증(로그인) 필요
-            .anyRequest().authenticated()
-
-            ).formLogin(AbstractHttpConfigurer::disable);
+                .requestMatchers("/", "/register", "/login", "/loginProc", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/user/list").authenticated()
+                .anyRequest().authenticated()
+            )
+            .formLogin(login -> login
+                .loginPage("/login")
+                .loginProcessingUrl("/loginProc")
+                .defaultSuccessUrl("/", true)
+                .failureUrl("/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            );
         return http.build();
     }
 

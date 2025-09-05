@@ -5,14 +5,16 @@
     <title>ㅇㅅㅇ</title>
 </head>
 <body>
+
 <div th:if="${message}">
   <script th:inline="javascript">
     alert([[${message}]]);
   </script>
 </div>
+
 <div th:if="${isLoggedIn}">
-    <span th:text="${username}"></span>
-    <p><a href="/users/userSearch">userSearch</a></p>
+    <p><span th:text="${username}"></span>  welcome</p>
+    <p><a href="/user/list">userlist</a></p>
     <p><a href="/logout">logout</a></p>
 </div>
 
