@@ -7,6 +7,7 @@ import org.devbid.domain.User;
 import org.devbid.repository.UserRepository;
 import org.devbid.dto.UserRegisterRequest;
 import org.devbid.service.UserRegistrationService;
+import org.devbid.service.UserRegistrationValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,22 +17,16 @@ import org.springframework.stereotype.Service;
 public class UserRegistrationServiceImpl implements UserRegistrationService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final UserRegistrationValidator userRegistrationValidator;
 
     @Override
     public void registerUser(UserRegisterRequest request) {
-        assertNotDuplicated(request);
+        userRegistrationValidator.validateForRegistration(request.username(), request.email());
 
         String encoded = passwordEncoder.encode(request.password());
-        userRepository.save(User.register(request, encoded));
-    }
 
-    private void assertNotDuplicated(UserRegisterRequest request) {
-        if(userRepository.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("check username");
-        }
+        User user = User.register(request.username(), request.email(), encoded, request.nickname(), request.phone());
 
-        if(userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("check email");
-        }
+        userRepository.save(user);
     }
 }

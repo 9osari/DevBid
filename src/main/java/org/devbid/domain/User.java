@@ -52,10 +52,6 @@ public class User extends BaseEntity {
         return this.password;
     }
 
-    public boolean matchesPassword(String rawPassword, PasswordEncoder encoder) {
-        return encoder.matches(rawPassword, this.password);
-    }
-
     private void validateEncryptedPassword(String encryptedPassword) {
         if (encryptedPassword == null || encryptedPassword.trim().isEmpty()) {
             throw new IllegalArgumentException("암호화된 패스워드는 필수입니다.");
@@ -65,13 +61,13 @@ public class User extends BaseEntity {
         }
     }
 
-    public static User register(UserRegisterRequest request, String encryptedPassword) {
+    public static User register(String username, String email, String encryptedPassword, String nickname, String phone) {
         return new User(
-            request.username(),
-            request.email(),
+            username,
+            email,
             encryptedPassword,
-            request.nickname(),
-            request.phone()
+            nickname,
+            phone
         );
     }
 
