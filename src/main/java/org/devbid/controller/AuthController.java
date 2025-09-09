@@ -71,6 +71,8 @@ public class AuthController {
     public String userUpdateProc(@Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult result,
                                  Authentication auth, RedirectAttributes ra, Model model) {
         if (result.hasErrors()) {
+            User user = userService.findByUsername(auth.getName());
+            model.addAttribute("user", user);
             return "user/userUpdate";
         }
         userService.updateUser(auth.getName(), request);

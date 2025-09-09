@@ -22,11 +22,11 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final UserValidator userRegistrationValidator;
+    private final UserValidator userValidator;
 
     @Override
     public void registerUser(UserRegistrationRequest request) {
-        userRegistrationValidator.RegisterValidate(request.username(), request.email());
+        userValidator.RegisterValidate(request.username(), request.email());
 
         String encoded = passwordEncoder.encode(request.password());
 
@@ -40,14 +40,16 @@ public class UserServiceImpl implements UserService {
         log.info("update user: {}", username);
         log.info("request: {}", request);
 
+        userValidator.UpdateValidate(username, request.email(), request.nickname(), request.phone());
+
         User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("i can't find user: " + username));
 
         boolean updated = user.updateProfile(request.email(), request.nickname(), request.phone());
 
         if(!updated) {
-            log.info("User update successfully: {}", username);
+            log.info("No change detected for user: {}", username);
         }
-        log.info("No change detected for user: {}", username);
+        log.info("User update successfully: {}", username);
     }
 
     @Override

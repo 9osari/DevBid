@@ -1,7 +1,6 @@
 <form th:action="@{/user/update}" th:object="${form}" method="post">
   <div>
-    <label>Username</label>
-    <input type="text" th:value="${user.username}" readonly/>
+    Edit <span th:text="${user.username}" style="color:deeppink"></span>'s Profile
   </div>
   <div>
     <label>Email</label>
