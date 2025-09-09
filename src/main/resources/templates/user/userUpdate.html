@@ -1,0 +1,24 @@
+<form th:action="@{/user/update}" th:object="${form}" method="post">
+  <div>
+    <label>Username</label>
+    <input type="text" th:value="${user.username}" readonly/>
+  </div>
+  <div>
+    <label>Email</label>
+    <input type="email" th:field="*{email}"/>
+    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:red"></div>
+  </div>
+  <div>
+    <label>Nickname</label>
+    <input type="text" th:field="*{nickname}"/>
+    <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" style="color:red"></div>
+  </div>
+  <div>
+    <label>Phone</label>
+    <input type="text" th:field="*{phone}"/>
+    <div th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" style="color:red"></div>
+  </div>
+  <button type="submit">save</button>
+
+  <div><p><a href="/user/list">list</a></p></div>
+</form>

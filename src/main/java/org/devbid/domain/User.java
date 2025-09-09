@@ -60,12 +60,31 @@ public class User extends BaseEntity {
         );
     }
 
-    public void updateProfile(String nickname, String phone) {
-        if(isBlank(nickname)) throw new IllegalArgumentException("check nickname");
-        if(isBlank(phone)) throw new IllegalArgumentException("check phone");
-
+    public void updateUser(String username, String email, String nickname, String phone) {
+        this.username = username;
+        this.email = email;
         this.nickname = nickname;
         this.phone = phone;
+    }
+
+    public boolean updateProfile(String email, String nickname, String phone) {
+        boolean isUpdated = false;
+
+        if(email != null && !email.equals(this.email)) {
+            this.email = email;
+            isUpdated = true;
+        }
+        if(nickname != null && !nickname.equals(this.nickname)) {
+            this.nickname = nickname;
+            isUpdated = true;
+        }
+
+        if(phone != null && !phone.equals(this.phone)) {
+            this.phone = phone;
+            isUpdated = true;
+        }
+
+        return isUpdated;
     }
 
     public void changePassword(String encryptedPassword) {
