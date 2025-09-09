@@ -5,7 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.devbid.domain.User;
 import org.devbid.repository.UserRepository;
-import org.devbid.dto.UserRegisterRequest;
+import org.devbid.dto.UserRegistrationRequest;
 import org.devbid.service.UserRegistrationService;
 import org.devbid.service.UserRegistrationValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,8 +20,8 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     private final UserRegistrationValidator userRegistrationValidator;
 
     @Override
-    public void registerUser(UserRegisterRequest request) {
-        userRegistrationValidator.validateForRegistration(request.username(), request.email());
+    public void registerUser(UserRegistrationRequest request) {
+        userRegistrationValidator.validate(request.username(), request.email());
 
         String encoded = passwordEncoder.encode(request.password());
 

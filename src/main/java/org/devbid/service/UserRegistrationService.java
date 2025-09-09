@@ -1,7 +1,7 @@
 package org.devbid.service;
 
-import org.devbid.dto.UserRegisterRequest;
+import org.devbid.dto.UserRegistrationRequest;
 
 public interface UserRegistrationService {
-    void registerUser(UserRegisterRequest user);
+    void registerUser(UserRegistrationRequest user);
 }

@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserRegistrationValidatorImpl implements UserRegistrationValidator {
+public class DefaultUserRegistrationValidator implements UserRegistrationValidator {
 
     private final UserRepository userRepository;
 
     @Override
-    public void validateForRegistration(String username, String email) {
+    public void validate(String username, String email) {
         if(userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("check username");
         }

@@ -13,7 +13,7 @@
 </div>
 
 <div th:if="${isLoggedIn}">
-    <p><span th:text="${username}"></span>  welcome</p>
+    <p><span th:text="${username}" style="color: red;"></span>  welcome</p>
     <p><a href="/user/list">userlist</a></p>
     <p><a href="/logout">logout</a></p>
 </div>

@@ -10,8 +10,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.devbid.domain.common.BaseEntity;
-import org.devbid.dto.UserRegisterRequest;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name = "users")
@@ -52,6 +50,29 @@ public class User extends BaseEntity {
         return this.password;
     }
 
+    public static User register(String username, String email, String encryptedPassword, String nickname, String phone) {
+        return new User(
+            username,
+            email,
+            encryptedPassword,
+            nickname,
+            phone
+        );
+    }
+
+    public void updateProfile(String nickname, String phone) {
+        if(isBlank(nickname)) throw new IllegalArgumentException("check nickname");
+        if(isBlank(phone)) throw new IllegalArgumentException("check phone");
+
+        this.nickname = nickname;
+        this.phone = phone;
+    }
+
+    public void changePassword(String encryptedPassword) {
+        validateEncryptedPassword(encryptedPassword);
+        this.password = encryptedPassword;
+    }
+
     private void validateEncryptedPassword(String encryptedPassword) {
         if (encryptedPassword == null || encryptedPassword.trim().isEmpty()) {
             throw new IllegalArgumentException("암호화된 패스워드는 필수입니다.");
@@ -61,14 +82,8 @@ public class User extends BaseEntity {
         }
     }
 
-    public static User register(String username, String email, String encryptedPassword, String nickname, String phone) {
-        return new User(
-            username,
-            email,
-            encryptedPassword,
-            nickname,
-            phone
-        );
+    private boolean isBlank(String str) {
+        return str == null || str.trim().isEmpty();
     }
 
 }
