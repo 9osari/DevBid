@@ -36,7 +36,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String phone;
 
-    public User(String username, String email, String encryptedPassword, String nickname, String phone) {
+    private User(String username, String email, String encryptedPassword, String nickname, String phone) {
         validateEncryptedPassword(encryptedPassword);
 
         this.username = username;
