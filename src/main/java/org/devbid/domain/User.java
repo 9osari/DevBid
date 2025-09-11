@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.devbid.domain.common.BaseEntity;
+import org.devbid.dto.UserRegistrationRequest;
+import org.devbid.service.UserValidator;
 
 @Entity
 @Table(name = "users")
@@ -46,6 +48,18 @@ public class User extends BaseEntity {
         this.password = passwordVo;
         this.nickname = nicknameVo;
         this.phone = phoneVo;
+    }
+
+    public static User register(UserRegistrationRequest request, UserValidator validator) {
+        validator.RegisterValidate(request.username(), request.email());
+
+        Username username = new Username(request.username());
+        Email email = new Email(request.email());
+        Password password = new Password(request.password());
+        Nickname nickname = new Nickname(request.nickname());
+        Phone phone = new Phone(request.phone());
+
+        return new User(username, email, password, nickname, phone);
     }
 
 

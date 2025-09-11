@@ -21,16 +21,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class UserServiceImpl implements UserService {
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserValidator userValidator;
 
     @Override
     public void registerUser(UserRegistrationRequest request) {
-        userValidator.RegisterValidate(request.username(), request.email());
-
-        User user = User.register(request.username(), request.email(), request.password(), request.nickname(), request.phone());
-
+        User user = User.register(request, userValidator);
         userRepository.save(user);
     }
 
