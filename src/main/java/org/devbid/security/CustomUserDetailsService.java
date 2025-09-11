@@ -2,6 +2,7 @@ package org.devbid.security;
 
 import lombok.RequiredArgsConstructor;
 import org.devbid.domain.User;
+import org.devbid.domain.Username;
 import org.devbid.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,13 +13,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("not found"));
+        Username usernameVO = new Username(username);
+        User user = userRepository.findByUsername(usernameVO)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
         return org.springframework.security.core.userdetails.User
-                        .withUsername(user.getUsername())
-                        .password(user.getEncryptedPassword())
-                        .roles("USER") // 로그인만 필요하니 USER 권한 하나만
-                        .build();
+                .withUsername(user.getUsername().getValue())  // Value Object에서 값 추출
+                .password(user.getPassword().getEncryptedValue())  // Value Object에서 값 추출
+                .roles("USER")
+                .build();
     }
 }

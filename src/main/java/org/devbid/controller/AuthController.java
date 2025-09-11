@@ -63,7 +63,7 @@ public class AuthController {
     public String userUpdate(Model model, Authentication auth) {
         User user = userService.findByUsername(auth.getName());
         model.addAttribute("user", user);
-        model.addAttribute("form", new UserUpdateRequest(user.getEmail(), user.getNickname(), user.getPhone()));
+        model.addAttribute("form", new UserUpdateRequest(user.getEmail().getValue(), user.getNickname().getValue(), user.getPhone().getValue()));
         return "user/userUpdate";
     }
 

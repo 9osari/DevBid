@@ -3,6 +3,7 @@ package org.devbid.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.domain.User;
+import org.devbid.domain.Username;
 import org.devbid.dto.UserRegistrationRequest;
 import org.devbid.dto.UserUpdateRequest;
 import org.devbid.repository.UserRepository;
@@ -28,9 +29,7 @@ public class UserServiceImpl implements UserService {
     public void registerUser(UserRegistrationRequest request) {
         userValidator.RegisterValidate(request.username(), request.email());
 
-        String encoded = passwordEncoder.encode(request.password());
-
-        User user = User.register(request.username(), request.email(), encoded, request.nickname(), request.phone());
+        User user = User.register(request.username(), request.email(), request.password(), request.nickname(), request.phone());
 
         userRepository.save(user);
     }
@@ -42,7 +41,8 @@ public class UserServiceImpl implements UserService {
 
         userValidator.UpdateValidate(username, request.email(), request.nickname(), request.phone());
 
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("i can't find user: " + username));
+        Username usernameVO = new Username(username);
+        User user = userRepository.findByUsername(usernameVO).orElseThrow(() -> new IllegalArgumentException("i can't find user: " + username));
 
         boolean updated = user.updateProfile(request.email(), request.nickname(), request.phone());
 
@@ -64,7 +64,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+        Username usernameVO = new Username(username);
+        return userRepository.findByUsername(usernameVO).orElse(null);
     }
 
     @Override
