@@ -3,6 +3,8 @@ package org.devbid.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.devbid.domain.User;
+import org.devbid.domain.UserDto;
+import org.devbid.domain.common.Result;
 import org.devbid.dto.UserRegistrationRequest;
 import org.devbid.dto.UserUpdateRequest;
 import org.devbid.service.UserService;
@@ -34,17 +36,24 @@ public class AuthController {
     @PostMapping("/register")
     public String registerUser(
             @Valid @ModelAttribute("user") UserRegistrationRequest request,
-            BindingResult result,
-            RedirectAttributes ra
+            BindingResult bindingResult,
+            RedirectAttributes ra,
+            Model model
     ) {
-        if (result.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             return "user/register";
         }
-        userService.registerUser(request);
+        UserDto userDto = request.toDto();
+        Result<User> result = userService.registerUser(userDto);
 
-        ra.addFlashAttribute("username", request.username());
-        ra.addFlashAttribute("nickname", request.nickname());
-        return "redirect:/registerSuccess";
+        if(result.isSuccess()){
+            ra.addFlashAttribute("username", request.username());
+            ra.addFlashAttribute("nickname", request.nickname());
+            return "redirect:/registerSuccess";
+        } else {
+            model.addAttribute("errorMessage", result.getErrorMessage());
+            return "user/register";
+        }
     }
 
     @GetMapping("/registerSuccess")
@@ -61,22 +70,37 @@ public class AuthController {
 
     @GetMapping("/user/update")
     public String userUpdate(Model model, Authentication auth) {
-        User user = userService.findByUsername(auth.getName());
+        Result<User> result = userService.findByUsername(auth.getName());
+        if(!result.isSuccess()) {
+            model.addAttribute("error", result.getErrorMessage());
+            return "user/userUpdate";
+        }
+        User user = result.getData();
         model.addAttribute("user", user);
         model.addAttribute("form", new UserUpdateRequest(user.getEmail().getValue(), user.getNickname().getValue(), user.getPhone().getValue()));
         return "user/userUpdate";
     }
 
     @PostMapping("/user/update")
-    public String userUpdateProc(@Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult result,
+    public String userUpdateProc(@Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult bindingResult,
                                  Authentication auth, RedirectAttributes ra, Model model) {
-        if (result.hasErrors()) {
-            User user = userService.findByUsername(auth.getName());
-            model.addAttribute("user", user);
+        if (bindingResult.hasErrors()) {
+            Result<User> result = userService.findByUsername(auth.getName());
+            if(!result.isSuccess()) {
+                model.addAttribute("error", result.getErrorMessage());
+                return "user/userUpdate";
+            }
+            model.addAttribute("user", result.getData());
             return "user/userUpdate";
         }
-        userService.updateUser(auth.getName(), request);
-        ra.addFlashAttribute("msg", "User information has been updated.");
-        return "redirect:/user/update";
+        Result<User> updateResult = userService.updateUser(auth.getName(), request);
+        if(updateResult.isSuccess()){
+            ra.addFlashAttribute("msg", "User updated successfully");
+            return "redirect:/user/list";
+        } else {
+            model.addAttribute("errorMessage", updateResult.getErrorMessage());
+            model.addAttribute("form", request);
+            return "redirect:/user/update";
+        }
     }
 }
