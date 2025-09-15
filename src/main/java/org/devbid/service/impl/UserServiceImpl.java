@@ -27,27 +27,34 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void registerUser(UserDto userDto) {
-        User user = User.register(userDto, userValidator, passwordEncoder);
-        userRepository.save(user);
+    public Result<User> registerUser(UserDto userDto) {
+        try {
+            User user = User.register(userDto, userValidator, passwordEncoder);
+            userRepository.save(user);
+            return Result.success(user);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return Result.error("user/register failed");
     }
 
     @Override
-    public void updateUser(String username, UserUpdateRequest request) {
-        log.info("update user: {}", username);
-        log.info("request: {}", request);
+    public Result<User> updateUser(String username, UserUpdateRequest request) {
+        try {
+            userValidator.UpdateValidate(username, request.email(), request.nickname(), request.phone());
 
-        userValidator.UpdateValidate(username, request.email(), request.nickname(), request.phone());
+            Username usernameVO = new Username(username);
+            User user = userRepository.findByUsername(usernameVO).orElseThrow(() -> new IllegalArgumentException("i can't find user: " + username));
 
-        Username usernameVO = new Username(username);
-        User user = userRepository.findByUsername(usernameVO).orElseThrow(() -> new IllegalArgumentException("i can't find user: " + username));
+            user.updateProfile(request.email(), request.nickname(), request.phone());
+            userRepository.save(user);
 
-        boolean updated = user.updateProfile(request.email(), request.nickname(), request.phone());
-
-        if(!updated) {
+            log.info("User update successfully: {}", username);
+            return Result.success(user);
+        } catch (Exception e) {
             log.info("No change detected for user: {}", username);
+            return Result.error("user/update failed");
         }
-        log.info("User update successfully: {}", username);
     }
 
     @Override

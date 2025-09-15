@@ -10,10 +10,10 @@ import java.util.List;
 
 public interface UserService {
     //저장
-    void registerUser(UserDto userDto);
+    Result<User> registerUser(UserDto userDto);
 
     //수정
-    void updateUser(String username, UserUpdateRequest request);
+    Result<User> updateUser(String username, UserUpdateRequest request);
 
     //조회용
     List<User> findAllUsers();

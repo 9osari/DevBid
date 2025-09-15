@@ -36,18 +36,24 @@ public class AuthController {
     @PostMapping("/register")
     public String registerUser(
             @Valid @ModelAttribute("user") UserRegistrationRequest request,
-            BindingResult result,
-            RedirectAttributes ra
+            BindingResult bindingResult,
+            RedirectAttributes ra,
+            Model model
     ) {
-        if (result.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             return "user/register";
         }
         UserDto userDto = request.toDto();
-        userService.registerUser(userDto);
+        Result<User> result = userService.registerUser(userDto);
 
-        ra.addFlashAttribute("username", request.username());
-        ra.addFlashAttribute("nickname", request.nickname());
-        return "redirect:/registerSuccess";
+        if(result.isSuccess()){
+            ra.addFlashAttribute("username", request.username());
+            ra.addFlashAttribute("nickname", request.nickname());
+            return "redirect:/registerSuccess";
+        } else {
+            model.addAttribute("errorMessage", result.getErrorMessage());
+            return "user/register";
+        }
     }
 
     @GetMapping("/registerSuccess")
@@ -87,8 +93,14 @@ public class AuthController {
             model.addAttribute("user", result.getData());
             return "user/userUpdate";
         }
-        userService.updateUser(auth.getName(), request);
-        ra.addFlashAttribute("msg", "User information has been updated.");
-        return "redirect:/user/update";
+        Result<User> updateResult = userService.updateUser(auth.getName(), request);
+        if(updateResult.isSuccess()){
+            ra.addFlashAttribute("msg", "User updated successfully");
+            return "redirect:/user/list";
+        } else {
+            model.addAttribute("errorMessage", updateResult.getErrorMessage());
+            model.addAttribute("form", request);
+            return "redirect:/user/update";
+        }
     }
 }
