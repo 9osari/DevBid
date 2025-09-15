@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.devbid.domain.common.BaseEntity;
-import org.devbid.dto.UserRegistrationRequest;
+import org.devbid.service.PasswordEncoder;
 import org.devbid.service.UserValidator;
 
 @Entity
@@ -32,16 +32,6 @@ public class User extends BaseEntity {
     @Embedded
     private Phone phone;
 
-    public static User register(String username, String email, String plainPassword, String nickname, String phone) {
-        Username userNameVo = new Username(username);
-        Email emailVo = new Email(email);
-        Password passwordVo = new Password(plainPassword);
-        Nickname nicknameVo = new Nickname(nickname);
-        Phone phoneVo = new Phone(phone);
-
-        return new User(userNameVo, emailVo, passwordVo, nicknameVo, phoneVo);
-    }
-
     public User(Username userNameVo, Email emailVo, Password passwordVo, Nickname nicknameVo, Phone phoneVo) {
         this.username = userNameVo;
         this.email = emailVo;
@@ -50,14 +40,15 @@ public class User extends BaseEntity {
         this.phone = phoneVo;
     }
 
-    public static User register(UserRegistrationRequest request, UserValidator validator) {
-        validator.RegisterValidate(request.username(), request.email());
+    public static User register(UserDto dto, UserValidator validator, PasswordEncoder passwordEncoder) {
+        validator.RegisterValidate(dto.getUsername(), dto.getEmail());
 
-        Username username = new Username(request.username());
-        Email email = new Email(request.email());
-        Password password = new Password(request.password());
-        Nickname nickname = new Nickname(request.nickname());
-        Phone phone = new Phone(request.phone());
+        Username username = new Username(dto.getUsername());
+        Email email = new Email(dto.getEmail());
+        String encodedPassword = passwordEncoder.encode(dto.getPassword()); // 암호화
+        Password password = new Password(encodedPassword); // 암호화된 값으로 생성
+        Nickname nickname = new Nickname(dto.getNickname());
+        Phone phone = new Phone(dto.getPhone());
 
         return new User(username, email, password, nickname, phone);
     }

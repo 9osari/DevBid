@@ -21,8 +21,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername().getValue())  // Value Object에서 값 추출
-                .password(user.getPassword().getEncryptedValue())  // Value Object에서 값 추출
+                .withUsername(user.getUsername().getValue())
+                .password("{bcrypt}" + user.getPassword().getEncryptedValue()) // {bcrypt} 접두사 추가
                 .roles("USER")
                 .build();
     }

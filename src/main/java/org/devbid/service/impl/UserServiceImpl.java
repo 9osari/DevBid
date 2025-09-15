@@ -3,13 +3,14 @@ package org.devbid.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.domain.User;
+import org.devbid.domain.UserDto;
 import org.devbid.domain.Username;
-import org.devbid.dto.UserRegistrationRequest;
+import org.devbid.domain.common.Result;
 import org.devbid.dto.UserUpdateRequest;
 import org.devbid.repository.UserRepository;
+import org.devbid.service.PasswordEncoder;
 import org.devbid.service.UserService;
 import org.devbid.service.UserValidator;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +24,11 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserValidator userValidator;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void registerUser(UserRegistrationRequest request) {
-        User user = User.register(request, userValidator);
+    public void registerUser(UserDto userDto) {
+        User user = User.register(userDto, userValidator, passwordEncoder);
         userRepository.save(user);
     }
 
@@ -59,9 +61,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUsername(String username) {
-        Username usernameVO = new Username(username);
-        return userRepository.findByUsername(usernameVO).orElse(null);
+    public Result<User> findByUsername(String username) {
+        try {
+            Username usernameVO = new Username(username);
+            User user = userRepository.findByUsername(usernameVO).orElse(null);
+
+            if(user == null) {
+                return Result.error("User not found: " + username);
+            }
+            return Result.success(user);
+        } catch (IllegalArgumentException e) {
+            return Result.error("Invalid username: " + username);
+        }
     }
 
     @Override
