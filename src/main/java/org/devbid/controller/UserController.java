@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
-public class AuthController {
+public class UserController {
     private final UserService userService;
 
     @GetMapping("/login")
