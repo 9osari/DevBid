@@ -39,4 +39,9 @@ public class Username {
     public int hashCode() {
         return Objects.hashCode(value);
     }
+
+    @Override
+    public String toString() {
+        return this.value;
+    }
 }
