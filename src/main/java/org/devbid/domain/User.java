@@ -32,6 +32,10 @@ public class User extends BaseEntity {
     @Embedded
     private Phone phone;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private UserStatus status =  UserStatus.ACTIVE;
+
     public User(Username userNameVo, Email emailVo, Password passwordVo, Nickname nicknameVo, Phone phoneVo) {
         this.username = userNameVo;
         this.email = emailVo;

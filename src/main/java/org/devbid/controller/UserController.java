@@ -103,4 +103,9 @@ public class UserController {
             return "redirect:/user/update";
         }
     }
+
+    @GetMapping("/user/delete")
+    public String userDelete(Model model, Authentication auth) {
+        return "index";
+    }
 }
