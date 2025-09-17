@@ -18,6 +18,7 @@
         <th>Phone</th>
         <th>Created Date</th>
         <th>Update Date</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -29,6 +30,7 @@
         <td th:text="${user.phone.value}">phone</td>
         <td th:text="${#temporals.format(user.createdAt, '| yyyy-MM-dd | HH:mm |')}">date</td>
         <td th:text="${#temporals.format(user.updatedAt, '| yyyy-MM-dd | HH:mm |')}">date</td>
+        <td th:text="${user.status}">status</td>
       </tr>
     </tbody>
   </table>
