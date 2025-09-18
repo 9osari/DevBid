@@ -15,6 +15,9 @@ public interface UserService {
     //수정
     Result<User> updateUser(String username, UserUpdateRequest request);
 
+    //삭제
+    Result<User> deleteUser(String username);
+
     //조회용
     List<User> findAllUsers();
     User findById(Long id);

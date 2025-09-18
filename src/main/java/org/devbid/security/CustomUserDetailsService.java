@@ -2,8 +2,10 @@ package org.devbid.security;
 
 import lombok.RequiredArgsConstructor;
 import org.devbid.domain.User;
+import org.devbid.domain.UserStatus;
 import org.devbid.domain.Username;
 import org.devbid.repository.UserRepository;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,6 +21,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         Username usernameVO = new Username(username);
         User user = userRepository.findByUsername(usernameVO)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
+        if(user.getStatus() == UserStatus.INACTIVE) {
+            throw new DisabledException("탈퇴한 회원입니다.");
+        }
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername().getValue())
