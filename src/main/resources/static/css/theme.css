@@ -106,3 +106,40 @@ strong {
 .theme-toggle:hover {
     background: #505050;
 }
+
+/* 다크 모달 스타일 */
+.modal-content {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    color: #e2e8f0;
+}
+
+.modal-header {
+    border-bottom: 1px solid #4a5568;
+}
+
+.modal-footer {
+    border-top: 1px solid #4a5568;
+}
+
+.modal-title {
+    color: #e2e8f0;
+}
+
+.btn-close {
+    filter: invert(1);
+}
+
+/* 모달 배경 어둡게 */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* 경고 텍스트 스타일 */
+.text-warning-custom {
+    color: #fbbf24 !important;
+}
+
+.text-danger-custom {
+    color: #f87171 !important;
+}

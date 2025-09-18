@@ -1,7 +1,10 @@
 package org.devbid.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.devbid.domain.User;
 import org.devbid.domain.UserDto;
 import org.devbid.domain.common.Result;
@@ -9,6 +12,7 @@ import org.devbid.dto.UserRegistrationRequest;
 import org.devbid.dto.UserUpdateRequest;
 import org.devbid.service.UserService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class UserController {
@@ -104,8 +109,18 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/delete")
-    public String userDelete(Model model, Authentication auth) {
-        return "index";
+    @PostMapping("/user/delete")
+    public String userDelete(HttpServletRequest request, Authentication auth) {
+        String username = auth.getName();
+        Result<User> result = userService.deleteUser(username);
+        if(result.isSuccess()){
+            //로그아웃
+            SecurityContextHolder.clearContext();
+            HttpSession session = request.getSession(false);
+            if(session != null) {
+                session.invalidate();   //세션 무효화
+            }
+        }
+        return "redirect:/";
     }
 }

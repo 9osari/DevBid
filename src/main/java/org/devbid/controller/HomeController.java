@@ -24,6 +24,7 @@ public class HomeController {
 
             Result<User> userResult = userService.findByUsername(auth.getName());
             model.addAttribute("nickname", userResult.getData().getNickname().getValue());
+            model.addAttribute("status", userResult.getData().getStatus());
         } else {
             model.addAttribute("isLoggedIn", false);
         }

@@ -58,6 +58,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Result<User> deleteUser(String username) {
+        try{
+            Username usernameVO = new Username(username);
+            User user = userRepository.findByUsername(usernameVO).orElseThrow(() -> new IllegalArgumentException("i can't find user: " + username));
+            int deletedByUsername = userRepository.deleteByUsername(usernameVO);
+            if(deletedByUsername == 0){
+                return Result.error("user/delete failed");
+            }
+            return Result.success(user);
+        }  catch (Exception e) {
+            log.error("Failed to delete user: {}, error: {}", username, e.getMessage()); // error 레벨
+            return Result.error("Delete operation failed: " + e.getMessage()); // null 말고 실패 결과
+        }
+    }
+
+    @Override
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
