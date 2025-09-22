@@ -12,6 +12,10 @@ spring:
       ddl-auto: none
     show-sql: false
     database-platform: org.hibernate.dialect.MySQLDialect
+  mvc:
+    hidden method:
+      filter:
+        enabled: true
 
 logging:
   level:

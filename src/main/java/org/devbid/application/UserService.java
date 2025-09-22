@@ -11,10 +11,10 @@ public interface UserService {
     void registerUser(UserDto userDto);
 
     //수정
-    void updateUser(String username, UserUpdateRequest request);
+    void updateUser(Long id, UserUpdateRequest request);
 
     //삭제
-    void deleteUser(String username);
+    void deleteUser(Long id);
 
     //조회용
     List<User> findAllUsers();

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @AllArgsConstructor
 public class HomeController {
 
-    private final UserApplicationService userApplicationService;
+    private final UserService userService;
 
     @GetMapping
         public String home(Model model) {
@@ -24,9 +24,10 @@ public class HomeController {
                 model.addAttribute("isLoggedIn", true);
 
                 try {
-                    User user = userApplicationService.findByUsername(auth.getName());
+                    User user = userService.findByUsername(auth.getName());
                     model.addAttribute("nickname", user.getNickname().getValue());
                     model.addAttribute("status", user.getStatus());
+                    model.addAttribute("userId", user.getId());
                 } catch (Exception e) {
                     // 사용자 조회 실패시 로그아웃 상태로 처리
                     model.addAttribute("isLoggedIn", false);
