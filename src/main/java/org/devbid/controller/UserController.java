@@ -15,9 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -31,13 +29,13 @@ public class UserController {
         return "login";
     }
 
-    @GetMapping("/register")
+    @GetMapping("/users/new")
     public String register(Model model) {
         model.addAttribute("user", new UserRegistrationRequest("", "", "", "", ""));
         return "user/register";
     }
 
-    @PostMapping("/register")
+    @PostMapping("/users")
     public String registerUser(
             @Valid @ModelAttribute("user") UserRegistrationRequest request,
             BindingResult result,
@@ -58,39 +56,43 @@ public class UserController {
         return "user/registerSuccess";
     }
 
-    @GetMapping("/user/list")
+    @GetMapping("/users")
     public String userList(Model model) {
         model.addAttribute("users", userService.findAllUsers());
         model.addAttribute("userCount", userService.getUserCount());
         return "user/userList";
     }
 
-    @GetMapping("/user/update")
-    public String userUpdate(Model model, Authentication auth) {
-        User user = userService.findByUsername(auth.getName());
+    @GetMapping("/users/{id}/edit")
+    public String userUpdate(@PathVariable Long id, Model model) {
+        User user = userService.findById(id);
         model.addAttribute("user", user);
         model.addAttribute("form", new UserUpdateRequest(user.getEmail().getValue(), user.getNickname().getValue(), user.getPhone().getValue()));
         return "user/userUpdate";
     }
 
-    @PostMapping("/user/update")
-    public String userUpdateProc(@Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult result,
+    @PutMapping("/users/{id}")
+    public String userUpdateProc(@PathVariable Long id, @Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult result,
                                  Authentication auth, RedirectAttributes ra, Model model) {
         if (result.hasErrors()) {
-            User user = userService.findByUsername(auth.getName());
+            User user = userService.findById(id);
             model.addAttribute("user", user);
             return "user/userUpdate";
         }
-        userService.updateUser(auth.getName(), request);
+        userService.updateUser(id, request);
         ra.addFlashAttribute("msg", "User information has been updated.");
-        return "redirect:/user/list";
+        return "redirect:/users";
     }
 
-    @PostMapping("/user/delete")
-    public String userDelete(HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
+    @DeleteMapping("/users/{id}")
+    public String userDelete(@PathVariable Long id, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
         try {
-            String username = auth.getName();
-            userService.deleteUser(username);
+            User currentUser = userService.findByUsername(auth.getName());
+            if(!currentUser.getId().equals(id)) {
+                throw new SecurityException("You are not allowed to delete this user");
+            }
+
+            userService.deleteUser(id);
 
             // 삭제 성공 로그아웃
             SecurityContextHolder.clearContext();
@@ -101,7 +103,7 @@ public class UserController {
         } catch (Exception e) {
             log.error("Failed to delete user: {}, error: {}", auth.getName(), e.getMessage());
             ra.addFlashAttribute("error", "계정 삭제 실패");
-            return "redirect:/user/update";
+            return "redirect:/users/" + id + "/edit";
         }
         return "redirect:/";
     }

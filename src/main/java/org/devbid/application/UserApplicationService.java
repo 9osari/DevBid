@@ -29,36 +29,34 @@ public class UserApplicationService implements UserService {
     }
 
     @Override
-    public void updateUser(String username, UserUpdateRequest request) {
-        log.info("update user: {}", username);
+    public void updateUser(Long id, UserUpdateRequest request) {
+        log.info("update user: {}", id); // username → id
         log.info("request: {}", request);
 
-        userValidator.UpdateValidate(username, request.email(), request.nickname(), request.phone());
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
 
-        Username usernameVO = new Username(username);
-        User user = userRepository.findByUsername(usernameVO).orElseThrow(() -> new IllegalArgumentException("i can't find user: " + username));
+        userValidator.UpdateValidate(user.getUsername().getValue(),
+                request.email(),
+                request.nickname(),
+                request.phone());
 
         boolean updated = user.updateProfile(request.email(), request.nickname(), request.phone());
 
         if(!updated) {
-            log.info("No change detected for user: {}", username);
+            log.info("No change detected for user: {}", id);
         }
-        log.info("User update successfully: {}", username);
+        log.info("User update successfully: {}", id);
     }
 
     @Override
-    public void deleteUser(String username) {
-        Username usernameVO = new Username(username);
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
 
-        User user = userRepository.findByUsername(usernameVO)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        userRepository.deleteById(id);
 
-        int deletedCount = userRepository.deleteByUsername(usernameVO);
-
-        if (deletedCount == 0) {
-            throw new RuntimeException("Failed to delete user: " + username);
-        }
-        log.info("User deleted successfully: {}", username);
+        log.info("User deleted successfully: {}", id);
     }
 
     @Override
