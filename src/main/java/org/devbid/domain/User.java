@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.devbid.domain.common.BaseEntity;
-import org.devbid.service.PasswordEncoder;
-import org.devbid.service.UserValidator;
+import org.devbid.application.PasswordEncoder;
+import org.devbid.application.UserValidator;
 
 @Entity
 @Table(name = "users")
