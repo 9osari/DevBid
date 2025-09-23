@@ -1,11 +1,12 @@
-package org.devbid.domain;
+package org.devbid.user.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.devbid.application.PasswordEncoder;
-import org.devbid.application.UserValidator;
+import org.devbid.common.BaseEntity;
+import org.devbid.config.PasswordEncoder;
+import org.devbid.user.application.UserValidator;
 
 @Entity
 @Table(name = "users")

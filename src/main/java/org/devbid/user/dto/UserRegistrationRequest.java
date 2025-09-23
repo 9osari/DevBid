@@ -1,10 +1,10 @@
-package org.devbid.dto;
+package org.devbid.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import org.devbid.domain.*;
+import org.devbid.user.domain.UserDto;
 
 public record UserRegistrationRequest(
         @NotBlank(message = "Username is required.")

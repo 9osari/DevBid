@@ -1,4 +1,4 @@
-package org.devbid.domain;
+package org.devbid.user.domain;
 
 public enum UserStatus {
     ACTIVE,

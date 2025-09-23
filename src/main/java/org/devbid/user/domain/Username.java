@@ -1,4 +1,4 @@
-package org.devbid.domain;
+package org.devbid.user.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

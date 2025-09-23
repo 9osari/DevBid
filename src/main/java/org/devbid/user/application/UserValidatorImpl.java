@@ -1,10 +1,10 @@
-package org.devbid.application;
+package org.devbid.user.application;
 
 import lombok.RequiredArgsConstructor;
-import org.devbid.domain.Email;
-import org.devbid.domain.UserEntity;
-import org.devbid.domain.Username;
-import org.devbid.repository.UserRepository;
+import org.devbid.user.domain.Email;
+import org.devbid.user.domain.UserEntity;
+import org.devbid.user.domain.Username;
+import org.devbid.user.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

@@ -1,10 +1,10 @@
 package org.devbid.security;
 
 import lombok.RequiredArgsConstructor;
-import org.devbid.domain.UserEntity;
-import org.devbid.domain.UserStatus;
-import org.devbid.domain.Username;
-import org.devbid.repository.UserRepository;
+import org.devbid.user.domain.UserEntity;
+import org.devbid.user.domain.UserStatus;
+import org.devbid.user.domain.Username;
+import org.devbid.user.repository.UserRepository;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

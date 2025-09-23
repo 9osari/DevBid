@@ -1,7 +1,8 @@
-package org.devbid.domain;
+package org.devbid.user.domain;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.devbid.common.BaseEntity;
 
 @Getter
 @Builder
