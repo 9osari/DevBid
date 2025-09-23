@@ -1,4 +1,4 @@
-package org.devbid.dto;
+package org.devbid.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

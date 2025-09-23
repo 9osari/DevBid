@@ -1,8 +1,8 @@
-package org.devbid.application;
+package org.devbid.user.application;
 
-import org.devbid.domain.UserEntity;
-import org.devbid.domain.UserDto;
-import org.devbid.dto.UserUpdateRequest;
+import org.devbid.user.domain.UserEntity;
+import org.devbid.user.domain.UserDto;
+import org.devbid.user.dto.UserUpdateRequest;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
-package org.devbid.repository;
+package org.devbid.user.repository;
 
-import org.devbid.domain.Email;
-import org.devbid.domain.UserEntity;
-import org.devbid.domain.Username;
+import org.devbid.user.domain.Email;
+import org.devbid.user.domain.UserEntity;
+import org.devbid.user.domain.Username;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

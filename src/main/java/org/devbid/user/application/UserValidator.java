@@ -1,4 +1,4 @@
-package org.devbid.application;
+package org.devbid.user.application;
 
 public interface UserValidator {
     void RegisterValidate(String username, String email);

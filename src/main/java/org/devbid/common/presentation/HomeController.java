@@ -1,8 +1,8 @@
-package org.devbid.controller;
+package org.devbid.common.presentation;
 
 import lombok.AllArgsConstructor;
-import org.devbid.domain.UserEntity;
-import org.devbid.application.UserService;
+import org.devbid.user.domain.UserEntity;
+import org.devbid.user.application.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
