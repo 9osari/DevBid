@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.devbid.domain.User;
+import org.devbid.domain.UserEntity;
 import org.devbid.domain.UserDto;
 import org.devbid.dto.UserRegistrationRequest;
 import org.devbid.dto.UserUpdateRequest;
@@ -65,9 +65,9 @@ public class UserController {
 
     @GetMapping("/users/{id}/edit")
     public String userUpdate(@PathVariable Long id, Model model) {
-        User user = userService.findById(id);
-        model.addAttribute("user", user);
-        model.addAttribute("form", new UserUpdateRequest(user.getEmail().getValue(), user.getNickname().getValue(), user.getPhone().getValue()));
+        UserEntity userEntity = userService.findById(id);
+        model.addAttribute("user", userEntity);
+        model.addAttribute("form", new UserUpdateRequest(userEntity.getEmail().getValue(), userEntity.getNickname().getValue(), userEntity.getPhone().getValue()));
         return "user/userUpdate";
     }
 
@@ -75,8 +75,8 @@ public class UserController {
     public String userUpdateProc(@PathVariable Long id, @Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult result,
                                  Authentication auth, RedirectAttributes ra, Model model) {
         if (result.hasErrors()) {
-            User user = userService.findById(id);
-            model.addAttribute("user", user);
+            UserEntity userEntity = userService.findById(id);
+            model.addAttribute("user", userEntity);
             return "user/userUpdate";
         }
         userService.updateUser(id, request);
@@ -87,8 +87,8 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     public String userDelete(@PathVariable Long id, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
         try {
-            User currentUser = userService.findByUsername(auth.getName());
-            if(!currentUser.getId().equals(id)) {
+            UserEntity currentUserEntity = userService.findByUsername(auth.getName());
+            if(!currentUserEntity.getId().equals(id)) {
                 throw new SecurityException("You are not allowed to delete this user");
             }
 

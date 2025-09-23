@@ -1,6 +1,6 @@
 package org.devbid.application;
 
-import org.devbid.domain.User;
+import org.devbid.domain.UserEntity;
 import org.devbid.domain.UserDto;
 import org.devbid.dto.UserUpdateRequest;
 
@@ -17,8 +17,8 @@ public interface UserService {
     void deleteUser(Long id);
 
     //조회용
-    List<User> findAllUsers();
-    User findById(Long id);
-    User findByUsername(String username);
+    List<UserEntity> findAllUsers();
+    UserEntity findById(Long id);
+    UserEntity findByUsername(String username);
     long getUserCount();
 }
