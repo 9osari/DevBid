@@ -2,7 +2,7 @@ package org.devbid.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.devbid.domain.User;
+import org.devbid.domain.UserEntity;
 import org.devbid.domain.UserDto;
 import org.devbid.domain.Username;
 import org.devbid.dto.UserUpdateRequest;
@@ -24,8 +24,8 @@ public class UserApplicationService implements UserService {
 
     @Override
     public void registerUser(UserDto userDto) {
-        User user = User.register(userDto, userValidator, passwordEncoder);
-        userRepository.save(user);
+        UserEntity userEntity = UserEntity.register(userDto, userValidator, passwordEncoder);
+        userRepository.save(userEntity);
     }
 
     @Override
@@ -33,15 +33,15 @@ public class UserApplicationService implements UserService {
         log.info("update user: {}", id); // username → id
         log.info("request: {}", request);
 
-        User user = userRepository.findById(id)
+        UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
 
-        userValidator.UpdateValidate(user.getUsername().getValue(),
+        userValidator.UpdateValidate(userEntity.getUsername().getValue(),
                 request.email(),
                 request.nickname(),
                 request.phone());
 
-        boolean updated = user.updateProfile(request.email(), request.nickname(), request.phone());
+        boolean updated = userEntity.updateProfile(request.email(), request.nickname(), request.phone());
 
         if(!updated) {
             log.info("No change detected for user: {}", id);
@@ -51,7 +51,7 @@ public class UserApplicationService implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
+        UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
 
         userRepository.deleteById(id);
@@ -60,17 +60,17 @@ public class UserApplicationService implements UserService {
     }
 
     @Override
-    public List<User> findAllUsers() {
+    public List<UserEntity> findAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
-    public User findById(Long id) {
+    public UserEntity findById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
 
     @Override
-    public User findByUsername(String username) {
+    public UserEntity findByUsername(String username) {
         Username usernameVO = new Username(username);
         return userRepository.findByUsername(usernameVO).orElse(null);
     }

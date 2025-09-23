@@ -11,7 +11,7 @@ import org.devbid.application.UserValidator;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity {
+public class UserEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +35,7 @@ public class User extends BaseEntity {
     @Column(name = "status", nullable = false)
     private UserStatus status =  UserStatus.ACTIVE;
 
-    public User(Username userNameVo, Email emailVo, Password passwordVo, Nickname nicknameVo, Phone phoneVo) {
+    public UserEntity(Username userNameVo, Email emailVo, Password passwordVo, Nickname nicknameVo, Phone phoneVo) {
         this.username = userNameVo;
         this.email = emailVo;
         this.password = passwordVo;
@@ -43,7 +43,7 @@ public class User extends BaseEntity {
         this.phone = phoneVo;
     }
 
-    public static User register(UserDto dto, UserValidator validator, PasswordEncoder passwordEncoder) {
+    public static UserEntity register(UserDto dto, UserValidator validator, PasswordEncoder passwordEncoder) {
         validator.RegisterValidate(dto.getUsername(), dto.getEmail());
 
         Username username = new Username(dto.getUsername());
@@ -53,7 +53,7 @@ public class User extends BaseEntity {
         Nickname nickname = new Nickname(dto.getNickname());
         Phone phone = new Phone(dto.getPhone());
 
-        return new User(username, email, password, nickname, phone);
+        return new UserEntity(username, email, password, nickname, phone);
     }
 
 

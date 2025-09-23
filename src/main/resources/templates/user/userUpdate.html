@@ -10,11 +10,11 @@
 <body>
 <div class="container mt-4">
   <!-- 프로필 수정 폼 -->
-  <form th:action="@{/users/{id}(id=${user.id})}" th:object="${form}" method="post">
+  <form th:action="@{/users/{id}(id=${userEntity.id})}" th:object="${form}" method="post">
     <input type="hidden" name="_method" value="PUT"/>
 
     <div class="mb-3">
-      <h3>Edit <span th:text="${user.username.value}" class="text-highlight" style="color: plum"></span>'s Profile</h3>
+      <h3>Edit <span th:text="${userEntity.username.value}" class="text-highlight" style="color: plum"></span>'s Profile</h3>
     </div>
 
     <div class="mb-3">
@@ -53,13 +53,13 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p>정말로 <span th:text="${user.username.value}" class="fw-bold text-danger-custom"></span> 계정을 탈퇴하시겠습니까?</p>
+          <p>정말로 <span th:text="${userEntity.username.value}" class="fw-bold text-danger-custom"></span> 계정을 탈퇴하시겠습니까?</p>
           <p class="text-warning-custom small">⚠️ 이 작업은 되돌릴 수 없습니다.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 
-          <form th:action="@{/users/{id}(id=${user.id})}" method="post" class="d-inline">
+          <form th:action="@{/users/{id}(id=${userEntity.id})}" method="post" class="d-inline">
             <input type="hidden" name="_method" value="DELETE"/>
             <button type="submit" class="btn btn-danger">탈퇴하기</button>
           </form>

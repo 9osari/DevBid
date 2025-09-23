@@ -2,7 +2,7 @@ package org.devbid.application;
 
 import lombok.RequiredArgsConstructor;
 import org.devbid.domain.Email;
-import org.devbid.domain.User;
+import org.devbid.domain.UserEntity;
 import org.devbid.domain.Username;
 import org.devbid.repository.UserRepository;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ public class UserValidatorImpl implements UserValidator {
     @Override
     public void UpdateValidate(String currentUsername, String email, String nickname, String phone) {
         Email emailVO = new Email(email);
-        Optional<User> existingUser = userRepository.findByEmail(emailVO);
+        Optional<UserEntity> existingUser = userRepository.findByEmail(emailVO);
         if(existingUser.isPresent() && !existingUser.get().getUsername().getValue().equals(currentUsername)) {
             throw new IllegalArgumentException("check email");
         }
