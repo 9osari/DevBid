@@ -14,7 +14,7 @@
     <p th:text="${message}"></p>
 </div>
 
-<form th:action="@{/users}" th:object="${userEntity}" method="post">
+<form th:action="@{/users}" th:object="${user}" method="post">
     <div class="mb-3">
         <label>Username</label>
         <input type="text" th:field="*{username}" class="form-control"/>

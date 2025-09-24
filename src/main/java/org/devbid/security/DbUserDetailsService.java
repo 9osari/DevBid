@@ -1,7 +1,7 @@
 package org.devbid.security;
 
 import lombok.RequiredArgsConstructor;
-import org.devbid.user.domain.UserEntity;
+import org.devbid.user.domain.User;
 import org.devbid.user.domain.UserStatus;
 import org.devbid.user.domain.Username;
 import org.devbid.user.repository.UserRepository;
@@ -19,16 +19,16 @@ public class DbUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Username usernameVO = new Username(username);
-        UserEntity userEntity = userRepository.findByUsername(usernameVO)
+        User user = userRepository.findByUsername(usernameVO)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
-        if(userEntity.getStatus() == UserStatus.INACTIVE) {
+        if(user.getStatus() == UserStatus.INACTIVE) {
             throw new DisabledException("탈퇴한 회원입니다.");
         }
 
         return org.springframework.security.core.userdetails.User
-                .withUsername(userEntity.getUsername().getValue())
-                .password("{bcrypt}" + userEntity.getPassword().getEncryptedValue()) // {bcrypt} 접두사 추가
+                .withUsername(user.getUserName().getValue())
+                .password("{bcrypt}" + user.getPassword().getEncryptedValue()) // {bcrypt} 접두사 추가
                 .roles("USER")
                 .build();
     }

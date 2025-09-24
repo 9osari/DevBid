@@ -12,13 +12,13 @@ import org.devbid.user.application.UserValidator;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserEntity extends BaseEntity {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Embedded
-    private Username username;
+    private Username userName;
 
     @Embedded
     private Email email;
@@ -27,7 +27,7 @@ public class UserEntity extends BaseEntity {
     private Password password;
 
     @Embedded
-    private Nickname nickname;
+    private Nickname nickName;
 
     @Embedded
     private Phone phone;
@@ -36,27 +36,17 @@ public class UserEntity extends BaseEntity {
     @Column(name = "status", nullable = false)
     private UserStatus status =  UserStatus.ACTIVE;
 
-    public UserEntity(Username userNameVo, Email emailVo, Password passwordVo, Nickname nicknameVo, Phone phoneVo) {
-        this.username = userNameVo;
-        this.email = emailVo;
-        this.password = passwordVo;
-        this.nickname = nicknameVo;
-        this.phone = phoneVo;
+    public User(Username userName, Email email, Password password, Nickname nickname, Phone phone) {
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
+        this.nickName = nickname;
+        this.phone = phone;
     }
 
-    public static UserEntity register(UserDto dto, UserValidator validator, PasswordEncoder passwordEncoder) {
-        validator.RegisterValidate(dto.getUsername(), dto.getEmail());
-
-        Username username = new Username(dto.getUsername());
-        Email email = new Email(dto.getEmail());
-        String encodedPassword = passwordEncoder.encode(dto.getPassword()); // 암호화
-        Password password = new Password(encodedPassword); // 암호화된 값으로 생성
-        Nickname nickname = new Nickname(dto.getNickname());
-        Phone phone = new Phone(dto.getPhone());
-
-        return new UserEntity(username, email, password, nickname, phone);
+    public static User of(Username username, Email email, Password password, Nickname nickname, Phone phone) {
+        return new User(username, email, password, nickname, phone);
     }
-
 
     public boolean updateProfile(String email, String nickname, String phone) {
         boolean isUpdated = false;
@@ -68,8 +58,8 @@ public class UserEntity extends BaseEntity {
         }
 
         Nickname newNickname = new Nickname(nickname);
-        if(!this.nickname.equals(newNickname)) {
-            this.nickname = newNickname;
+        if(!this.nickName.equals(newNickname)) {
+            this.nickName = newNickname;
             isUpdated = true;
         }
 

@@ -1,7 +1,7 @@
 package org.devbid.common.presentation;
 
 import lombok.AllArgsConstructor;
-import org.devbid.user.domain.UserEntity;
+import org.devbid.user.domain.User;
 import org.devbid.user.application.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,10 +23,10 @@ public class HomeController {
             model.addAttribute("isLoggedIn", true);
 
             try {
-                UserEntity userEntity = userService.findByUsername(auth.getName());
-                model.addAttribute("nickname", userEntity.getNickname().getValue());
-                model.addAttribute("status", userEntity.getStatus());
-                model.addAttribute("userId", userEntity.getId());
+                User user = userService.findByUsername(auth.getName());
+                model.addAttribute("nickname", user.getNickName().getValue());
+                model.addAttribute("status", user.getStatus());
+                model.addAttribute("userId", user.getId());
             } catch (Exception e) {
                 // 사용자 조회 실패시 로그아웃 상태로 처리
                 model.addAttribute("isLoggedIn", false);
