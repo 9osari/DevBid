@@ -5,8 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.devbid.common.BaseEntity;
-import org.devbid.config.PasswordEncoder;
-import org.devbid.user.application.UserValidator;
+
 
 @Entity
 @Table(name = "users")
