@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import org.devbid.user.domain.UserDto;
 
 public record UserRegistrationRequest(
         @NotBlank(message = "Username is required.")
@@ -29,14 +28,6 @@ public record UserRegistrationRequest(
         @Size(max = 20, message = "Phone number cannot exceed 20 characters.")
         String phone
 ) {
-        public UserDto toDto() {
-                return UserDto.builder()
-                        .username(this.username)
-                        .email(this.email)
-                        .password(this.password)
-                        .nickname(this.nickname)
-                        .phone(this.phone)
-                        .build();
-        }
+
 }
 

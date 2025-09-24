@@ -2,7 +2,7 @@ package org.devbid.user.application;
 
 import lombok.RequiredArgsConstructor;
 import org.devbid.user.domain.Email;
-import org.devbid.user.domain.UserEntity;
+import org.devbid.user.domain.User;
 import org.devbid.user.domain.Username;
 import org.devbid.user.repository.UserRepository;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class UserValidatorImpl implements UserValidator {
     private final UserRepository userRepository;
 
     @Override
-    public void RegisterValidate(String username, String email) {
+    public void validateForRegistration(String username, String email) {
         Username usernameVO = new Username(username);
         if(userRepository.existsByUsername(usernameVO)) {
             throw new IllegalArgumentException("check username");
@@ -29,10 +29,10 @@ public class UserValidatorImpl implements UserValidator {
     }
 
     @Override
-    public void UpdateValidate(String currentUsername, String email, String nickname, String phone) {
+    public void validateForUpdate(String currentUsername, String email, String nickname, String phone) {
         Email emailVO = new Email(email);
-        Optional<UserEntity> existingUser = userRepository.findByEmail(emailVO);
-        if(existingUser.isPresent() && !existingUser.get().getUsername().getValue().equals(currentUsername)) {
+        Optional<User> existingUser = userRepository.findByEmail(emailVO);
+        if(existingUser.isPresent() && !existingUser.get().getUserName().getValue().equals(currentUsername)) {
             throw new IllegalArgumentException("check email");
         }
     }

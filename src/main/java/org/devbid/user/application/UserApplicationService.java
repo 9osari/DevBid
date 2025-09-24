@@ -3,9 +3,10 @@ package org.devbid.user.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.config.PasswordEncoder;
-import org.devbid.user.domain.UserEntity;
-import org.devbid.user.domain.UserDto;
+import org.devbid.user.domain.User;
+import org.devbid.user.domain.UserFactory;
 import org.devbid.user.domain.Username;
+import org.devbid.user.dto.UserRegistrationRequest;
 import org.devbid.user.dto.UserUpdateRequest;
 import org.devbid.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,18 @@ public class UserApplicationService implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void registerUser(UserDto userDto) {
-        UserEntity userEntity = UserEntity.register(userDto, userValidator, passwordEncoder);
-        userRepository.save(userEntity);
+    public void registerUser(UserRegistrationRequest request) {
+        userValidator.validateForRegistration(request.username(), request.email());
+        String encryptedPassword = passwordEncoder.encode(request.password());
+
+        User user = UserFactory.createFromPrimitives(
+                request.username(),
+                request.email(),
+                encryptedPassword,
+                request.nickname(),
+                request.phone()
+        );
+        userRepository.save(user);
     }
 
     @Override
@@ -34,15 +44,15 @@ public class UserApplicationService implements UserService {
         log.info("update user: {}", id); // username → id
         log.info("request: {}", request);
 
-        UserEntity userEntity = userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
 
-        userValidator.UpdateValidate(userEntity.getUsername().getValue(),
+        userValidator.validateForUpdate(user.getUserName().getValue(),
                 request.email(),
                 request.nickname(),
                 request.phone());
 
-        boolean updated = userEntity.updateProfile(request.email(), request.nickname(), request.phone());
+        boolean updated = user.updateProfile(request.email(), request.nickname(), request.phone());
 
         if(!updated) {
             log.info("No change detected for user: {}", id);
@@ -52,7 +62,7 @@ public class UserApplicationService implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        UserEntity userEntity = userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
 
         userRepository.deleteById(id);
@@ -61,17 +71,17 @@ public class UserApplicationService implements UserService {
     }
 
     @Override
-    public List<UserEntity> findAllUsers() {
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
-    public UserEntity findById(Long id) {
+    public User findById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
 
     @Override
-    public UserEntity findByUsername(String username) {
+    public User findByUsername(String username) {
         Username usernameVO = new Username(username);
         return userRepository.findByUsername(usernameVO).orElse(null);
     }

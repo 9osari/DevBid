@@ -5,8 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.devbid.user.domain.UserEntity;
-import org.devbid.user.domain.UserDto;
+import org.devbid.user.domain.User;
 import org.devbid.user.dto.UserRegistrationRequest;
 import org.devbid.user.dto.UserUpdateRequest;
 import org.devbid.user.application.UserService;
@@ -43,8 +42,7 @@ public class UserController {
         if (result.hasErrors()) {
             return "user/register";
         }
-        UserDto userDto = request.toDto();
-        userService.registerUser(userDto);
+        userService.registerUser(request);
 
         ra.addFlashAttribute("username", request.username());
         ra.addFlashAttribute("nickname", request.nickname());
@@ -65,9 +63,9 @@ public class UserController {
 
     @GetMapping("/users/{id}/edit")
     public String userUpdate(@PathVariable Long id, Model model) {
-        UserEntity userEntity = userService.findById(id);
-        model.addAttribute("user", userEntity);
-        model.addAttribute("form", new UserUpdateRequest(userEntity.getEmail().getValue(), userEntity.getNickname().getValue(), userEntity.getPhone().getValue()));
+        User user = userService.findById(id);
+        model.addAttribute("user", user);
+        model.addAttribute("form", new UserUpdateRequest(user.getEmail().getValue(), user.getNickName().getValue(), user.getPhone().getValue()));
         return "user/userUpdate";
     }
 
@@ -75,8 +73,8 @@ public class UserController {
     public String userUpdateProc(@PathVariable Long id, @Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult result,
                                  Authentication auth, RedirectAttributes ra, Model model) {
         if (result.hasErrors()) {
-            UserEntity userEntity = userService.findById(id);
-            model.addAttribute("user", userEntity);
+            User user = userService.findById(id);
+            model.addAttribute("user", user);
             return "user/userUpdate";
         }
         userService.updateUser(id, request);
@@ -87,8 +85,8 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     public String userDelete(@PathVariable Long id, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
         try {
-            UserEntity currentUserEntity = userService.findByUsername(auth.getName());
-            if(!currentUserEntity.getId().equals(id)) {
+            User currentUser = userService.findByUsername(auth.getName());
+            if(!currentUser.getId().equals(id)) {
                 throw new SecurityException("You are not allowed to delete this user");
             }
 
