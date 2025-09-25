@@ -1,4 +1,4 @@
-package org.devbid.config;
+package org.devbid.infrastructure.config;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;

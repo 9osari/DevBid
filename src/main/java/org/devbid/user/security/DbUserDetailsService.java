@@ -1,4 +1,4 @@
-package org.devbid.security;
+package org.devbid.user.security;
 
 import lombok.RequiredArgsConstructor;
 import org.devbid.user.domain.User;

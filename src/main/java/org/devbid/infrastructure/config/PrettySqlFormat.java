@@ -1,4 +1,4 @@
-package org.devbid.config;
+package org.devbid.infrastructure.config;
 
 import com.p6spy.engine.spy.appender.MessageFormattingStrategy;
 
