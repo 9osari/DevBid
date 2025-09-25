@@ -27,7 +27,7 @@ public class DbUserDetailsService implements UserDetailsService {
         }
 
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUserName().getValue())
+                .withUsername(user.getUsername().getValue())
                 .password("{bcrypt}" + user.getPassword().getEncryptedValue()) // {bcrypt} 접두사 추가
                 .roles("USER")
                 .build();
