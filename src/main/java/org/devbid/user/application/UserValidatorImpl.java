@@ -32,7 +32,7 @@ public class UserValidatorImpl implements UserValidator {
     public void validateForUpdate(String currentUsername, String email, String nickname, String phone) {
         Email emailVO = new Email(email);
         Optional<User> existingUser = userRepository.findByEmail(emailVO);
-        if(existingUser.isPresent() && !existingUser.get().getUserName().getValue().equals(currentUsername)) {
+        if(existingUser.isPresent() && !existingUser.get().getUsername().getValue().equals(currentUsername)) {
             throw new IllegalArgumentException("check email");
         }
     }

@@ -24,7 +24,7 @@ public class HomeController {
 
             try {
                 User user = userService.findByUsername(auth.getName());
-                model.addAttribute("nickname", user.getNickName().getValue());
+                model.addAttribute("nickname", user.getNickname().getValue());
                 model.addAttribute("status", user.getStatus());
                 model.addAttribute("userId", user.getId());
             } catch (Exception e) {

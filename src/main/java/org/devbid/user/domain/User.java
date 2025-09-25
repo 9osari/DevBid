@@ -17,7 +17,7 @@ public class User extends BaseEntity {
     private Long id;
 
     @Embedded
-    private Username userName;
+    private Username username;
 
     @Embedded
     private Email email;
@@ -26,7 +26,7 @@ public class User extends BaseEntity {
     private Password password;
 
     @Embedded
-    private Nickname nickName;
+    private Nickname nickname;
 
     @Embedded
     private Phone phone;
@@ -35,11 +35,11 @@ public class User extends BaseEntity {
     @Column(name = "status", nullable = false)
     private UserStatus status =  UserStatus.ACTIVE;
 
-    public User(Username userName, Email email, Password password, Nickname nickname, Phone phone) {
-        this.userName = userName;
+    public User(Username username, Email email, Password password, Nickname nickname, Phone phone) {
+        this.username = username;
         this.email = email;
         this.password = password;
-        this.nickName = nickname;
+        this.nickname = nickname;
         this.phone = phone;
     }
 
@@ -57,8 +57,8 @@ public class User extends BaseEntity {
         }
 
         Nickname newNickname = new Nickname(nickname);
-        if(!this.nickName.equals(newNickname)) {
-            this.nickName = newNickname;
+        if(!this.nickname.equals(newNickname)) {
+            this.nickname = newNickname;
             isUpdated = true;
         }
 

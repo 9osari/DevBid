@@ -65,7 +65,7 @@ public class UserController {
     public String userUpdate(@PathVariable Long id, Model model) {
         User user = userService.findById(id);
         model.addAttribute("user", user);
-        model.addAttribute("form", new UserUpdateRequest(user.getEmail().getValue(), user.getNickName().getValue(), user.getPhone().getValue()));
+        model.addAttribute("form", new UserUpdateRequest(user.getEmail().getValue(), user.getNickname().getValue(), user.getPhone().getValue()));
         return "user/userUpdate";
     }
 
