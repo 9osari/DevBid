@@ -1,145 +1,88 @@
-/* 다크테마 CSS */
 body {
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    transition: background-color 0.3s, color 0.3s;
+    background-color: #c0c0c0;
+    color: #000;
+    font-family: "Times New Roman", serif;
+    margin: 20px;
 }
 
-/* 폼 스타일링 */
-.form-control {
-    background-color: #2d2d2d;
-    border: 1px solid #404040;
-    color: #e0e0e0;
+/* 헤더 */
+h1, h2, h3 {
+    color: navy;
+    border-bottom: 2px solid #000080;
+    padding-bottom: 4px;
 }
 
-.form-control:focus {
-    background-color: #2d2d2d;
-    border-color: #0d6efd;
-    color: #e0e0e0;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-/* 버튼 스타일링 */
-.btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
-}
-
-/* 링크 스타일링 */
+/* 링크 */
 a {
-    color: #4dabf7;
-    text-decoration: none;
-}
-
-a:hover {
-    color: #74c0fc;
+    color: blue;
     text-decoration: underline;
 }
-
-/* 테이블 스타일링 */
-table {
-    background-color: #2d2d2d;
-    border-color: #404040;
+a:visited {
+    color: purple;
+}
+a:hover {
+    color: red;
 }
 
-th, td {
-    border-color: #404040 !important;
-    color: #e0e0e0;
-    padding: 8px;
-}
-
-th {
-    background-color: #404040;
-}
-
-/* 에러 메시지 */
-.text-danger {
-    color: #ff6b6b !important;
-}
-
-/* 성공 메시지 */
-.text-success {
-    color: #51cf66 !important;
-}
-
-/* 라벨 */
-label {
-    color: #e0e0e0;
-    margin-bottom: 5px;
-}
-
-/* input placeholder */
-.form-control::placeholder {
-    color: #888;
-}
-
-/* 헤더 스타일링 */
-h1, h2, h3, h4, h5, h6 {
-    color: #ffffff;
-}
-
-/* 강조 텍스트 */
-strong {
-    color: #ffffff;
-}
-
-/* 테마 토글 버튼 (선택사항) */
-.theme-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #404040;
-    border: none;
-    color: #e0e0e0;
-    padding: 10px 15px;
-    border-radius: 25px;
-    cursor: pointer;
+/* 버튼 */
+button, .btn, input[type="submit"], input[type="button"] {
+    background-color: #e0e0e0;
+    border: 2px outset #fff;
+    padding: 4px 12px;
+    font-family: "Times New Roman", serif;
     font-size: 14px;
-    z-index: 1000;
+    cursor: pointer;
+}
+button:active, .btn:active, input[type="submit"]:active, input[type="button"]:active {
+    border: 2px inset #000;
 }
 
-.theme-toggle:hover {
-    background: #505050;
+/* 폼 */
+input, select, textarea {
+    border: 1px solid #808080;
+    padding: 2px 4px;
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    background-color: #fff;
+    color: #000;
+}
+label {
+    font-weight: bold;
+    margin-right: 6px;
 }
 
-/* 다크 모달 스타일 */
-.modal-content {
-    background-color: #2d3748;
-    border: 1px solid #4a5568;
-    color: #e2e8f0;
+/* 테이블 */
+table {
+    border-collapse: collapse;
+    background-color: #fff;
+    border: 2px solid #000;
+    margin: 10px 0;
+    width: 100%;
+}
+th, td {
+    border: 1px solid #000;
+    padding: 6px 10px;
+    font-size: 13px;
+}
+th {
+    background-color: #000080;
+    color: #fff;
+    text-align: left;
 }
 
-.modal-header {
-    border-bottom: 1px solid #4a5568;
+/* 에러/성공 메시지 */
+.text-danger {
+    color: red;
+    font-weight: bold;
+}
+.text-success {
+    color: green;
+    font-weight: bold;
 }
 
-.modal-footer {
-    border-top: 1px solid #4a5568;
-}
-
-.modal-title {
-    color: #e2e8f0;
-}
-
-.btn-close {
-    filter: invert(1);
-}
-
-/* 모달 배경 어둡게 */
-.modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.8);
-}
-
-/* 경고 텍스트 스타일 */
-.text-warning-custom {
-    color: #fbbf24 !important;
-}
-
-.text-danger-custom {
-    color: #f87171 !important;
+/* 레이아웃 컨테이너 (테이블 기반 감성) */
+.container {
+    border: 2px ridge #808080;
+    background: #f0f0f0;
+    padding: 10px;
 }
