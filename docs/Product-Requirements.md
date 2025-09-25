@@ -12,8 +12,10 @@
 - 상품 상태 정보
 
 ### 상품 상태
-- 판매중 (SELLING)
-- 판매완료 (SOLD)
+- ACTIVE (판매중)
+- SOLD (판매완료)
+- DELETED (삭제)
+- DISABLED (숨김)
 
 ## 3. 경매(Auction) 관리
 
@@ -59,3 +61,93 @@
 ## 7. 어캐하노
 - 조회수는 상품 책임인지? 경매 책임인지? 중복 조회는 어떻게 처리할건지? ip기반? 엔티티 따로 뺴는건 맞는데 흠.. 아니면 외부서비스?
 - 수정책임은 상품? 경매? 서비스단?
+
+---
+
+```mysql
+CREATE TABLE products (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    category_id BIGINT NOT NULL,
+    product_condition VARCHAR(50) NOT NULL DEFAULT 'WORN',
+    sale_status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
+    seller_id BIGINT NOT NULL,
+    registration_date DATETIME NOT NULL,
+    created_at datetime not null,
+    updated_at datetime not null,
+
+    CONSTRAINT fk_products_category
+        FOREIGN KEY (category_id) REFERENCES categories(id),
+    CONSTRAINT fk_products_seller
+        FOREIGN KEY (seller_id) REFERENCES users(id)
+);
+
+CREATE TABLE product_image (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    sort_order INT NOT NULL,
+
+    CONSTRAINT fk_product_image_product
+        FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE categories (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    level INT,
+    parent_id BIGINT,
+
+    CONSTRAINT fk_category_parent
+        FOREIGN KEY (parent_id) REFERENCES categories(id)
+);
+
+CREATE TABLE auctions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_id BIGINT NOT NULL UNIQUE,
+    starting_price DECIMAL(19, 2) NOT NULL,
+    current_price DECIMAL(19, 2) NOT NULL,
+    buyout_price DECIMAL(19, 2) NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    extended_count INT NOT NULL DEFAULT 0,
+    auction_status VARCHAR(20) NOT NULL DEFAULT 'BEFORE_START',
+    bid_count INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_auction_product
+        FOREIGN KEY (product_id) REFERENCES products(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT chk_auction_status
+        CHECK (auction_status IN ('BEFORE_START', 'ONGOING', 'ENDED')),
+
+    CONSTRAINT chk_prices
+        CHECK (starting_price > 0 AND current_price > 0 AND buyout_price > 0),
+
+    CONSTRAINT chk_time_range
+        CHECK (end_time > start_time)
+);
+
+CREATE TABLE bids (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    auction_id BIGINT NOT NULL,
+    bidder_id BIGINT NOT NULL,
+    bid_amount DECIMAL(19, 2) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_bid_auction
+        FOREIGN KEY (auction_id) REFERENCES auctions(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_bid_user
+        FOREIGN KEY (bidder_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT chk_bid_amount
+        CHECK (bid_amount > 0)
+);
+```

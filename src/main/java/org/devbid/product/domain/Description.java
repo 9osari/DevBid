@@ -15,4 +15,16 @@ public class Description {
     public Description(String value) {
         this.value = value;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        Description description = (Description) object;
+        return value.equals(description.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }
