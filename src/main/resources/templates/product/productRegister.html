@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Product & Auction Registration</title>
+  <link href="/css/theme.css" rel="stylesheet">
+</head>
+<body>
+<h2>Product & Auction Registration</h2>
+<form action="/product-auction/new" method="post" enctype="multipart/form-data">
+  <table>
+    <!-- 상품 정보 -->
+    <tr>
+      <th colspan="2">Product Information</th>
+    </tr>
+    <tr>
+      <th><label for="productName">Product Name *</label></th>
+      <td><input type="text" id="productName" name="productName" required></td>
+    </tr>
+    <tr>
+      <th><label for="description">Description</label></th>
+      <td><textarea id="description" name="description" rows="4" cols="40"></textarea></td>
+    </tr>
+    <tr>
+      <th>Category *</th>
+      <td>
+        <select id="mainCategory" required>
+          <option value="">-- 대분류 선택 --</option>
+          <!-- 서버에서 대분류 데이터 삽입 -->
+        </select>
+        <select id="midCategory" disabled>
+          <option value="">-- 중분류 선택 --</option>
+        </select>
+        <select id="subCategory" name="categoryId" disabled required>
+          <option value="">-- 소분류 선택 --</option>
+        </select>
+        <div style="font-size:11px; color:#666;">* 대분류 → 중분류 → 소분류 순서로 선택</div>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="condition">Condition *</label></th>
+      <td>
+        <select id="condition" name="condition" required>
+          <option value="">-- 상태 선택 --</option>
+          <option value="PRISTINE">PRISTINE (새 상품)</option>
+          <option value="WORN">WORN (사용감 있음)</option>
+          <option value="DAMAGED">DAMAGED (손상 있음)</option>
+          <option value="BADLY_DAMAGED">BADLY_DAMAGED (심하게 손상)</option>
+          <option value="RUINED">RUINED (파손)</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="mainImage">Main Image *</label></th>
+      <td>
+        <input type="file" id="mainImage" name="mainImage" accept="image/*" required>
+        <div style="font-size:11px; color:#666;">* 필수. JPG, PNG, GIF (최대 10MB)</div>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="subImages">Sub Images</label></th>
+      <td>
+        <input type="file" id="subImages" name="subImages" accept="image/*" multiple>
+        <div style="font-size:11px; color:#666;">* 선택사항. 최대 4장 (sortOrder: 2,3,4,5)</div>
+      </td>
+    </tr>
+
+    <!-- 경매 정보 -->
+    <tr>
+      <th colspan="2">Auction Information</th>
+    </tr>
+    <tr>
+      <th><label for="startingPrice">Starting Price *</label></th>
+      <td>
+        <input type="number" id="startingPrice" name="startingPrice" min="1" step="1000" required>
+        <span>원</span>
+        <div style="font-size:11px; color:#666;">* 시작가는 0보다 커야 합니다</div>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="buyoutPrice">Buyout Price</label></th>
+      <td>
+        <input type="number" id="buyoutPrice" name="buyoutPrice" min="1" step="1000">
+        <span>원</span>
+        <div style="font-size:11px; color:#666;">* 선택사항. 즉시낙찰가 (시작가보다 높아야 함)</div>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="startTime">Start Time *</label></th>
+      <td>
+        <input type="datetime-local" id="startTime" name="startTime" required>
+        <div style="font-size:11px; color:#666;">* 경매 시작 시간 (현재 시간 이후)</div>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="endTime">End Time *</label></th>
+      <td>
+        <input type="datetime-local" id="endTime" name="endTime" required>
+        <div style="font-size:11px; color:#666;">* 경매 종료 시간 (시작 시간 이후)</div>
+      </td>
+    </tr>
+  </table>
+
+  <br>
+  <input type="submit" value="Submit" />
+  <input type="reset" value="Reset" />
+</form>
+
+<p><a href="/product/list">Back to Product List</a></p>
+<p><a href="/">Home</a></p>
+
+<script th:inline="javascript">
+  const categories = /*[[${categoryDtoList}]]*/ [];
+  console.log(categories);
+  
+  // 카테고리 셀렉트박스
+  const mainSelect = document.getElementById('mainCategory');
+  const midSelect = document.getElementById('midCategory');
+  const subSelect = document.getElementById('subCategory');
+  
+  // 1. 대분류 옵션 채우기
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category.id;
+    option.textContent = category.name;
+    mainSelect.appendChild(option);
+  });
+  
+  // 2. 대분류 선택 시
+  mainSelect.addEventListener('change', function() {
+    // 중분류, 소분류 초기화
+    midSelect.innerHTML = '<option value="">-- 중분류 선택 --</option>';
+    subSelect.innerHTML = '<option value="">-- 소분류 선택 --</option>';
+    subSelect.disabled = true;
+    
+    const selectedId = parseInt(this.value);
+    if (!selectedId) {
+      midSelect.disabled = true;
+      return;
+    }
+    
+    // 선택된 대분류 찾기
+    const selectedCategory = categories.find(c => c.id === selectedId);
+    
+    // 중분류 옵션 채우기
+    if (selectedCategory && selectedCategory.children.length > 0) {
+      midSelect.disabled = false;
+      selectedCategory.children.forEach(child => {
+        const option = document.createElement('option');
+        option.value = child.id;
+        option.textContent = child.name;
+        midSelect.appendChild(option);
+      });
+    } else {
+      midSelect.disabled = true;
+    }
+  });
+  
+  // 3. 중분류 선택 시
+  midSelect.addEventListener('change', function() {
+    // 소분류 초기화
+    subSelect.innerHTML = '<option value="">-- 소분류 선택 --</option>';
+    
+    const selectedMidId = parseInt(this.value);
+    if (!selectedMidId) {
+      subSelect.disabled = true;
+      return;
+    }
+    
+    const selectedMainId = parseInt(mainSelect.value);
+    const mainCategory = categories.find(c => c.id === selectedMainId);
+    const midCategory = mainCategory.children.find(c => c.id === selectedMidId);
+    
+    // 소분류 옵션 채우기
+    if (midCategory && midCategory.children.length > 0) {
+      subSelect.disabled = false;
+      midCategory.children.forEach(child => {
+        const option = document.createElement('option');
+        option.value = child.id;
+        option.textContent = child.name;
+        subSelect.appendChild(option);
+      });
+    } else {
+      subSelect.disabled = true;
+    }
+  });
+  
+  // startTime과 endTime 유효성 검사
+  const startTimeInput = document.getElementById('startTime');
+  const endTimeInput = document.getElementById('endTime');
+  const startPriceInput = document.getElementById('startingPrice');
+  const buyoutPriceInput = document.getElementById('buyoutPrice');
+
+  // 현재 시간 설정
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // 로컬 시간으로 변환
+  startTimeInput.min = now.toISOString().slice(0, 16);
+
+  startTimeInput.addEventListener('change', function() {
+    endTimeInput.min = this.value;
+  });
+
+  // 즉시낙찰가 검증
+  buyoutPriceInput.addEventListener('change', function() {
+    const startPrice = parseInt(startPriceInput.value) || 0;
+    const buyoutPrice = parseInt(this.value) || 0;
+    
+    if (buyoutPrice > 0 && buyoutPrice <= startPrice) {
+      alert('즉시낙찰가는 시작가보다 높아야 합니다.');
+      this.value = '';
+    }
+  });
+
+  // 폼 제출 전 검증
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const startTime = new Date(startTimeInput.value);
+    const endTime = new Date(endTimeInput.value);
+    const now = new Date();
+
+    if (startTime < now) {
+      alert('시작 시간은 현재 시간 이후여야 합니다.');
+      e.preventDefault();
+      return;
+    }
+
+    if (endTime <= startTime) {
+      alert('종료 시간은 시작 시간 이후여야 합니다.');
+      e.preventDefault();
+      return;
+    }
+  });
+</script>
+</body>
+</html>

@@ -6,14 +6,17 @@ import org.devbid.user.domain.UserStatus;
 import org.devbid.user.domain.Username;
 import org.devbid.user.repository.UserRepository;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
-public class DbUserDetailsService implements UserDetailsService {
+public class UserAuthService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
@@ -26,10 +29,11 @@ public class DbUserDetailsService implements UserDetailsService {
             throw new DisabledException("탈퇴한 회원입니다.");
         }
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername().getValue())
-                .password("{bcrypt}" + user.getPassword().getEncryptedValue()) // {bcrypt} 접두사 추가
-                .roles("USER")
-                .build();
+        return new AuthUser(
+                user.getId(),
+                user.getUsername().getValue(),
+                "{bcrypt}" + user.getPassword().getEncryptedValue(),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
     }
 }
