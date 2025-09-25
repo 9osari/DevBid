@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(Email email);
 
     @Modifying
-    @Query("UPDATE User u SET u.status = 'INACTIVE' WHERE u.userName = :username")
+    @Query("UPDATE User u SET u.status = 'INACTIVE' WHERE u.username = :username")
     int deleteByUsername(@Param("username") Username username);
 
     Optional<User> findByUsername(Username username);

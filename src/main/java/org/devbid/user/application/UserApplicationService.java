@@ -47,7 +47,7 @@ public class UserApplicationService implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
 
-        userValidator.validateForUpdate(user.getUserName().getValue(),
+        userValidator.validateForUpdate(user.getUsername().getValue(),
                 request.email(),
                 request.nickname(),
                 request.phone());
