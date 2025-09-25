@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.devbid.common.BaseEntity;
+import org.devbid.infrastructure.common.BaseEntity;
 
 
 @Entity
@@ -74,4 +74,7 @@ public class User extends BaseEntity {
         this.password = new Password(plainPassword);
     }
 
+    public void softDelete() {
+        this.status = UserStatus.INACTIVE;
+    }
 }

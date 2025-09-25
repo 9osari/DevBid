@@ -1,4 +1,4 @@
-package org.devbid.common.presentation;
+package org.devbid.infrastructure.common.presentation;
 
 import lombok.AllArgsConstructor;
 import org.devbid.user.domain.User;

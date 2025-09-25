@@ -1,4 +1,4 @@
-package org.devbid.security;
+package org.devbid.infrastructure.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

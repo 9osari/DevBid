@@ -1,4 +1,4 @@
-package org.devbid.common;
+package org.devbid.infrastructure.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

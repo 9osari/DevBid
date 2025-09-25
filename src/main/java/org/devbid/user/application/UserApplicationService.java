@@ -2,7 +2,7 @@ package org.devbid.user.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.devbid.config.PasswordEncoder;
+import org.devbid.infrastructure.config.PasswordEncoder;
 import org.devbid.user.domain.User;
 import org.devbid.user.domain.UserFactory;
 import org.devbid.user.domain.Username;
@@ -62,12 +62,15 @@ public class UserApplicationService implements UserService {
 
     @Override
     public void deleteUser(Long id) {
+        //JPA 더티 체킹(Dirty Checking)
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id)); // 1. 영속성 컨텍스트에 저장
 
-        userRepository.deleteById(id);
+        user.softDelete();  // 2. 엔티티 상태 변경 (Dirty)
 
         log.info("User deleted successfully: {}", id);
+        // 3. 메서드 종료 → @Transactional이 커밋
+        // 4. JPA가 변경 감지 → 자동 UPDATE
     }
 
     @Override
