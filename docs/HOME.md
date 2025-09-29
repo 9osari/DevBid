@@ -29,7 +29,7 @@
 - MySQL  
 
 ### Frontend
-- 최소한의 구현 (Thymeleaf/JS/Bootstrap은 초기 검토만)
+- 최소한의 구현
 
 ### 실시간 통신
 - WebSocket: 실시간 입찰 현황 및 알림 처리
@@ -48,3 +48,8 @@
 - **직접 구현 최대화**: 핵심 로직은 직접 설계·구현해 원리 이해  
 - **규칙/검증/재사용** 가능성이 있으면 Value Object로 분리(캡슐화)
 - [눈으로 보는 OOP](https://www.notion.so/OOP-6bd16f7647554dd1bcca0001da50b617?pvs=21) ← 개발 시작 전 3회 독
+
+## 프로젝트 문서
+
+- [🏗 아키텍처](./Architecture.md)
+- [📦 Product & Auction 요구사항](./Product-Requirements.md)
