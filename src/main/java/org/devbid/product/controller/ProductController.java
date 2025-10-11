@@ -34,7 +34,7 @@ public class ProductController {
         User user = userService.findById(authUser.getId());
         model.addAttribute("user", user);
 
-        List<CategoryDto> categoryDtoList = categoryService.getCategoryTree(1L);
+        List<CategoryDto> categoryDtoList = categoryService.getCategoryTree();
         System.out.println("categoryDtoList: " + categoryDtoList.toString());
         model.addAttribute("categoryDtoList", categoryDtoList);
 
