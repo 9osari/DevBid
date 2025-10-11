@@ -24,7 +24,7 @@ public class CategoryDto {
                 category.getId(),
                 category.getName(),
                 children.stream()
-                        .map(CategoryDto::of)   //자기자신 호출 (재귀) tq
+                        .map(CategoryDto::of)   //자기자신 호출 (재귀)
                         .collect(Collectors.toList())
         );
     }

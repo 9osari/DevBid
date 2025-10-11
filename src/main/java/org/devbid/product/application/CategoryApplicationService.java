@@ -17,8 +17,18 @@ public class CategoryApplicationService implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> getCategoryTree(Long parentId) {
-        List<Category> categories = categoryRepository.findByLevel(parentId);
-        return categories.stream().map(CategoryDto::of).collect(Collectors.toList());
+    public List<CategoryDto> getCategoryTree() {
+        // 전체 카테고리를 조회
+        List<Category> allCategories = categoryRepository.findAllWithParent();
+
+        // 최상위 카테고리(level=1)만 필터링
+        List<Category> rootCategories = allCategories.stream()
+                .filter(c -> c.getParent() == null)
+                .toList();
+
+        // DTO 변환 시 children은 이미 로딩되어 있어 추가 쿼리 없음
+        return rootCategories.stream()
+                .map(CategoryDto::of)
+                .collect(Collectors.toList());
     }
 }
