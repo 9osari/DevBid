@@ -44,7 +44,21 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
-    @Embedded
-    private RegistrationDate registrationDate;
+    public Product(ProductName productName, Description description, ProductImage productImage, Category category, ProductCondition condition, ProductStatus saleStatus, User seller) {
+        this.productName = productName;
+        this.description = description;
+        this.category = category;
+        this.seller = seller;
+    }
 
+    public static Product of(ProductName productName, Description description, Category category, ProductCondition condition, User seller) {
+        Product product = new Product();
+        product.productName = productName;
+        product.description = description;
+        product.category = category;
+        product.condition = condition;
+        product.saleStatus = ProductStatus.ACTIVE;
+        product.seller = seller;
+        return product;
+    }
 }

@@ -31,6 +31,9 @@ dependencies {
     // DB
     runtimeOnly("com.mysql:mysql-connector-j")
 
+    // Hibernate annotations (BatchSize 사용 위해)
+    implementation("org.hibernate.common:hibernate-commons-annotations:6.0.6.Final")
+
     // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

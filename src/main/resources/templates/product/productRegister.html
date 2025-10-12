@@ -2,12 +2,12 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Product & Auction Registration</title>
+  <title>Product Register</title>
   <link href="/css/theme.css" rel="stylesheet">
 </head>
 <body>
-<h2>Product & Auction Registration</h2>
-<form action="/product-auction/new" method="post" enctype="multipart/form-data">
+<h2>Product Register</h2>
+<form action="/product/new" method="post" enctype="multipart/form-data">
   <table>
     <!-- 상품 정보 -->
     <tr>
@@ -51,10 +51,10 @@
       </td>
     </tr>
     <tr>
-      <th><label for="mainImage">Main Image *</label></th>
+      <th><label for="mainImage">Main Image</label></th>
       <td>
-        <input type="file" id="mainImage" name="mainImage" accept="image/*" required>
-        <div style="font-size:11px; color:#666;">* 필수. JPG, PNG, GIF (최대 10MB)</div>
+        <input type="file" id="mainImage" name="mainImage" accept="image/*">
+        <div style="font-size:11px; color:#666;">* 선택사항. JPG, PNG, GIF (최대 10MB)</div>
       </td>
     </tr>
     <tr>
@@ -65,40 +65,6 @@
       </td>
     </tr>
 
-    <!-- 경매 정보 -->
-    <tr>
-      <th colspan="2">Auction Information</th>
-    </tr>
-    <tr>
-      <th><label for="startingPrice">Starting Price *</label></th>
-      <td>
-        <input type="number" id="startingPrice" name="startingPrice" min="1" step="1000" required>
-        <span>원</span>
-        <div style="font-size:11px; color:#666;">* 시작가는 0보다 커야 합니다</div>
-      </td>
-    </tr>
-    <tr>
-      <th><label for="buyoutPrice">Buyout Price</label></th>
-      <td>
-        <input type="number" id="buyoutPrice" name="buyoutPrice" min="1" step="1000">
-        <span>원</span>
-        <div style="font-size:11px; color:#666;">* 선택사항. 즉시낙찰가 (시작가보다 높아야 함)</div>
-      </td>
-    </tr>
-    <tr>
-      <th><label for="startTime">Start Time *</label></th>
-      <td>
-        <input type="datetime-local" id="startTime" name="startTime" required>
-        <div style="font-size:11px; color:#666;">* 경매 시작 시간 (현재 시간 이후)</div>
-      </td>
-    </tr>
-    <tr>
-      <th><label for="endTime">End Time *</label></th>
-      <td>
-        <input type="datetime-local" id="endTime" name="endTime" required>
-        <div style="font-size:11px; color:#666;">* 경매 종료 시간 (시작 시간 이후)</div>
-      </td>
-    </tr>
   </table>
 
   <br>
@@ -185,46 +151,12 @@
     }
   });
   
-  // startTime과 endTime 유효성 검사
-  const startTimeInput = document.getElementById('startTime');
-  const endTimeInput = document.getElementById('endTime');
-  const startPriceInput = document.getElementById('startingPrice');
-  const buyoutPriceInput = document.getElementById('buyoutPrice');
-
-  // 현재 시간 설정
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // 로컬 시간으로 변환
-  startTimeInput.min = now.toISOString().slice(0, 16);
-
-  startTimeInput.addEventListener('change', function() {
-    endTimeInput.min = this.value;
-  });
-
-  // 즉시낙찰가 검증
-  buyoutPriceInput.addEventListener('change', function() {
-    const startPrice = parseInt(startPriceInput.value) || 0;
-    const buyoutPrice = parseInt(this.value) || 0;
-    
-    if (buyoutPrice > 0 && buyoutPrice <= startPrice) {
-      alert('즉시낙찰가는 시작가보다 높아야 합니다.');
-      this.value = '';
-    }
-  });
-
   // 폼 제출 전 검증
   document.querySelector('form').addEventListener('submit', function(e) {
-    const startTime = new Date(startTimeInput.value);
-    const endTime = new Date(endTimeInput.value);
-    const now = new Date();
+    const categoryId = subSelect.value;
 
-    if (startTime < now) {
-      alert('시작 시간은 현재 시간 이후여야 합니다.');
-      e.preventDefault();
-      return;
-    }
-
-    if (endTime <= startTime) {
-      alert('종료 시간은 시작 시간 이후여야 합니다.');
+    if (!categoryId) {
+      alert('카테고리를 모두 선택해주세요.');
       e.preventDefault();
       return;
     }
