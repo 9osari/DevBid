@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
@@ -13,6 +14,5 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query("SELECT c FROM Category c LEFT JOIN FETCH c.parent")
     List<Category> findAllWithParent();
 
-    // Level로 조회
-    List<Category> findByLevel(int level);
+    Optional<Category> findById(Long id);
 }
