@@ -20,3 +20,4 @@ spring:
 logging:
   level:
     p6spy: INFO
+    org.springframework.web.servlet.handler.HandlerMappingIntrospector: ERROR

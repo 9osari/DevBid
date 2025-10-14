@@ -46,10 +46,10 @@ public class UserController {
 
         ra.addFlashAttribute("username", request.username());
         ra.addFlashAttribute("nickname", request.nickname());
-        return "redirect:/registerSuccess";
+        return "redirect:/UserRegisterSuccess";
     }
 
-    @GetMapping("/registerSuccess")
+    @GetMapping("/UserRegisterSuccess")
     public String registerSuccess() {
         return "user/registerSuccess";
     }
