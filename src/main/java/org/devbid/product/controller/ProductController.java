@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -46,14 +47,8 @@ public class ProductController {
     @PostMapping("/product/new")
     public String createProduct(ProductRegistrationRequest request,
                                 @AuthenticationPrincipal AuthUser authUser,
-                                BindingResult result) {
-        System.out.println("productName: " + request.productName());
-        System.out.println("description: " + request.description());
-        System.out.println("categoryId: " + request.categoryId());
-        System.out.println("condition: " + request.condition());
-        System.out.println("seller: " + authUser.getUsername());
-        System.out.println("sellerId: " + authUser.getId());
-
+                                BindingResult result,
+                                RedirectAttributes ra) {
         if(result.hasErrors()) {
             return "product/productRegister";
         }
@@ -67,6 +62,27 @@ public class ProductController {
 
         productService.registerProduct(registrationRequest);
 
-        return "redirect:/productMain";
+        ra.addFlashAttribute("productName",request.productName());
+        return "redirect:/productRegisterSuccess";
+    }
+
+    @GetMapping("/productRegisterSuccess")
+    public String registerSuccess() {
+        return "product/registerSuccess";
+    }
+
+    @GetMapping("/product/list")
+    public String productList(Model model,  @AuthenticationPrincipal AuthUser authUser) {
+        model.addAttribute("products", productService.findAllProducts());
+        model.addAttribute("productCount", productService.getProductCount());
+        return "product/myProductList";
+    }
+
+
+    @GetMapping("/product/my-list")
+    public String myProductList(Model model, @AuthenticationPrincipal AuthUser authUser) {
+        model.addAttribute("products", productService.findAllProductsBySellerId(authUser.getId()));
+        model.addAttribute("productCount", productService.getProductCount());
+        return "product/productList";
     }
 }
