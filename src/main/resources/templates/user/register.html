@@ -50,6 +50,30 @@
              th:errors="*{phone}">Invalid phone number</div>
     </div>
 
+    <div class="mb-3">
+        <label>ZipCode</label>
+        <input type="text" th:field="*{zipCode}" class="form-control"
+               placeholder="12345" pattern="\d{5}" required/>
+        <div class="text-danger" th:if="${#fields.hasErrors('zipCode')}"
+             th:errors="*{zipCode}">Invalid zipCode</div>
+    </div>
+
+    <div class="mb-3">
+        <label>Address</label>
+        <input type="text" th:field="*{street}" class="form-control"
+               placeholder="테헤란로 123" required/>
+        <div class="text-danger" th:if="${#fields.hasErrors('street')}"
+             th:errors="*{street}">Invalid street</div>
+    </div>
+
+    <div class="mb-3">
+        <label>Detail</label>
+        <input type="text" th:field="*{detail}" class="form-control"
+               placeholder="123동 456호" required/>
+        <div class="text-danger" th:if="${#fields.hasErrors('detail')}"
+             th:errors="*{detail}">Invalid detail</div>
+    </div>
+
     <button type="submit" class="btn btn-primary">Register</button>
 </form>
 

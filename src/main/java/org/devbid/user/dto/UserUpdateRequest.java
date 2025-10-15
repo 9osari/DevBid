@@ -18,6 +18,10 @@ public record UserUpdateRequest(
         @NotBlank(message = "Phone number is required.")
         @Pattern(regexp = "^[0-9-]+$", message = "Phone number can only contain numbers and hyphens.")
         @Size(max = 20, message = "Phone number cannot exceed 20 characters.")
-        String phone
+        String phone,
+
+        String zipCode,
+        String street,
+        String detail
 ) {
 }

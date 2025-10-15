@@ -34,7 +34,10 @@ public class UserApplicationService implements UserService {
                 request.email(),
                 encryptedPassword,
                 request.nickname(),
-                request.phone()
+                request.phone(),
+                request.zipCode(),
+                request.street(),
+                request.detail()
         );
         userRepository.save(user);
     }
@@ -47,12 +50,23 @@ public class UserApplicationService implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User id not found: " + id));
 
-        userValidator.validateForUpdate(user.getUsername().getValue(),
+        userValidator.validateForUpdate(
+                user.getUsername().getValue(),
                 request.email(),
                 request.nickname(),
-                request.phone());
+                request.phone(),
+                request.zipCode(),
+                request.street(),
+                request.detail());
 
-        boolean updated = user.updateProfile(request.email(), request.nickname(), request.phone());
+        boolean updated = user.updateProfile(
+                request.email(),
+                request.nickname(),
+                request.phone(),
+                request.zipCode(),
+                request.street(),
+                request.detail()
+        );
 
         if(!updated) {
             log.info("No change detected for user: {}", id);

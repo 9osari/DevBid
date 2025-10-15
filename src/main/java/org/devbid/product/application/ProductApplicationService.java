@@ -33,6 +33,7 @@ public class ProductApplicationService implements ProductService {
         Product product = ProductFactory.createFromPrimitives(
                 request.productName(),
                 request.description(),
+                request.price(),
                 category,
                 request.condition(),
                 seller

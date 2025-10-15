@@ -14,6 +14,7 @@
         <th>ID</th>
         <th>Product Name</th>
         <th>Description</th>
+        <th>Price</th>
         <th>Category1</th>
         <th>Category2</th>
         <th>Category3</th>
@@ -29,6 +30,7 @@
         <td th:text="${product.id}">1</td>
         <td th:text="${product.productName.value}">product name</td>
         <td th:text="${product.description.value}">description</td>
+        <td th:text="${#numbers.formatInteger(product.price.value, 0, 'COMMA')} + '원'">price</td>
         <td th:text="${product.category.parent?.parent?.name}">category1</td>
         <td th:text="${product.category.parent?.name}">category2</td>
         <td th:text="${product.category.name}">category3</td>

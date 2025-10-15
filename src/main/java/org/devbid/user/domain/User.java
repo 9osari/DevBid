@@ -5,9 +5,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.devbid.infrastructure.common.BaseEntity;
+import org.hibernate.annotations.DynamicUpdate;
 
 
 @Entity
+@DynamicUpdate
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,23 +33,43 @@ public class User extends BaseEntity {
     @Embedded
     private Phone phone;
 
+    @Embedded
+    private Address address;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private UserStatus status =  UserStatus.ACTIVE;
 
-    public User(Username username, Email email, Password password, Nickname nickname, Phone phone) {
+    public User(Username username,
+                Email email,
+                Password password,
+                Nickname nickname,
+                Phone phone,
+                Address address) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.phone = phone;
+        this.address = address;
     }
 
-    public static User of(Username username, Email email, Password password, Nickname nickname, Phone phone) {
-        return new User(username, email, password, nickname, phone);
+    public static User of(Username username,
+                          Email email,
+                          Password password,
+                          Nickname nickname,
+                          Phone phone,
+                          Address address) {
+        return new User(
+                username,
+                email,
+                password,
+                nickname,
+                phone,
+                address);
     }
 
-    public boolean updateProfile(String email, String nickname, String phone) {
+    public boolean updateProfile(String email, String nickname, String phone,  String zipCode, String street, String detail) {
         boolean isUpdated = false;
 
         Email newEmail = new Email(email);
@@ -67,6 +89,13 @@ public class User extends BaseEntity {
             this.phone = newPhone;
             isUpdated = true;
         }
+
+        Address newAddress = new Address(zipCode, street, detail);
+        if(!this.address.equals(newAddress)) {
+            this.address = newAddress;
+            isUpdated = true;
+        }
+
         return isUpdated;
     }
 
