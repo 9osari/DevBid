@@ -29,7 +29,7 @@ public class UserValidatorImpl implements UserValidator {
     }
 
     @Override
-    public void validateForUpdate(String currentUsername, String email, String nickname, String phone) {
+    public void validateForUpdate(String currentUsername, String email, String nickname, String phone, String zipCode, String street, String detail) {
         Email emailVO = new Email(email);
         Optional<User> existingUser = userRepository.findByEmail(emailVO);
         if(existingUser.isPresent() && !existingUser.get().getUsername().getValue().equals(currentUsername)) {

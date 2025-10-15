@@ -52,9 +52,10 @@ public class ProductController {
         if(result.hasErrors()) {
             return "product/productRegister";
         }
-        ProductRegistrationRequest registrationRequest = new ProductRegistrationRequest(
+        ProductRegistrationRequest registrationRequest = new ProductRegistrationRequest (
                 request.productName(),
                 request.description(),
+                request.price(),
                 request.categoryId(),
                 request.condition(),
                 authUser.getId()

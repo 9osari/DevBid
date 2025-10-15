@@ -25,6 +25,9 @@ public class Product extends BaseEntity {
     @Embedded
     private Description description;
 
+    @Embedded
+    private Price price;
+
     @OneToMany(mappedBy = "product")
     private List<ProductImage> images = new ArrayList<>();
 
@@ -44,17 +47,27 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
-    public Product(ProductName productName, Description description, ProductImage productImage, Category category, ProductCondition condition, ProductStatus saleStatus, User seller) {
+    public Product(ProductName productName,
+                   Description description,
+                   Price price,
+                   ProductImage productImage,
+                   Category category,
+                   ProductCondition condition,
+                   ProductStatus saleStatus,
+                   User seller)
+    {
         this.productName = productName;
         this.description = description;
+        this.price = price;
         this.category = category;
         this.seller = seller;
     }
 
-    public static Product of(ProductName productName, Description description, Category category, ProductCondition condition, User seller) {
+    public static Product of(ProductName productName, Description description, Price price, Category category, ProductCondition condition, User seller) {
         Product product = new Product();
         product.productName = productName;
         product.description = description;
+        product.price = price;
         product.category = category;
         product.condition = condition;
         product.saleStatus = ProductStatus.ACTIVE;
