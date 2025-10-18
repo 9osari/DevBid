@@ -1,6 +1,7 @@
 package org.devbid.product.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ProductRegistrationRequest(
         String productName,
@@ -8,7 +9,7 @@ public record ProductRegistrationRequest(
         BigDecimal price,
         Long categoryId,
         String condition,
-        Long sellerId
-) {
-
-}
+        Long sellerId,
+        String mainImageUrl,
+        List<String> subImageUrls
+) {}
