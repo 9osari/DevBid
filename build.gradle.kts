@@ -46,6 +46,9 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-aop")
 
+    //AWS SDK v2
+    implementation("software.amazon.awssdk:s3:2.20.26")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

@@ -17,6 +17,17 @@ spring:
       filter:
         enabled: true
 
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET:aws-s3-bucket-devbid}
+      region: ${AWS_REGION:eu-north-1}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY:}
+      secret-key: ${AWS_SECRET_KEY:}
+    stack:
+      auto: false
+
 logging:
   level:
     p6spy: INFO
