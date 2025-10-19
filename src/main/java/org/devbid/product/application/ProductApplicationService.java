@@ -2,6 +2,7 @@ package org.devbid.product.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.devbid.product.application.awsService.S3Service;
 import org.devbid.product.domain.Category;
 import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductFactory;
@@ -49,22 +50,23 @@ public class ProductApplicationService implements ProductService {
     }
 
     private void mainImageValidationAndSave(ProductRegistrationRequest request, Product product) {
-        if(request.mainImageUrl() != null && !request.mainImageUrl().isEmpty()) {
-            int sortOrd = 1;
-            ProductImage productImage = ProductImage.create(product, request.mainImageUrl(), sortOrd);
-            productImageRepository.save(productImage);
+        if(request.mainImageKey() != null && !request.mainImageKey().isEmpty()) {
+            saveProductImage(product, request.mainImageKey(), 1);
         }
     }
 
     private void subImagesValidationAndSave(ProductRegistrationRequest request, Product product) {
-        if(request.subImageUrls() != null && !request.subImageUrls().isEmpty()) {
+        if(request.subImageKeys() != null && !request.subImageKeys().isEmpty()) {
             int sortOrd = 2;
-            for (String url : request.subImageUrls()) {
-                ProductImage productImage = ProductImage.create(product, url, sortOrd);
-                productImageRepository.save(productImage);
-                sortOrd++;
+            for (String key : request.subImageKeys()) {
+                saveProductImage(product, key, sortOrd++);
             }
         }
+    }
+
+    private void saveProductImage(Product product, String imageKey, int sortOrder) {
+        ProductImage productImage = ProductImage.create(product, imageKey, sortOrder);
+        productImageRepository.save(productImage);
     }
 
     private User getSellerWithId(ProductRegistrationRequest request) {

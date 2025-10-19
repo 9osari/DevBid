@@ -61,7 +61,7 @@
       <th><label for="mainImage">Main Image</label></th>
       <td>
         <input type="file" id="mainImage" accept="image/*">
-        <input type="hidden" name="mainImageUrl">
+        <input type="hidden" name="mainImageKey">
         <div style="font-size:11px; color:#666;">* 선택사항. JPG, PNG, GIF (최대 10MB)</div>
       </td>
     </tr>
@@ -69,7 +69,7 @@
       <th><label for="subImages">Sub Images</label></th>
       <td>
         <input type="file" id="subImages" accept="image/*" multiple>
-        <div id="subImageUrlsContainer"></div>
+        <div id="subImageKeysContainer"></div>
         <div style="font-size:11px; color:#666;">* 선택사항. 최대 4장 (sortOrder: 2,3,4,5)</div>
       </td>
     </tr>
@@ -230,9 +230,9 @@
       await uploadToS3(data.uploadUrl, file, file.type);
       console.log('S3 업로드 완료');
 
-      // 3. CloudFront URL을 hidden input에 저장
-      document.querySelector('input[name="mainImageUrl"]').value = data.imageUrl;
-      console.log('메인 이미지 URL 저장:', data.imageUrl);
+      // 3. key를 hidden input에 저장
+      document.querySelector('input[name="mainImageKey"]').value = data.key;
+      console.log('메인 이미지 key 저장:', data.key);
 
       alert('메인 이미지 업로드 완료!');
     } catch (error) {
@@ -257,7 +257,7 @@
     try {
       console.log('서브 이미지 업로드 시작:', files.length + '장');
 
-      const uploadedUrls = [];
+      const uploadedKeys = [];
 
       // 각 파일을 순차적으로 업로드
       for (let i = 0; i < files.length; i++) {
@@ -270,24 +270,24 @@
         // 2. S3에 업로드
         await uploadToS3(data.uploadUrl, file, file.type);
 
-        // 3. URL 저장
-        uploadedUrls.push(data.imageUrl);
+        // 3. key 저장
+        uploadedKeys.push(data.key);
         console.log(`${i + 1}번째 이미지 업로드 완료`);
       }
 
-      // 4. 컨테이너 초기화하고 각 URL마다 hidden input 생성
-      const container = document.getElementById('subImageUrlsContainer');
+      // 4. 컨테이너 초기화하고 각 key마다 hidden input 생성
+      const container = document.getElementById('subImageKeysContainer');
       container.innerHTML = ''; // 기존 input 제거
 
-      uploadedUrls.forEach(url => {
+      uploadedKeys.forEach(key => {
         const input = document.createElement('input');
         input.type = 'hidden';
-        input.name = 'subImageUrls';
-        input.value = url;
+        input.name = 'subImageKeys';
+        input.value = key;
         container.appendChild(input);
       });
 
-      console.log('서브 이미지 URL 저장:', uploadedUrls);
+      console.log('서브 이미지 key 저장:', uploadedKeys);
 
       alert(`서브 이미지 ${files.length}장 업로드 완료!`);
     } catch (error) {

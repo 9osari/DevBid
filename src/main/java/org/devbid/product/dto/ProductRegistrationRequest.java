@@ -10,6 +10,6 @@ public record ProductRegistrationRequest(
         Long categoryId,
         String condition,
         Long sellerId,
-        String mainImageUrl,
-        List<String> subImageUrls
+        String mainImageKey,
+        List<String> subImageKeys
 ) {}
