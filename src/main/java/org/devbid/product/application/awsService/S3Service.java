@@ -22,6 +22,7 @@ public class S3Service {
 
     public PresignedUrlData generatePresignedUrl(String fileName, String contentType) {
         nameAndTypeValidation(fileName, contentType);
+        validateImageContentType(contentType);
         String key = makeKey(fileName);
 
         //PutObjectRequest 생성
@@ -46,6 +47,17 @@ public class S3Service {
         }
         if(contentType == null || contentType.isEmpty()) {
             throw new IllegalArgumentException("contentType is null or empty");
+        }
+    }
+
+    private static void validateImageContentType(String contentType) {
+        if (!contentType.equals("image/jpeg") &&
+            !contentType.equals("image/png") &&
+            !contentType.equals("image/gif") &&
+            !contentType.equals("image/webp")) {
+            throw new IllegalArgumentException(
+                "지원하지 않는 이미지 형식입니다. (지원: JPEG, PNG, GIF, WebP)"
+            );
         }
     }
 

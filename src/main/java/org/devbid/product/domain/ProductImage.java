@@ -16,20 +16,20 @@ public class ProductImage {
     private Product product;
 
     @Column(nullable = false)
-    private String url;
+    private String imageKey;
 
     @Column(name = "sort_order", nullable = false)
     private int sortOrder;
 
-    private ProductImage(Product product, String url, int sortOrder) {
+    private ProductImage(Product product, String imageKey, int sortOrder) {
         this.product = product;
-        this.url = url;
+        this.imageKey = imageKey;
         this.sortOrder = sortOrder;
     }
 
     protected ProductImage() {}
 
-    public static ProductImage create(Product product, String url, int sortOrder) {
-        return new ProductImage(product, url, sortOrder);
+    public static ProductImage create(Product product, String imageKey, int sortOrder) {
+        return new ProductImage(product, imageKey, sortOrder);
     }
 }

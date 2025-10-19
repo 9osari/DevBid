@@ -71,8 +71,8 @@ public class ProductController {
                 request.categoryId(),
                 request.condition(),
                 authUser.getId(),
-                request.mainImageUrl(),
-                request.subImageUrls()
+                request.mainImageKey(),
+                request.subImageKeys()
         );
 
         productService.registerProduct(registrationRequest);
@@ -89,10 +89,8 @@ public class ProductController {
     ) {
         //pre-signed URL 생성
         PresignedUrlData data = s3Service.generatePresignedUrl(filename, contentType);
-        String imageUrl = s3Service.buildPublicUrl(data.key());
         return Map.of(
                 "uploadUrl", data.uploadUrl(),
-                "imageUrl", imageUrl,
                 "key", data.key()
         );
     }
