@@ -60,14 +60,16 @@
     <tr>
       <th><label for="mainImage">Main Image</label></th>
       <td>
-        <input type="file" id="mainImage" name="mainImage" accept="image/*">
+        <input type="file" id="mainImage" accept="image/*">
+        <input type="hidden" name="mainImageUrl">
         <div style="font-size:11px; color:#666;">* 선택사항. JPG, PNG, GIF (최대 10MB)</div>
       </td>
     </tr>
     <tr>
       <th><label for="subImages">Sub Images</label></th>
       <td>
-        <input type="file" id="subImages" name="subImages" accept="image/*" multiple>
+        <input type="file" id="subImages" accept="image/*" multiple>
+        <div id="subImageUrlsContainer"></div>
         <div style="font-size:11px; color:#666;">* 선택사항. 최대 4장 (sortOrder: 2,3,4,5)</div>
       </td>
     </tr>
@@ -166,6 +168,131 @@
       alert('카테고리를 모두 선택해주세요.');
       e.preventDefault();
       return;
+    }
+  });
+
+  // ===== 이미지 업로드 로직 =====
+
+  /**
+   * 1단계: Presigned URL 요청 함수
+   * 서버에 파일명과 타입을 보내면, S3 업로드용 임시 URL을 받아옴
+   */
+  async function getPresignedUrl(filename, contentType) {
+    const formData = new FormData();
+    formData.append('filename', filename);
+    formData.append('contentType', contentType);
+
+    const response = await fetch('/product/presigned-url', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Presigned URL 요청 실패');
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * 2단계: S3에 직접 업로드 함수
+   * Presigned URL을 사용해 S3에 파일을 PUT 요청으로 업로드
+   */
+  async function uploadToS3(uploadUrl, file, contentType) {
+    const response = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': contentType
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('S3 업로드 실패');
+    }
+  }
+
+  /**
+   * 3단계: 메인 이미지 업로드 처리
+   */
+  document.getElementById('mainImage').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      console.log('메인 이미지 업로드 시작:', file.name);
+
+      // 1. Presigned URL 요청
+      const data = await getPresignedUrl(file.name, file.type);
+      console.log('Presigned URL 받음:', data);
+
+      // 2. S3에 업로드
+      await uploadToS3(data.uploadUrl, file, file.type);
+      console.log('S3 업로드 완료');
+
+      // 3. CloudFront URL을 hidden input에 저장
+      document.querySelector('input[name="mainImageUrl"]').value = data.imageUrl;
+      console.log('메인 이미지 URL 저장:', data.imageUrl);
+
+      alert('메인 이미지 업로드 완료!');
+    } catch (error) {
+      console.error('메인 이미지 업로드 실패:', error);
+      alert('이미지 업로드에 실패했습니다: ' + error.message);
+    }
+  });
+
+  /**
+   * 4단계: 서브 이미지 업로드 처리 (여러 파일)
+   */
+  document.getElementById('subImages').addEventListener('change', async function(e) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    if (files.length > 4) {
+      alert('서브 이미지는 최대 4장까지만 업로드 가능합니다.');
+      e.target.value = '';
+      return;
+    }
+
+    try {
+      console.log('서브 이미지 업로드 시작:', files.length + '장');
+
+      const uploadedUrls = [];
+
+      // 각 파일을 순차적으로 업로드
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        console.log(`${i + 1}번째 이미지 업로드 중:`, file.name);
+
+        // 1. Presigned URL 요청
+        const data = await getPresignedUrl(file.name, file.type);
+
+        // 2. S3에 업로드
+        await uploadToS3(data.uploadUrl, file, file.type);
+
+        // 3. URL 저장
+        uploadedUrls.push(data.imageUrl);
+        console.log(`${i + 1}번째 이미지 업로드 완료`);
+      }
+
+      // 4. 컨테이너 초기화하고 각 URL마다 hidden input 생성
+      const container = document.getElementById('subImageUrlsContainer');
+      container.innerHTML = ''; // 기존 input 제거
+
+      uploadedUrls.forEach(url => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'subImageUrls';
+        input.value = url;
+        container.appendChild(input);
+      });
+
+      console.log('서브 이미지 URL 저장:', uploadedUrls);
+
+      alert(`서브 이미지 ${files.length}장 업로드 완료!`);
+    } catch (error) {
+      console.error('서브 이미지 업로드 실패:', error);
+      alert('이미지 업로드에 실패했습니다: ' + error.message);
     }
   });
 </script>

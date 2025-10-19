@@ -2,6 +2,7 @@ package org.devbid.product.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.devbid.product.application.awsService.PresignedUrlData;
 import org.devbid.product.application.awsService.S3Service;
 import org.devbid.product.application.CategoryService;
 import org.devbid.product.application.ProductService;
@@ -10,7 +11,6 @@ import org.devbid.product.dto.ProductRegistrationRequest;
 import org.devbid.user.application.UserService;
 import org.devbid.user.domain.User;
 import org.devbid.user.security.AuthUser;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -34,6 +34,7 @@ public class ProductController {
     private final CategoryService categoryService;
     private final ProductService productService;
     private final S3Service s3Service;
+    private final RestClient.Builder builder;
 
     @GetMapping("/productMain")
     public String productMain() {
@@ -51,31 +52,9 @@ public class ProductController {
         return "product/productRegister";
     }
 
-    @PostMapping(value = "/product/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseBody
-    public Map<String, Object> testImageJson(@RequestParam("mainImage") MultipartFile mainImage,
-                                             @RequestParam(value = "subImages", required = false) List<MultipartFile> subImages) {
-
-        String mainImageUrl = s3Service.upload(mainImage);
-
-        System.out.println("Upload result: " + mainImageUrl);  // ← 결과 확인
-
-        List<String> subImageUrls = (subImages == null || subImages.isEmpty())
-                ? List.of()
-                : s3Service.uploadMultiple(subImages);
-
-        return Map.ofEntries(
-                Map.entry("mainImageUrl", mainImageUrl != null ? mainImageUrl : ""),
-                Map.entry("subImageUrls", subImageUrls != null ? subImageUrls : List.of())
-        );
-    }
-
-
     @PostMapping("/product/new")
     public String createProduct(
             ProductRegistrationRequest request,
-            @RequestParam("mainImage") MultipartFile mainImage,
-            @RequestParam("subImages") List<MultipartFile> subImages,
             @AuthenticationPrincipal AuthUser authUser,
             BindingResult result,
             RedirectAttributes ra
@@ -83,10 +62,8 @@ public class ProductController {
         if(result.hasErrors()) {
             return "product/productRegister";
         }
-        //파일을 S3에 업로드
-        String mainImageUrl = s3Service.upload(mainImage);
-        List<String> subImageUrl = s3Service.uploadMultiple(subImages);
 
+        // 이미지 URL은 프론트엔드에서 S3 업로드 후 받아옴
         ProductRegistrationRequest registrationRequest = new ProductRegistrationRequest (
                 request.productName(),
                 request.description(),
@@ -94,8 +71,8 @@ public class ProductController {
                 request.categoryId(),
                 request.condition(),
                 authUser.getId(),
-                mainImageUrl,
-                subImageUrl
+                request.mainImageUrl(),
+                request.subImageUrls()
         );
 
         productService.registerProduct(registrationRequest);
@@ -104,9 +81,32 @@ public class ProductController {
         return "redirect:/productRegisterSuccess";
     }
 
+    @PostMapping("/product/presigned-url")
+    @ResponseBody
+    public Map<String, String> getPresignedUrl(
+            @RequestParam("filename") String filename,
+            @RequestParam("contentType") String contentType
+    ) {
+        //pre-signed URL 생성
+        PresignedUrlData data = s3Service.generatePresignedUrl(filename, contentType);
+        String imageUrl = s3Service.buildPublicUrl(data.key());
+        return Map.of(
+                "uploadUrl", data.uploadUrl(),
+                "imageUrl", imageUrl,
+                "key", data.key()
+        );
+    }
+
     @GetMapping("/productRegisterSuccess")
     public String registerSuccess() {
         return "product/registerSuccess";
+    }
+
+    @GetMapping("/product/image-url")
+    @ResponseBody
+    public Map<String, String> getImageUrl(@RequestParam("key") String key) {
+        String presignedGetUrl = s3Service.generatePresignedGetUrl(key);
+        return Map.of("imageUrl", presignedGetUrl);
     }
 
     @GetMapping("/product/list")

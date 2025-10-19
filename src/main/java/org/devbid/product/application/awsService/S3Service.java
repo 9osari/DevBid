@@ -2,67 +2,101 @@ package org.devbid.product.application.awsService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.util.List;
+import java.time.Duration;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class S3Service {
-    private final S3Client s3Client;
     private final AwsProperties awsProperties;
+    private final S3Presigner s3Presigner;
 
-    public String upload(MultipartFile mainImage) {
-        if (mainImage == null || mainImage.isEmpty()) {
-            return null;
+    public PresignedUrlData generatePresignedUrl(String fileName, String contentType) {
+        nameAndTypeValidation(fileName, contentType);
+        String key = makeKey(fileName);
+
+        //PutObjectRequest 생성
+        PutObjectRequest putObjectRequest = getPutObjectRequest(contentType, key);
+
+        //PutObjectPresignRequest 생성
+        PutObjectPresignRequest presignRequest = getPutObjectPresignRequest(putObjectRequest);
+
+        //pre-signed URL 생성
+        PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner.presignPutObject(presignRequest);
+
+        String uploadUrl = presignedPutObjectRequest.url().toString();
+
+        //URL과 key 반환
+        return new PresignedUrlData(uploadUrl, key);
+
+    }
+
+    private static void nameAndTypeValidation(String fileName, String contentType) {
+        if(fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("fileName is null or empty");
         }
-
-        try {
-            //파일명 생성
-            String fileName = UUID.randomUUID().toString() + extractExtension(mainImage);
-            String key = "products/" + fileName;
-
-            //S3에 업로드
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(awsProperties.getS3().getBucket())
-                    .key(key)
-                    .contentType(mainImage.getContentType())
-                    .build();
-
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(
-                    mainImage.getInputStream(),
-                    mainImage.getSize()
-            ));
-
-            //URL 반환
-            return buildURL(key);
-        } catch (Exception e) {
-            throw new RuntimeException("파일 업로드 실패 " + mainImage.getOriginalFilename(), e);
+        if(contentType == null || contentType.isEmpty()) {
+            throw new IllegalArgumentException("contentType is null or empty");
         }
     }
 
-    private String buildURL(String key) {
-        return String.format("https://%s.s3.%s.amazonaws.com/%s",
-            awsProperties.getS3().getBucket(),
-            awsProperties.getS3().getRegion(),
-            key
+    private static String makeKey(String fileName) {
+        //key 생성
+        String extension = fileName.substring(fileName.lastIndexOf('.'));
+        return "products/" + UUID.randomUUID().toString() + extension;
+    }
+
+    private PutObjectRequest getPutObjectRequest(String contentType, String key) {
+        return PutObjectRequest.builder()
+                .bucket(awsProperties.getS3().getBucket())
+                .key(key)
+                .contentType(contentType)
+                .build();
+    }
+
+    private PutObjectPresignRequest getPutObjectPresignRequest(PutObjectRequest putObjectRequest) {
+        return PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(5))
+                .putObjectRequest(putObjectRequest).build();
+    }
+
+    public String buildPublicUrl(String key) {
+        return String.format("https://%s/%s",
+                awsProperties.getCloudfront().getDomain(),
+                key
         );
     }
 
-    private String extractExtension(MultipartFile mainImage) {
-        String fileName = mainImage.getOriginalFilename();
-        return fileName.substring(fileName.lastIndexOf('.'));
+    public String generatePresignedGetUrl(String key) {
+        GetObjectRequest getObjectRequest = getGetObjectRequest(key);
+        //GetObjectPresignRequest 생성
+        GetObjectPresignRequest presignRequest = getGetObjectPresignRequest(getObjectRequest);
+        //pre-signed GET URL 생성
+        PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
+        return presignedRequest.url().toString();
     }
 
-    public List<String> uploadMultiple(List<MultipartFile> subImages) {
-        return subImages.stream()
-                .map(this::upload)
-                .collect(Collectors.toList());
+    private GetObjectRequest getGetObjectRequest(String key) {
+        //GetObjectRequest 생성
+        return GetObjectRequest.builder()
+                .bucket(awsProperties.getS3().getBucket())
+                .key(key)
+                .build();
+    }
+
+    private static GetObjectPresignRequest getGetObjectPresignRequest(GetObjectRequest getObjectRequest) {
+        return GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofHours(1))
+                .getObjectRequest(getObjectRequest)
+                .build();
     }
 }

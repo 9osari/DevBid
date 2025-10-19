@@ -9,11 +9,13 @@ public class AwsProperties {
     private final S3 s3;
     private final Credentials credentials;
     private final Region region;
+    private final CloudFront cloudfront;
 
-    public AwsProperties(S3 s3, Credentials credentials, Region region) {
+    public AwsProperties(S3 s3, Credentials credentials, Region region, CloudFront cloudfront) {
         this.s3 = s3;
         this.credentials = credentials;
         this.region = region;
+        this.cloudfront = cloudfront;
     }
 
     @Getter
@@ -44,6 +46,15 @@ public class AwsProperties {
 
         public Region(String staticRegion) {
             this.staticRegion = staticRegion;
+        }
+    }
+
+    @Getter
+    public static class CloudFront {
+        private final String domain;
+
+        public CloudFront(String domain) {
+            this.domain = domain;
         }
     }
 }
