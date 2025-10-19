@@ -22,6 +22,8 @@ cloud:
     s3:
       bucket: ${AWS_S3_BUCKET:aws-s3-bucket-devbid}
       region: ${AWS_REGION:eu-north-1}
+    cloudfront:
+      domain: ${AWS_CLOUDFRONT_DOMAIN:dqtqfyr92dz08.cloudfront.net}
     credentials:
       access-key: ${AWS_ACCESS_KEY:}
       secret-key: ${AWS_SECRET_KEY:}

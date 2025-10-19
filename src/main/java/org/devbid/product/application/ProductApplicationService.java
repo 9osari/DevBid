@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.devbid.product.domain.Category;
 import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductFactory;
+import org.devbid.product.domain.ProductImage;
 import org.devbid.product.dto.ProductRegistrationRequest;
 import org.devbid.product.repository.CategoryRepository;
+import org.devbid.product.repository.ProductImageRepository;
 import org.devbid.product.repository.ProductRepository;
 import org.devbid.user.domain.User;
 import org.devbid.user.repository.UserRepository;
@@ -23,6 +25,7 @@ import java.util.List;
 public class ProductApplicationService implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
 
     @Override
@@ -40,6 +43,28 @@ public class ProductApplicationService implements ProductService {
         );
 
         productRepository.save(product);
+
+        mainImageValidationAndSave(request, product);
+        subImagesValidationAndSave(request, product);
+    }
+
+    private void mainImageValidationAndSave(ProductRegistrationRequest request, Product product) {
+        if(request.mainImageUrl() != null && !request.mainImageUrl().isEmpty()) {
+            int sortOrd = 1;
+            ProductImage productImage = ProductImage.create(product, request.mainImageUrl(), sortOrd);
+            productImageRepository.save(productImage);
+        }
+    }
+
+    private void subImagesValidationAndSave(ProductRegistrationRequest request, Product product) {
+        if(request.subImageUrls() != null && !request.subImageUrls().isEmpty()) {
+            int sortOrd = 2;
+            for (String url : request.subImageUrls()) {
+                ProductImage productImage = ProductImage.create(product, url, sortOrd);
+                productImageRepository.save(productImage);
+                sortOrd++;
+            }
+        }
     }
 
     private User getSellerWithId(ProductRegistrationRequest request) {
