@@ -7,6 +7,7 @@ import org.devbid.product.domain.Category;
 import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductFactory;
 import org.devbid.product.domain.ProductImage;
+import org.devbid.product.dto.ProductListResponse;
 import org.devbid.product.dto.ProductRegistrationRequest;
 import org.devbid.product.repository.CategoryRepository;
 import org.devbid.product.repository.ProductImageRepository;
@@ -16,6 +17,7 @@ import org.devbid.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -28,6 +30,7 @@ public class ProductApplicationService implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     @Override
     public void registerProduct(ProductRegistrationRequest request) {
@@ -81,13 +84,34 @@ public class ProductApplicationService implements ProductService {
     }
 
     @Override
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
+    public List<ProductListResponse> findAllProductsBySellerId(Long sellerId) {
+        List<Product> products = productRepository.findBySellerId(sellerId);
+        return products.stream()
+                .map(this::convertToProductListResponse)
+                .toList();
     }
 
     @Override
-    public List<Product> findAllProductsBySellerId(Long sellerId) {
-        return productRepository.findBySellerId(sellerId);
+    public List<ProductListResponse> findAllWithImages() {
+        List<Product> products = productRepository.findAllWithImages();
+        return products.stream()
+                .map(this::convertToProductListResponse)
+                .toList();
+    }
+
+    private ProductListResponse convertToProductListResponse(Product product) {
+        String mainImageUrl = product.getImages().stream()
+                .filter(img -> img.getSortOrder() == 1)
+                .findFirst()
+                .map(img -> s3Service.generatePresignedGetUrl(img.getImageKey()))
+                .orElse(null);
+
+        List<String> subImageUrls = product.getImages().stream()
+                .filter(img -> img.getSortOrder() > 1)
+                .sorted(Comparator.comparing(ProductImage::getSortOrder))
+                .map(img -> s3Service.generatePresignedGetUrl(img.getImageKey()))
+                .toList();
+        return ProductListResponse.of(product, mainImageUrl, subImageUrls);
     }
 
     @Override

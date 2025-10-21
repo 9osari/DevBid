@@ -109,7 +109,7 @@ public class ProductController {
 
     @GetMapping("/product/list")
     public String productList(Model model,  @AuthenticationPrincipal AuthUser authUser) {
-        model.addAttribute("products", productService.findAllProducts());
+        model.addAttribute("products", productService.findAllWithImages());
         model.addAttribute("productCount", productService.getProductCount());
         return "product/myProductList";
     }
