@@ -165,4 +165,8 @@ public class Product extends BaseEntity {
     public void updateCategory(Category category) {
         this.category = category;
     }
+
+    public void softDelete() {
+        this.saleStatus = ProductStatus.DELETED;
+    }
 }

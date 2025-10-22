@@ -17,7 +17,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "LEFT JOIN FETCH p.images " +
             "LEFT JOIN FETCH p.category " +
             "LEFT JOIN p.seller " +
-            "WHERE p.seller.id = :sellerId")
+            "WHERE p.seller.id = :sellerId " +
+            "AND p.saleStatus <> org.devbid.product.domain.ProductStatus.DELETED")
     List<Product> findBySellerId(Long sellerId);
 
     @Query("SELECT DISTINCT p FROM Product p " +

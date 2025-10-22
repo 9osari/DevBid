@@ -8,6 +8,7 @@ import org.devbid.product.application.awsService.S3Service;
 import org.devbid.product.application.CategoryService;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.CategoryDto;
+import org.devbid.product.dto.ProductListResponse;
 import org.devbid.product.dto.ProductRegistrationRequest;
 import org.devbid.product.dto.ProductUpdateRequest;
 import org.devbid.user.application.UserService;
@@ -112,7 +113,6 @@ public class ProductController {
     public String updateProduct(@PathVariable Long id,
                                 @AuthenticationPrincipal AuthUser authUser,
                                 @Valid @ModelAttribute("form") ProductUpdateRequest req) {
-        System.out.println("test");
         productService.update(id, authUser.getId(), req);
         return "redirect:/product/my-list";
     }
@@ -128,7 +128,7 @@ public class ProductController {
     public String productList(Model model,  @AuthenticationPrincipal AuthUser authUser) {
         model.addAttribute("products", productService.findAllWithImages());
         model.addAttribute("productCount", productService.getProductCount());
-        return "product/myProductList";
+        return "product/productList";
     }
 
 
@@ -136,6 +136,18 @@ public class ProductController {
     public String myProductList(Model model, @AuthenticationPrincipal AuthUser authUser) {
         model.addAttribute("products", productService.findAllProductsBySellerId(authUser.getId()));
         model.addAttribute("productCount", productService.getProductCount());
-        return "product/productList";
+        return "product/myProductList";
+    }
+
+    @DeleteMapping("/product/{id}")
+    public String deleteProduct(@PathVariable Long id,
+                                @AuthenticationPrincipal AuthUser authUser) {
+        ProductListResponse currentProduct = productService.findEditableByIdAndSeller(id, authUser.getId());
+        if (currentProduct == null) {
+            throw new IllegalArgumentException("Product not found");
+        }
+
+        productService.deleteProductById(id);
+        return "redirect:/product/my-list";
     }
 }

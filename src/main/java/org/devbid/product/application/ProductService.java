@@ -17,4 +17,6 @@ public interface ProductService {
     ProductListResponse findEditableByIdAndSeller(Long id, Long seller);
 
     long getProductCount();
+
+    void deleteProductById(Long id);
 }

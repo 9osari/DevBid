@@ -146,4 +146,11 @@ public class ProductApplicationService implements ProductService {
     public long getProductCount() {
         return productRepository.count();
     }
+
+    @Override
+    public void deleteProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        product.softDelete();
+    }
 }
