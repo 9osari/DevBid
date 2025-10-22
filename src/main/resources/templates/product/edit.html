@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Edit</title>
+  <link href="/css/theme.css" rel="stylesheet">
+</head>
+<body>
+<h2>Product Edit</h2>
+<form th:action="@{/product/{id}(id=${product.id})}" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="_method" value="PUT"/>
+  <table>
+    <!-- 상품 정보 -->
+    <tr>
+      <th colspan="2">Product Information</th>
+    </tr>
+    <tr>
+      <th><label for="productName">Product Name *</label></th>
+      <td><input type="text" id="productName" name="productName" th:value="${product.productName}" required></td>
+    </tr>
+    <tr>
+      <th><label for="price">Price *</label></th>
+      <td>
+        <input type="number" id="price" name="price" min="1000" max="1000000000" step="1" th:value="${product.price}" required>
+        <span>원</span>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="description">Description</label></th>
+      <td><textarea id="description" name="description" rows="4" cols="40" th:text="${product.description}"></textarea></td>
+    </tr>
+    <tr>
+      <th>Current Category</th>
+      <td>
+        <strong th:text="${product.categoryName}">Current Category</strong>
+        <div style="font-size:11px; color:#666;">* 카테고리 변경이 필요한 경우 아래에서 선택</div>
+      </td>
+    </tr>
+    <tr>
+      <th>Change Category</th>
+      <td>
+        <select id="mainCategory">
+          <option value="">-- 대분류 선택 --</option>
+        </select>
+        <select id="midCategory" disabled>
+          <option value="">-- 중분류 선택 --</option>
+        </select>
+        <select id="subCategory" name="categoryId" disabled>
+          <option value="">-- 소분류 선택 --</option>
+        </select>
+        <div style="font-size:11px; color:#666;">* 변경하지 않으려면 선택하지 마세요</div>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="condition">Condition *</label></th>
+      <td>
+        <select id="condition" name="condition" required>
+          <option value="">-- 상태 선택 --</option>
+          <option value="PRISTINE" th:selected="${product.condition.name() == 'PRISTINE'}">PRISTINE (새 상품)</option>
+          <option value="WORN" th:selected="${product.condition.name() == 'WORN'}">WORN (사용감 있음)</option>
+          <option value="DAMAGED" th:selected="${product.condition.name() == 'DAMAGED'}">DAMAGED (손상 있음)</option>
+          <option value="BADLY_DAMAGED" th:selected="${product.condition.name() == 'BADLY_DAMAGED'}">BADLY_DAMAGED (심하게 손상)</option>
+          <option value="RUINED" th:selected="${product.condition.name() == 'RUINED'}">RUINED (파손)</option>
+        </select>
+      </td>
+    </tr>
+
+    <!-- 현재 이미지 표시 -->
+    <tr>
+      <th>Current Main Image</th>
+      <td>
+        <img th:if="${product.mainImageUrl}" th:src="${product.mainImageUrl}" alt="현재 메인 이미지" style="width: 200px; height: 200px; object-fit: cover;">
+        <span th:unless="${product.mainImageUrl}">No Image</span>
+      </td>
+    </tr>
+    <tr>
+      <th>Current Sub Images</th>
+      <td>
+        <div th:if="${product.subImageUrls != null and !product.subImageUrls.isEmpty()}">
+          <img th:each="subImage : ${product.subImageUrls}"
+               th:src="${subImage}"
+               alt="현재 서브 이미지"
+               style="width: 100px; height: 100px; object-fit: cover; margin: 2px;">
+        </div>
+        <span th:if="${product.subImageUrls == null or product.subImageUrls.isEmpty()}">No Sub Images</span>
+      </td>
+    </tr>
+
+    <!-- 새 이미지 업로드 -->
+    <tr>
+      <th><label for="mainImage">New Main Image</label></th>
+      <td>
+        <input type="file" id="mainImage" accept="image/*">
+        <input type="hidden" name="mainImageKey">
+        <div style="font-size:11px; color:#666;">* 변경하지 않으려면 선택하지 마세요</div>
+      </td>
+    </tr>
+    <tr>
+      <th><label for="subImages">New Sub Images</label></th>
+      <td>
+        <input type="file" id="subImages" accept="image/*" multiple>
+        <div id="subImageKeysContainer"></div>
+        <div style="font-size:11px; color:#666;">* 변경하지 않으려면 선택하지 마세요. 최대 4장</div>
+      </td>
+    </tr>
+
+  </table>
+
+  <br>
+  <input type="submit" value="Update" />
+  <a th:href="@{/product/{id}/edit}">Cancel</a>
+</form>
+
+<p><a th:href="@{/product/my-list}">Back to My Product List</a></p>
+<p><a href="/">Home</a></p>
+
+<script th:inline="javascript">
+  const categories = /*[[${category}]]*/ [];
+  const currentCategoryId = /*[[${product.categoryId}]]*/ null;
+
+  // 카테고리 셀렉트박스
+  const mainSelect = document.getElementById('mainCategory');
+  const midSelect = document.getElementById('midCategory');
+  const subSelect = document.getElementById('subCategory');
+
+  // 1. 대분류 옵션 채우기
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category.id;
+    option.textContent = category.name;
+    mainSelect.appendChild(option);
+  });
+
+  // 현재 카테고리 찾아서 선택하는 함수
+  function selectCurrentCategory(categoryId) {
+    for (const mainCat of categories) {
+      for (const midCat of mainCat.children || []) {
+        for (const subCat of midCat.children || []) {
+          if (subCat.id === categoryId) {
+            // 대분류 선택
+            mainSelect.value = mainCat.id;
+
+            // 중분류 옵션 채우기
+            midSelect.innerHTML = '<option value="">-- 중분류 선택 --</option>';
+            midSelect.disabled = false;
+            mainCat.children.forEach(child => {
+              const option = document.createElement('option');
+              option.value = child.id;
+              option.textContent = child.name;
+              midSelect.appendChild(option);
+            });
+            midSelect.value = midCat.id;
+
+            // 소분류 옵션 채우기
+            subSelect.innerHTML = '<option value="">-- 소분류 선택 --</option>';
+            subSelect.disabled = false;
+            midCat.children.forEach(child => {
+              const option = document.createElement('option');
+              option.value = child.id;
+              option.textContent = child.name;
+              subSelect.appendChild(option);
+            });
+            subSelect.value = subCat.id;
+
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  // 현재 카테고리가 있으면 자동 선택 (페이지 로드 후)
+  if (currentCategoryId) {
+    setTimeout(() => {
+      selectCurrentCategory(currentCategoryId);
+    }, 100);
+  }
+
+  // 2. 대분류 선택 시
+  mainSelect.addEventListener('change', function() {
+    midSelect.innerHTML = '<option value="">-- 중분류 선택 --</option>';
+    subSelect.innerHTML = '<option value="">-- 소분류 선택 --</option>';
+    subSelect.disabled = true;
+
+    const selectedId = parseInt(this.value);
+    if (!selectedId) {
+      midSelect.disabled = true;
+      return;
+    }
+
+    const selectedCategory = categories.find(c => c.id === selectedId);
+
+    if (selectedCategory && selectedCategory.children.length > 0) {
+      midSelect.disabled = false;
+      selectedCategory.children.forEach(child => {
+        const option = document.createElement('option');
+        option.value = child.id;
+        option.textContent = child.name;
+        midSelect.appendChild(option);
+      });
+    } else {
+      midSelect.disabled = true;
+    }
+  });
+
+  // 3. 중분류 선택 시
+  midSelect.addEventListener('change', function() {
+    subSelect.innerHTML = '<option value="">-- 소분류 선택 --</option>';
+
+    const selectedMidId = parseInt(this.value);
+    if (!selectedMidId) {
+      subSelect.disabled = true;
+      return;
+    }
+
+    const selectedMainId = parseInt(mainSelect.value);
+    const mainCategory = categories.find(c => c.id === selectedMainId);
+    const midCategory = mainCategory.children.find(c => c.id === selectedMidId);
+
+    if (midCategory && midCategory.children.length > 0) {
+      subSelect.disabled = false;
+      midCategory.children.forEach(child => {
+        const option = document.createElement('option');
+        option.value = child.id;
+        option.textContent = child.name;
+        subSelect.appendChild(option);
+      });
+    } else {
+      subSelect.disabled = true;
+    }
+  });
+
+  // ===== 이미지 업로드 로직 =====
+
+  async function getPresignedUrl(filename, contentType) {
+    const formData = new FormData();
+    formData.append('filename', filename);
+    formData.append('contentType', contentType);
+
+    const response = await fetch('/product/presigned-url', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Presigned URL 요청 실패');
+    }
+
+    return await response.json();
+  }
+
+  async function uploadToS3(uploadUrl, file, contentType) {
+    const response = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': contentType
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('S3 업로드 실패');
+    }
+  }
+
+  // 메인 이미지 업로드
+  document.getElementById('mainImage').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      console.log('메인 이미지 업로드 시작:', file.name);
+      const data = await getPresignedUrl(file.name, file.type);
+      await uploadToS3(data.uploadUrl, file, file.type);
+      document.querySelector('input[name="mainImageKey"]').value = data.key;
+      alert('메인 이미지 업로드 완료!');
+    } catch (error) {
+      console.error('메인 이미지 업로드 실패:', error);
+      alert('이미지 업로드에 실패했습니다: ' + error.message);
+    }
+  });
+
+  // 서브 이미지 업로드
+  document.getElementById('subImages').addEventListener('change', async function(e) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    if (files.length > 4) {
+      alert('서브 이미지는 최대 4장까지만 업로드 가능합니다.');
+      e.target.value = '';
+      return;
+    }
+
+    try {
+      console.log('서브 이미지 업로드 시작:', files.length + '장');
+      const uploadedKeys = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const data = await getPresignedUrl(file.name, file.type);
+        await uploadToS3(data.uploadUrl, file, file.type);
+        uploadedKeys.push(data.key);
+      }
+
+      const container = document.getElementById('subImageKeysContainer');
+      container.innerHTML = '';
+
+      uploadedKeys.forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'subImageKeys';
+        input.value = key;
+        container.appendChild(input);
+      });
+
+      alert(`서브 이미지 ${files.length}장 업로드 완료!`);
+    } catch (error) {
+      console.error('서브 이미지 업로드 실패:', error);
+      alert('이미지 업로드에 실패했습니다: ' + error.message);
+    }
+  });
+</script>
+</body>
+</html>

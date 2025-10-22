@@ -22,6 +22,7 @@
         <th>Status</th>
         <th>Seller</th>
         <th>Created Date</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -51,6 +52,11 @@
         <td th:text="${product.saleStatus}">status</td>
         <td th:text="${product.sellerName}">seller</td>
         <td th:text="${#temporals.format(product.createdAt, '| yyyy-MM-dd | HH:mm |')}">date</td>
+        <td>
+          <a th:href="@{/product/{id}/edit(id=${product.id})}" style="margin-right: 10px;">수정</a>
+          <a th:href="@{/product/{id}/delete(id=${product.id})}"
+             onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+        </td>
       </tr>
     </tbody>
   </table>

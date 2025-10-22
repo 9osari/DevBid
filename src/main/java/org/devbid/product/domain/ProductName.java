@@ -18,6 +18,10 @@ public class ProductName {
         this.value = value;
     }
 
+    public static ProductName from(String value) {
+        return new ProductName(value);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;

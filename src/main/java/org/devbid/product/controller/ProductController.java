@@ -1,5 +1,6 @@
 package org.devbid.product.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.product.application.awsService.PresignedUrlData;
@@ -8,6 +9,7 @@ import org.devbid.product.application.CategoryService;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.CategoryDto;
 import org.devbid.product.dto.ProductRegistrationRequest;
+import org.devbid.product.dto.ProductUpdateRequest;
 import org.devbid.user.application.UserService;
 import org.devbid.user.domain.User;
 import org.devbid.user.security.AuthUser;
@@ -15,10 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -98,6 +97,24 @@ public class ProductController {
     @GetMapping("/productRegisterSuccess")
     public String registerSuccess() {
         return "product/registerSuccess";
+    }
+
+    @GetMapping("/product/{id}/edit")
+    public String editProduct(@PathVariable Long id,
+                              @AuthenticationPrincipal AuthUser authUser,
+                              Model model) {
+        model.addAttribute("product", productService.findEditableByIdAndSeller(id, authUser.getId()));
+        model.addAttribute("category", categoryService.findAllCategoryTree());
+        return "product/edit";
+    }
+
+    @PutMapping("/product/{id}")
+    public String updateProduct(@PathVariable Long id,
+                                @AuthenticationPrincipal AuthUser authUser,
+                                @Valid @ModelAttribute("form") ProductUpdateRequest req) {
+        System.out.println("test");
+        productService.update(id, authUser.getId(), req);
+        return "redirect:/product/my-list";
     }
 
     @GetMapping("/product/image-url")

@@ -9,6 +9,7 @@ import org.devbid.product.domain.ProductFactory;
 import org.devbid.product.domain.ProductImage;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.product.dto.ProductRegistrationRequest;
+import org.devbid.product.dto.ProductUpdateRequest;
 import org.devbid.product.repository.CategoryRepository;
 import org.devbid.product.repository.ProductImageRepository;
 import org.devbid.product.repository.ProductRepository;
@@ -52,6 +53,26 @@ public class ProductApplicationService implements ProductService {
         subImagesValidationAndSave(request, product);
     }
 
+    @Override
+    public void update(Long productId, Long sellerId, ProductUpdateRequest req) {
+        Product product = productRepository.findByIdAndSellerId(productId, sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        if(req.categoryId() != null) {
+            Category category = categoryRepository.findById(req.categoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+            product.updateCategory(category);
+        }
+
+        product.updateProductInfo(
+                req.productName(),
+                req.description(),
+                req.price(),
+                req.condition());
+        product.updateMainImage(req.keepMainImageId(), req.mainImageKey());
+        product.updateSubImages(req.keepSubImageIds(), req.subImageKeys());
+    }
+
     private void mainImageValidationAndSave(ProductRegistrationRequest request, Product product) {
         if(request.mainImageKey() != null && !request.mainImageKey().isEmpty()) {
             saveProductImage(product, request.mainImageKey(), 1);
@@ -89,6 +110,13 @@ public class ProductApplicationService implements ProductService {
         return products.stream()
                 .map(this::convertToProductListResponse)
                 .toList();
+    }
+
+    @Override
+    public ProductListResponse findEditableByIdAndSeller(Long id, Long sellerId) {
+        Product product = productRepository.findEditableByIdAndSeller(id, sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+        return convertToProductListResponse(product);
     }
 
     @Override

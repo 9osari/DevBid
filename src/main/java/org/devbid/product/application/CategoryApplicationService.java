@@ -31,4 +31,12 @@ public class CategoryApplicationService implements CategoryService {
                 .map(CategoryDto::of)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<CategoryDto> findAllCategoryTree() {
+        List<Category> rootCategories = categoryRepository.findAllCategoryTree();
+        return rootCategories.stream()
+                .map(CategoryDto::of)
+                .collect(Collectors.toList());
+    }
 }

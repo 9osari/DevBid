@@ -14,6 +14,7 @@ public record ProductListResponse(
         Long price,
         ProductCondition condition,
         ProductStatus saleStatus,
+        Long categoryId,
         String categoryName,
         String sellerName,
         String mainImageUrl,  // 메인 이미지 URL
@@ -28,6 +29,7 @@ public record ProductListResponse(
                 product.getPrice().getValue().longValue(),
                 product.getCondition(),
                 product.getSaleStatus(),
+                product.getCategory().getId(),
                 product.getCategory().getName(),
                 product.getSeller().getUsername().getValue(),
                 mainImageUrl,

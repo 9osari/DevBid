@@ -34,6 +34,10 @@ public class Price {
         }
     }
 
+    public static Price from(BigDecimal value) {
+        return new Price(value);
+    }
+
     @Override
     public boolean equals(Object object) {
         if(this == object) return true; // 성능 최적화
