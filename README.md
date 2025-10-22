@@ -1,5 +1,5 @@
 # DevBid
-실시간 경매 플랫폼
+도메인 주도 설계(DDD)와 객체지향 원칙(OOP, SRP)에 기반한 실시간 경매 플랫폼
 
 ---
 
@@ -10,5 +10,5 @@
 
 ## 🛠 기술 스택
 - Java 21 / Spring Boot 3.2 / Spring Data JPA
-- MySQL
+- MySQL / AWS
 - WebSocket
