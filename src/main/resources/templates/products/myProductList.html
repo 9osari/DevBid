@@ -53,8 +53,8 @@
         <td th:text="${product.sellerName}">seller</td>
         <td th:text="${#temporals.format(product.createdAt, '| yyyy-MM-dd | HH:mm |')}">date</td>
         <td>
-          <a th:href="@{/product/{id}/edit(id=${product.id})}" style="margin-right: 10px;">수정</a>
-          <form th:action="@{/product/{id}(id=${product.id})}" method="post" style="display:inline;"
+          <a th:href="@{/templates/products/{id}/edit(id=${product.id})}" style="margin-right: 10px;">수정</a>
+          <form th:action="@{/templates/products/{id}(id=${product.id})}" method="post" style="display:inline;"
                 onsubmit="return confirm('정말 삭제하시겠습니까?');">
             <input type="hidden" name="_method" value="delete"/>
             <button type="submit" style="background:none; border:none; color:red; cursor:pointer;">
@@ -74,7 +74,7 @@
 
 <div>
     <p><a href="/">home</a></p>
-    <p><a href="/productMain">productMain</a></p>
+    <p><a href="/productsMain">productsMain</a></p>
     <p><a href="/logout">logout</a></p>
 </div>
 </body>

@@ -10,7 +10,7 @@
 <body>
 <div class="container mt-4">
   <!-- 프로필 수정 폼 -->
-  <form th:action="@{/users/{id}(id=${user.id})}" th:object="${form}" method="post">
+  <form th:action="@{/users/{id}/edit(id=${user.id})}" th:object="${form}" method="post">
     <input type="hidden" name="_method" value="PUT"/>
 
     <div class="mb-3">
@@ -83,7 +83,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 
-          <form th:action="@{/users/{id}(id=${user.id})}" method="post" class="d-inline">
+          <form th:action="@{/users/{id}/delete(id=${user.id})}" method="post" class="d-inline">
             <input type="hidden" name="_method" value="DELETE"/>
             <button type="submit" class="btn btn-danger">탈퇴하기</button>
           </form>

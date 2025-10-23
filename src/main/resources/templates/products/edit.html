@@ -7,7 +7,7 @@
 </head>
 <body>
 <h2>Product Edit</h2>
-<form th:action="@{/product/{id}(id=${product.id})}" method="post" enctype="multipart/form-data">
+<form th:action="@{/templates/products/{id}/edit(id=${product.id})}" method="post" enctype="multipart/form-data">
   <input type="hidden" name="_method" value="PUT"/>
   <table>
     <!-- 상품 정보 -->
@@ -108,10 +108,10 @@
 
   <br>
   <input type="submit" value="Update" />
-  <a th:href="@{/product/{id}/edit}">Cancel</a>
+  <a th:href="@{/templates/products/{id}/edit}">Cancel</a>
 </form>
 
-<p><a th:href="@{/product/my-list}">Back to My Product List</a></p>
+<p><a th:href="@{/templates/products/my-list}">Back to My Product List</a></p>
 <p><a href="/">Home</a></p>
 
 <script th:inline="javascript">

@@ -16,19 +16,17 @@
 <div th:if="${isLoggedIn}">
     <p><span th:text="${nickname}" style="color: red;"></span>  welcome</p>
     <p>status : <span th:text="${status}" style="color: greenyellow"></span></p>
-    <p></p>
-    <p><a href="/users">userlist</a></p>
-
-    <p><a href="/productMain">productMain</a></p>
-
-    <p><a href="/logout">logout</a></p>
-    <p><a th:href="@{/users/{id}/edit(id=${userId})}">update</a></p>
+    <p><a href="/logout">logOut</a></p>
+    <p><a th:href="@{/users/{id}/edit(id=${userId})}">userUpdate</a></p>
+    <p><a href="/users">userList</a></p>
+    <br>
+    <p><a href="/productsMain">productsMain</a></p>
 </div>
 
 <div th:unless="${isLoggedIn}">
     <p>not login</p>
     <p><a href="/login">login</a></p>
 </div>
-<p><a href="/users/new">register</a></p>
+<p><a href="/users/new">userRegister</a></p>
 </body>
 </html>

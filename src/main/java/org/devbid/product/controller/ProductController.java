@@ -36,12 +36,12 @@ public class ProductController {
     private final S3Service s3Service;
     private final RestClient.Builder builder;
 
-    @GetMapping("/productMain")
-    public String productMain() {
-        return "product/productMain";
+    @GetMapping("/productsMain")
+    public String productsMain() {
+        return "products/productsMain";
     }
 
-    @GetMapping("/product/new")
+    @GetMapping("/products/new")
     public String newProduct(@AuthenticationPrincipal AuthUser authUser, Model model) {
         User user = userService.findById(authUser.getId());
         model.addAttribute("user", user);
@@ -49,10 +49,10 @@ public class ProductController {
         List<CategoryDto> categoryDtoList = categoryService.getCategoryTree();
         model.addAttribute("categoryDtoList", categoryDtoList);
 
-        return "product/productRegister";
+        return "products/new";
     }
 
-    @PostMapping("/product/new")
+    @PostMapping("/products/new")
     public String createProduct(
             ProductRegistrationRequest request,
             @AuthenticationPrincipal AuthUser authUser,
@@ -60,9 +60,8 @@ public class ProductController {
             RedirectAttributes ra
     ) {
         if(result.hasErrors()) {
-            return "product/productRegister";
+            return "products/new";
         }
-
         // 이미지 URL은 프론트엔드에서 S3 업로드 후 받아옴
         ProductRegistrationRequest registrationRequest = new ProductRegistrationRequest (
                 request.productName(),
@@ -78,10 +77,32 @@ public class ProductController {
         productService.registerProduct(registrationRequest);
 
         ra.addFlashAttribute("productName",request.productName());
-        return "redirect:/productRegisterSuccess";
+        return "redirect:/productSuccess";
     }
 
-    @PostMapping("/product/presigned-url")
+    @GetMapping("/productSuccess")
+    public String success() {
+        return "products/success";
+    }
+
+    @GetMapping("/product/{id}/edit")
+    public String editProduct(@PathVariable Long id,
+                              @AuthenticationPrincipal AuthUser authUser,
+                              Model model) {
+        model.addAttribute("product", productService.findEditableByIdAndSeller(id, authUser.getId()));
+        model.addAttribute("category", categoryService.findAllCategoryTree());
+        return "products/edit";
+    }
+
+    @PostMapping("/products/{id}/edit")
+    public String updateProduct(@PathVariable Long id,
+                                @AuthenticationPrincipal AuthUser authUser,
+                                @Valid @ModelAttribute("form") ProductUpdateRequest req) {
+        productService.update(id, authUser.getId(), req);
+        return "redirect:/products/my";
+    }
+
+    @PostMapping("/products/presigned-url")
     @ResponseBody
     public Map<String, String> getPresignedUrl(
             @RequestParam("filename") String filename,
@@ -95,51 +116,29 @@ public class ProductController {
         );
     }
 
-    @GetMapping("/productRegisterSuccess")
-    public String registerSuccess() {
-        return "product/registerSuccess";
-    }
-
-    @GetMapping("/product/{id}/edit")
-    public String editProduct(@PathVariable Long id,
-                              @AuthenticationPrincipal AuthUser authUser,
-                              Model model) {
-        model.addAttribute("product", productService.findEditableByIdAndSeller(id, authUser.getId()));
-        model.addAttribute("category", categoryService.findAllCategoryTree());
-        return "product/edit";
-    }
-
-    @PutMapping("/product/{id}")
-    public String updateProduct(@PathVariable Long id,
-                                @AuthenticationPrincipal AuthUser authUser,
-                                @Valid @ModelAttribute("form") ProductUpdateRequest req) {
-        productService.update(id, authUser.getId(), req);
-        return "redirect:/product/my-list";
-    }
-
-    @GetMapping("/product/image-url")
+    @GetMapping("/products/image-url")
     @ResponseBody
     public Map<String, String> getImageUrl(@RequestParam("key") String key) {
         String presignedGetUrl = s3Service.generatePresignedGetUrl(key);
         return Map.of("imageUrl", presignedGetUrl);
     }
 
-    @GetMapping("/product/list")
+    @GetMapping("/products")
     public String productList(Model model,  @AuthenticationPrincipal AuthUser authUser) {
         model.addAttribute("products", productService.findAllWithImages());
         model.addAttribute("productCount", productService.getProductCount());
-        return "product/productList";
+        return "products/productList";
     }
 
 
-    @GetMapping("/product/my-list")
+    @GetMapping("/products/my")
     public String myProductList(Model model, @AuthenticationPrincipal AuthUser authUser) {
         model.addAttribute("products", productService.findAllProductsBySellerId(authUser.getId()));
         model.addAttribute("productCount", productService.getProductCount());
-        return "product/myProductList";
+        return "products/myProductList";
     }
 
-    @DeleteMapping("/product/{id}")
+    @PostMapping("/products/{id}")
     public String deleteProduct(@PathVariable Long id,
                                 @AuthenticationPrincipal AuthUser authUser) {
         ProductListResponse currentProduct = productService.findEditableByIdAndSeller(id, authUser.getId());
@@ -148,6 +147,6 @@ public class ProductController {
         }
 
         productService.deleteProductById(id);
-        return "redirect:/product/my-list";
+        return "redirect:/products/my";
     }
 }
