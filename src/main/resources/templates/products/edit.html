@@ -19,13 +19,6 @@
       <td><input type="text" id="productName" name="productName" th:value="${product.productName}" required></td>
     </tr>
     <tr>
-      <th><label for="price">Price *</label></th>
-      <td>
-        <input type="number" id="price" name="price" min="1000" max="1000000000" step="1" th:value="${product.price}" required>
-        <span>원</span>
-      </td>
-    </tr>
-    <tr>
       <th><label for="description">Description</label></th>
       <td><textarea id="description" name="description" rows="4" cols="40" th:text="${product.description}"></textarea></td>
     </tr>
@@ -237,7 +230,7 @@
     formData.append('filename', filename);
     formData.append('contentType', contentType);
 
-    const response = await fetch('/product/presigned-url', {
+    const response = await fetch('/products/presigned-url', {
       method: 'POST',
       body: formData
     });

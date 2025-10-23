@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.devbid.auction.domain.Auction;
 import org.devbid.infrastructure.common.BaseEntity;
 import org.devbid.user.domain.User;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -27,8 +27,8 @@ public class Product extends BaseEntity {
     @Embedded
     private Description description;
 
-    @Embedded
-    private Price price;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Auction> auctions = new  ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
@@ -51,7 +51,6 @@ public class Product extends BaseEntity {
 
     public Product(ProductName productName,
                    Description description,
-                   Price price,
                    ProductImage productImage,
                    Category category,
                    ProductCondition condition,
@@ -60,16 +59,14 @@ public class Product extends BaseEntity {
     {
         this.productName = productName;
         this.description = description;
-        this.price = price;
         this.category = category;
         this.seller = seller;
     }
 
-    public static Product of(ProductName productName, Description description, Price price, Category category, ProductCondition condition, User seller) {
+    public static Product of(ProductName productName, Description description, Category category, ProductCondition condition, User seller) {
         Product product = new Product();
         product.productName = productName;
         product.description = description;
-        product.price = price;
         product.category = category;
         product.condition = condition;
         product.saleStatus = ProductStatus.ACTIVE;
@@ -81,7 +78,6 @@ public class Product extends BaseEntity {
     public boolean updateProductInfo(
             String productName,
             String description,
-            BigDecimal price,
             String condition
     ) {
         boolean isUpdated = false;
@@ -93,8 +89,6 @@ public class Product extends BaseEntity {
             //유연성: 나중에 검증 로직 추가 가능
             //ProductName.from(String) → ProductName 객체 생성
             //Description.from(String) → Description 객체 생성
-            //Price.from(BigDecimal) → Price 객체 생성 (검증 포함!)
-
             this.productName = ProductName.from(productName);
             isUpdated = true;
         }
@@ -102,12 +96,6 @@ public class Product extends BaseEntity {
         if (description != null) {
             //from() 정적 팩토리 메서드 사용
             this.description = Description.from(description);
-            isUpdated = true;
-        }
-
-        if (price != null) {
-            //from() 정적 팩토리 메서드 사용
-            this.price = Price.from(price);
             isUpdated = true;
         }
 

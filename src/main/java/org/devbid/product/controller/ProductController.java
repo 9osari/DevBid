@@ -66,7 +66,6 @@ public class ProductController {
         ProductRegistrationRequest registrationRequest = new ProductRegistrationRequest (
                 request.productName(),
                 request.description(),
-                request.price(),
                 request.categoryId(),
                 request.condition(),
                 authUser.getId(),
@@ -85,7 +84,7 @@ public class ProductController {
         return "products/success";
     }
 
-    @GetMapping("/product/{id}/edit")
+    @GetMapping("/products/{id}/edit")
     public String editProduct(@PathVariable Long id,
                               @AuthenticationPrincipal AuthUser authUser,
                               Model model) {

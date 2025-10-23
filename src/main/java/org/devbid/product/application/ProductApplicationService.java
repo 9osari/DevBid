@@ -41,7 +41,6 @@ public class ProductApplicationService implements ProductService {
         Product product = ProductFactory.createFromPrimitives(
                 request.productName(),
                 request.description(),
-                request.price(),
                 category,
                 request.condition(),
                 seller
@@ -67,7 +66,6 @@ public class ProductApplicationService implements ProductService {
         product.updateProductInfo(
                 req.productName(),
                 req.description(),
-                req.price(),
                 req.condition());
         product.updateMainImage(req.keepMainImageId(), req.mainImageKey());
         product.updateSubImages(req.keepSubImageIds(), req.subImageKeys());
