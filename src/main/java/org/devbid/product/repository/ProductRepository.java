@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByIdAndSellerId(Long id, Long sellerid);
 
+    Optional<Product> findById(Long id);
+
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.images " +
             "LEFT JOIN FETCH p.category " +

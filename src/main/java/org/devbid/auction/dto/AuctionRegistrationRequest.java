@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
-public record AuctionCreateRequest(
+public record AuctionRegistrationRequest(
         Long productId,
         BigDecimal startingPrice,
         BigDecimal buyoutPrice,
