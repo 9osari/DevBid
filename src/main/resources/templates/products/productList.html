@@ -1,62 +1,110 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title></title>
-  <link href="/css/theme.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="/css/theme.css" rel="stylesheet">
 </head>
 <body>
 
 <div th:if="${products != null and !products.isEmpty()}">
-  <table border="1">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Product Name</th>
-        <th>Description</th>
-        <th>Main Image</th>
-        <th>Sub Images</th>
-        <th>Category</th>
-        <th>Condition</th>
-        <th>Status</th>
-        <th>Seller</th>
-        <th>Created Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr th:each="product : ${products}">
-        <td th:text="${product.id}">1</td>
-        <td th:text="${product.productName}">product name</td>
-        <td th:text="${product.description}">description</td>
-        <td>
-          <img th:if="${product.mainImageUrl}"
-               th:src="${product.mainImageUrl}"
-               alt="메인 이미지"
-               style="width: 100px; height: 100px; object-fit: cover;">
-          <span th:unless="${product.mainImageUrl}">No Image</span>
-        </td>
-        <td>
-          <div th:if="${product.subImageUrls != null and !product.subImageUrls.isEmpty()}">
-            <img th:each="subImage : ${product.subImageUrls}"
-                 th:src="${subImage}"
-                 alt="서브 이미지"
-                 style="width: 100px; height: 100px; object-fit: cover; margin: 2px;">
-          </div>
-          <span th:if="${product.subImageUrls == null or product.subImageUrls.isEmpty()}">-</span>
-        </td>
-        <td th:text="${product.categoryName}">category</td>
-        <td th:text="${product.condition}">condition</td>
-        <td th:text="${product.saleStatus}">status</td>
-        <td th:text="${product.sellerName}">seller</td>
-        <td th:text="${#temporals.format(product.createdAt, '| yyyy-MM-dd | HH:mm |')}">date</td>
-      </tr>
-    </tbody>
-  </table>
-  <p>Total Products: <span th:text="${productCount}">0</span></p>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Product Name</th>
+            <th>Description</th>
+            <th>Main Image</th>
+            <th>Sub Images</th>
+            <th>Category</th>
+            <th>Condition</th>
+            <th>Status</th>
+            <th>Seller</th>
+            <th>Created Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${products}">
+            <td th:text="${product.id}">1</td>
+            <td th:text="${product.productName}">product name</td>
+            <td th:text="${product.description}">description</td>
+            <td>
+                <img th:if="${product.mainImageUrl}"
+                     th:src="${product.mainImageUrl}"
+                     loading="lazy"
+                     alt="메인 이미지"
+                     style="width: 100px; height: 100px; object-fit: cover;">
+                <span th:unless="${product.mainImageUrl}">No Image</span>
+            </td>
+            <td>
+                <div th:if="${product.subImageUrls != null and !product.subImageUrls.isEmpty()}">
+                    <img th:each="subImage : ${product.subImageUrls}"
+                         th:src="${subImage}"
+                         loading="lazy"
+                         alt="서브 이미지"
+                         style="width: 100px; height: 100px; object-fit: cover; margin: 2px;">
+                </div>
+                <span th:if="${product.subImageUrls == null or product.subImageUrls.isEmpty()}">-</span>
+            </td>
+            <td th:text="${product.categoryName}">category</td>
+            <td th:text="${product.condition}">condition</td>
+            <td th:text="${product.saleStatus}">status</td>
+            <td th:text="${product.sellerName}">seller</td>
+            <td th:text="${#temporals.format(product.createdAt, '| yyyy-MM-dd | HH:mm |')}">date</td>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <!-- 페이징 네비게이션 -->
+    <div class="pagination" th:if="${totalPages > 1}" style="margin-top: 20px; text-align: center;">
+        <!-- 이전 페이지 -->
+        <a th:if="${currentPage > 0}"
+           th:href="@{/products(page=${currentPage - 1}, size=10)}"
+           th:text="'이전'">이전</a>
+        <span th:if="${currentPage == 0}" class="disabled">이전</span>
+
+        <!-- 첫 페이지 -->
+        <a th:if="${currentPage > 2}"
+           th:href="@{/products(page=0, size=10)}"
+           th:text="1">1</a>
+        <span th:if="${currentPage > 3}">...</span>
+
+        <!-- 현재 페이지 기준 앞뒤 2개만 보여주기 -->
+        <span th:each="i : ${#numbers.sequence(
+        (currentPage - 2 > 0 ? currentPage - 2 : 0),
+        (currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1)
+    )}">
+        <a th:if="${i != currentPage}"
+           th:href="@{/products(page=${i}, size=10)}"
+           th:text="${i + 1}"></a>
+        <span th:if="${i == currentPage}"
+              class="current"
+              th:text="${i + 1}"
+              style="font-weight:bold; color:blue;"></span>
+    </span>
+
+        <!-- 마지막 페이지 -->
+        <span th:if="${currentPage < totalPages - 4}">...</span>
+        <a th:if="${currentPage < totalPages - 3}"
+           th:href="@{/products(page=${totalPages - 1}, size=10)}"
+           th:text="${totalPages}">마지막</a>
+
+        <!-- 다음 페이지 -->
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{/products(page=${currentPage + 1}, size=10)}"
+           th:text="'다음'">다음</a>
+        <span th:if="${currentPage >= totalPages - 1}" class="disabled">다음</span>
+    </div>
+
+    <p>전체 상품: <span th:text="${totalElements}">0</span>개</p>
+    <p>현재 페이지: <span th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span></p>
+
+    <p>Total Products: <span th:text="${productCount}">0</span></p>
 </div>
 
 <div th:if="${products == null or products.isEmpty()}">
-  <p>null</p>
+    <p>null</p>
 </div>
 
 <div>

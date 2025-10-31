@@ -7,6 +7,7 @@ import org.devbid.product.application.awsService.PresignedUrlData;
 import org.devbid.product.application.awsService.S3Service;
 import org.devbid.product.application.CategoryService;
 import org.devbid.product.application.ProductService;
+import org.devbid.product.domain.Product;
 import org.devbid.product.dto.CategoryDto;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.product.dto.ProductRegistrationRequest;
@@ -14,6 +15,9 @@ import org.devbid.product.dto.ProductUpdateRequest;
 import org.devbid.user.application.UserService;
 import org.devbid.user.domain.User;
 import org.devbid.user.security.AuthUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -123,16 +127,34 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public String productList(Model model,  @AuthenticationPrincipal AuthUser authUser) {
-        model.addAttribute("products", productService.findAllWithImages());
+    public String productList(Model model,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size
+                              )
+    {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductListResponse> productPage = productService.findAllWithImages(pageable);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("totalElements", productPage.getTotalElements());
         model.addAttribute("productCount", productService.getProductCount());
         return "products/productList";
     }
 
 
     @GetMapping("/products/my")
-    public String myProductList(Model model, @AuthenticationPrincipal AuthUser authUser) {
-        model.addAttribute("products", productService.findAllProductsBySellerId(authUser.getId()));
+    public String myProductList(Model model,
+                                @AuthenticationPrincipal AuthUser authUser,
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductListResponse> productPage = productService.findAllProductsBySellerId(authUser.getId(), pageable);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("totalElements", productPage.getTotalElements());
         model.addAttribute("productCount", productService.getProductCount());
         return "products/myProductList";
     }

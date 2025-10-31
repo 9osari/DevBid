@@ -4,6 +4,8 @@ package org.devbid.product.application;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.product.dto.ProductRegistrationRequest;
 import org.devbid.product.dto.ProductUpdateRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,8 +14,8 @@ public interface ProductService {
 
     void update(Long id, Long seller, ProductUpdateRequest product);
 
-    List<ProductListResponse> findAllWithImages();
-    List<ProductListResponse> findAllProductsBySellerId(Long seller);
+    Page<ProductListResponse> findAllWithImages(Pageable pageable);
+    Page<ProductListResponse> findAllProductsBySellerId(Long seller, Pageable  pageable);
     ProductListResponse findEditableByIdAndSeller(Long id, Long seller);
 
     long getProductCount();

@@ -15,6 +15,8 @@ import org.devbid.product.repository.ProductImageRepository;
 import org.devbid.product.repository.ProductRepository;
 import org.devbid.user.domain.User;
 import org.devbid.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,11 +105,9 @@ public class ProductApplicationService implements ProductService {
     }
 
     @Override
-    public List<ProductListResponse> findAllProductsBySellerId(Long sellerId) {
-        List<Product> products = productRepository.findBySellerId(sellerId);
-        return products.stream()
-                .map(this::convertToProductListResponse)
-                .toList();
+    public Page<ProductListResponse> findAllProductsBySellerId(Long sellerId,  Pageable pageable) {
+        Page<Product> productPage = productRepository.findBySellerId(sellerId, pageable);
+        return productPage.map(this::convertToProductListResponse);
     }
 
     @Override
@@ -118,11 +118,9 @@ public class ProductApplicationService implements ProductService {
     }
 
     @Override
-    public List<ProductListResponse> findAllWithImages() {
-        List<Product> products = productRepository.findAllWithImages();
-        return products.stream()
-                .map(this::convertToProductListResponse)
-                .toList();
+    public Page<ProductListResponse> findAllWithImages(Pageable pageable) {
+        Page<Product> productPage = productRepository.findAllWithImages(pageable);
+        return productPage.map(this::convertToProductListResponse);
     }
 
     private ProductListResponse convertToProductListResponse(Product product) {
