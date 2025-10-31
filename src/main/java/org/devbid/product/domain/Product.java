@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.devbid.auction.domain.Auction;
 import org.devbid.infrastructure.common.BaseEntity;
 import org.devbid.user.domain.User;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.Comparator;
