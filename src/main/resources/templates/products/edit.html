@@ -7,8 +7,7 @@
 </head>
 <body>
 <h2>Product Edit</h2>
-<form th:action="@{/templates/products/{id}/edit(id=${product.id})}" method="post" enctype="multipart/form-data">
-  <input type="hidden" name="_method" value="PUT"/>
+<form th:action="@{/products/{id}/edit(id=${product.id})}" method="post"  enctype="multipart/form-data">
   <table>
     <!-- 상품 정보 -->
     <tr>
