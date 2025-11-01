@@ -2,11 +2,15 @@ package org.devbid.auction.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.devbid.auction.application.AuctionApplicationService;
+import org.devbid.auction.application.AuctionDtoMapper;
 import org.devbid.auction.application.AuctionService;
+import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +26,14 @@ public class AuctionController {
 
     private final ProductService productService;
     private final AuctionService auctionService;
+    private final AuctionDtoMapper auctionDtoMapper;
+    @Autowired
+    private AuctionApplicationService auctionApplicationService;
+
+    @GetMapping("/auctionMain")
+    public String auctionMain() {
+        return "auctions/auctionMain";
+    }
 
     @GetMapping("/{productId}/new")
     public String newAuction(@PathVariable("productId") Long productId, @AuthenticationPrincipal AuthUser authUser, Model model) {
@@ -63,6 +75,19 @@ public class AuctionController {
 
         ra.addFlashAttribute("message", "경매가 성공적으로 등록되었습니다.");
         return "auctions/success";
+    }
+
+    @GetMapping("/auctions")
+    public String auctions(Model model) {
+        model.addAttribute("auctions", auctionService.findAllAuctions());
+        return "auctions/auctionList";
+    }
+
+    @GetMapping("/{auctionId}/bid")
+    public String bid(@PathVariable Long auctionId, Model model ) {
+        AuctionListResponse dto = auctionApplicationService.getAuctionDetail(auctionId);
+        model.addAttribute("auction", dto);
+        return "auctions/bid";
     }
 
 

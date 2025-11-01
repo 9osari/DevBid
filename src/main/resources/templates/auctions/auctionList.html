@@ -2,18 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>경매 목록</title>
+    <title>Auction List</title>
     <link href="/css/theme.css" rel="stylesheet">
 </head>
 <body>
 
-<h2>경매 목록</h2>
+<h2>Auction List</h2>
 
 <div th:if="${auctions != null and !auctions.isEmpty()}">
     <table>
         <thead>
         <tr>
             <th>ID</th>
+            <th>이미지</th>
             <th>상품명</th>
             <th>현재가</th>
             <th>즉시 구매가</th>
@@ -28,6 +29,16 @@
         <tr th:each="auction : ${auctions}">
             <td th:text="${auction.id()}"></td>
             <td>
+                <img th:if="${auction.mainImageUrl() != null}"
+                     th:src="${auction.mainImageUrl()}"
+                     alt="상품 이미지"
+                     style="width: 80px; height: 80px; object-fit: cover;">
+                <div th:unless="${auction.mainImageUrl() != null}"
+                     style="width: 80px; height: 80px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                    No Image
+                </div>
+            </td>
+            <td>
                 <a th:href="@{/auction/{id}(id=${auction.id()})}"
                    th:text="${auction.productName()}">상품명</a>
             </td>
@@ -39,7 +50,8 @@
                 <span th:text="${#temporals.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span>
             </td>
             <td th:text="${auction.sellerName()}">판매자</td>
-            <td><a th:href="@{/auction/{id}(id=${auction.id()})}">상세보기</a></td>
+            <td>
+            <a th:href="@{/auction/{id}/bid(id=${auction.id})}">입찰하기</a>
         </tr>
         </tbody>
     </table>
