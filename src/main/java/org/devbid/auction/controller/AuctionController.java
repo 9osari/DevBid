@@ -83,11 +83,11 @@ public class AuctionController {
         return "auctions/auctionList";
     }
 
-    @GetMapping("/{auctionId}/bid")
-    public String bid(@PathVariable Long auctionId, Model model ) {
+    @GetMapping("/{auctionId}/detail")
+    public String detail(@PathVariable Long auctionId, Model model ) {
         AuctionListResponse dto = auctionApplicationService.getAuctionDetail(auctionId);
         model.addAttribute("auction", dto);
-        return "auctions/bid";
+        return "auctions/detail";
     }
 
 
