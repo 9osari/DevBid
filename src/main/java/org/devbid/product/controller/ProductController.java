@@ -1,24 +1,28 @@
 package org.devbid.product.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.product.application.awsService.PresignedUrlData;
 import org.devbid.product.application.awsService.S3Service;
 import org.devbid.product.application.CategoryService;
 import org.devbid.product.application.ProductService;
+import org.devbid.product.domain.Product;
 import org.devbid.product.dto.CategoryDto;
+import org.devbid.product.dto.ProductListResponse;
 import org.devbid.product.dto.ProductRegistrationRequest;
+import org.devbid.product.dto.ProductUpdateRequest;
 import org.devbid.user.application.UserService;
 import org.devbid.user.domain.User;
 import org.devbid.user.security.AuthUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -36,12 +40,12 @@ public class ProductController {
     private final S3Service s3Service;
     private final RestClient.Builder builder;
 
-    @GetMapping("/productMain")
-    public String productMain() {
-        return "product/productMain";
+    @GetMapping("/productsMain")
+    public String productsMain() {
+        return "products/productsMain";
     }
 
-    @GetMapping("/product/new")
+    @GetMapping("/products/new")
     public String newProduct(@AuthenticationPrincipal AuthUser authUser, Model model) {
         User user = userService.findById(authUser.getId());
         model.addAttribute("user", user);
@@ -49,10 +53,10 @@ public class ProductController {
         List<CategoryDto> categoryDtoList = categoryService.getCategoryTree();
         model.addAttribute("categoryDtoList", categoryDtoList);
 
-        return "product/productRegister";
+        return "products/new";
     }
 
-    @PostMapping("/product/new")
+    @PostMapping("/products/new")
     public String createProduct(
             ProductRegistrationRequest request,
             @AuthenticationPrincipal AuthUser authUser,
@@ -60,14 +64,12 @@ public class ProductController {
             RedirectAttributes ra
     ) {
         if(result.hasErrors()) {
-            return "product/productRegister";
+            return "products/new";
         }
-
         // 이미지 URL은 프론트엔드에서 S3 업로드 후 받아옴
         ProductRegistrationRequest registrationRequest = new ProductRegistrationRequest (
                 request.productName(),
                 request.description(),
-                request.price(),
                 request.categoryId(),
                 request.condition(),
                 authUser.getId(),
@@ -78,10 +80,32 @@ public class ProductController {
         productService.registerProduct(registrationRequest);
 
         ra.addFlashAttribute("productName",request.productName());
-        return "redirect:/productRegisterSuccess";
+        return "redirect:/productSuccess";
     }
 
-    @PostMapping("/product/presigned-url")
+    @GetMapping("/productSuccess")
+    public String success() {
+        return "products/success";
+    }
+
+    @GetMapping("/products/{id}/edit")
+    public String editProduct(@PathVariable Long id,
+                              @AuthenticationPrincipal AuthUser authUser,
+                              Model model) {
+        model.addAttribute("product", productService.findEditableByIdAndSeller(id, authUser.getId()));
+        model.addAttribute("category", categoryService.findAllCategoryTree());
+        return "products/edit";
+    }
+
+    @PostMapping("/products/{id}/edit")
+    public String updateProduct(@PathVariable Long id,
+                                @AuthenticationPrincipal AuthUser authUser,
+                                @Valid @ModelAttribute("form") ProductUpdateRequest req) {
+        productService.update(id, authUser.getId(), req);
+        return "redirect:/products/my";
+    }
+
+    @PostMapping("/products/presigned-url")
     @ResponseBody
     public Map<String, String> getPresignedUrl(
             @RequestParam("filename") String filename,
@@ -95,30 +119,55 @@ public class ProductController {
         );
     }
 
-    @GetMapping("/productRegisterSuccess")
-    public String registerSuccess() {
-        return "product/registerSuccess";
-    }
-
-    @GetMapping("/product/image-url")
+    @GetMapping("/products/image-url")
     @ResponseBody
     public Map<String, String> getImageUrl(@RequestParam("key") String key) {
         String presignedGetUrl = s3Service.generatePresignedGetUrl(key);
         return Map.of("imageUrl", presignedGetUrl);
     }
 
-    @GetMapping("/product/list")
-    public String productList(Model model,  @AuthenticationPrincipal AuthUser authUser) {
-        model.addAttribute("products", productService.findAllProducts());
+    @GetMapping("/products")
+    public String productList(Model model,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size
+                              )
+    {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductListResponse> productPage = productService.findAllWithImages(pageable);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("totalElements", productPage.getTotalElements());
         model.addAttribute("productCount", productService.getProductCount());
-        return "product/myProductList";
+        return "products/productList";
     }
 
 
-    @GetMapping("/product/my-list")
-    public String myProductList(Model model, @AuthenticationPrincipal AuthUser authUser) {
-        model.addAttribute("products", productService.findAllProductsBySellerId(authUser.getId()));
+    @GetMapping("/products/my")
+    public String myProductList(Model model,
+                                @AuthenticationPrincipal AuthUser authUser,
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductListResponse> productPage = productService.findAllProductsBySellerId(authUser.getId(), pageable);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("totalElements", productPage.getTotalElements());
         model.addAttribute("productCount", productService.getProductCount());
-        return "product/productList";
+        return "products/myProductList";
+    }
+
+    @PostMapping("/products/{id}")
+    public String deleteProduct(@PathVariable Long id,
+                                @AuthenticationPrincipal AuthUser authUser) {
+        ProductListResponse currentProduct = productService.findEditableByIdAndSeller(id, authUser.getId());
+        if (currentProduct == null) {
+            throw new IllegalArgumentException("Product not found");
+        }
+
+        productService.deleteProductById(id);
+        return "redirect:/products/my";
     }
 }

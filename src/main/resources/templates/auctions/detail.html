@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${auction.productName} + ' - 경매 상세'">경매 상세</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/theme.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: "Times New Roman", serif;
+            color: #000;
+        }
+
+        h1, h3 {
+            color: navy;
+            border-bottom: 2px solid #000080;
+            padding-bottom: 4px;
+        }
+
+        .info-box {
+            background: #fff;
+            border: 2px solid #000;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .auction-section {
+            background: #f0f0f0;
+            border: 2px ridge #808080;
+            padding: 15px;
+        }
+
+        .btn-primary, .btn-danger {
+            background-color: #e0e0e0;
+            border: 2px outset #fff;
+            color: #000;
+            font-family: "Times New Roman", serif;
+        }
+
+        .btn-primary:hover, .btn-danger:hover {
+            background-color: #d0d0d0;
+            color: #000;
+        }
+
+        .price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: darkred;
+        }
+
+        .table th {
+            background-color: #000080;
+            color: #fff;
+        }
+
+        .placeholder-box {
+            background: #eee;
+            border: 1px solid #888;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1 th:text="${auction.productName}">상품명</h1>
+
+    <div class="row mt-4">
+        <!-- 좌측: 상품 정보 -->
+        <div class="col-lg-6">
+            <h3>Product Info</h3>
+            <div class="info-box">
+                <!-- 메인 이미지 -->
+                <div class="mb-3">
+                    <img th:if="${auction.mainImageUrl() != null}"
+                         th:src="${auction.mainImageUrl()}"
+                         alt="상품 메인 이미지"
+                         style="width: 100%; max-height: 400px; object-fit: contain; border: 1px solid #888;">
+                    <div th:unless="${auction.mainImageUrl() != null}" class="placeholder-box">
+                        [이미지 없음]
+                    </div>
+                </div>
+
+                <!-- 서브 이미지들 (메인 이미지 포함) -->
+                <div th:if="${auction.mainImageUrl() != null or (auction.subImageUrls() != null and !auction.subImageUrls().isEmpty())}"
+                     class="d-flex gap-2 mb-3" style="overflow-x: auto;">
+                    <!-- 메인 이미지 썸네일 추가 -->
+                    <img th:if="${auction.mainImageUrl() != null}"
+                         th:src="${auction.mainImageUrl()}"
+                         alt="메인 이미지"
+                         style="width: 80px; height: 80px; object-fit: cover; border: 2px solid #000; cursor: pointer;"
+                         onclick="changeMainImage(this.src)"
+                         title="메인 이미지">
+
+                    <!-- 서브 이미지들 -->
+                    <img th:each="subImageUrl : ${auction.subImageUrls()}"
+                         th:src="${subImageUrl}"
+                         alt="상품 서브 이미지"
+                         style="width: 80px; height: 80px; object-fit: cover; border: 1px solid #888; cursor: pointer;"
+                         onclick="changeMainImage(this.src)">
+                </div>
+
+
+                <p><strong>상품명:</strong> <span th:text="${auction.productName}">상품명</span></p>
+                <hr>
+                <p><strong>상품 상세 설명</strong></p>
+                <div style="max-height: 250px; overflow-y:auto; border:1px solid #ccc; padding:8px; background:#fff;">
+                    <p th:utext="${auction.description}">
+                        상품 상세 설명이 여기에 표시됩니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 우측: 경매 정보 -->
+        <div class="col-lg-6">
+            <h3>Auction Info</h3>
+            <div class="auction-section">
+                <p><strong>경매 상태:</strong>
+                    <span th:text="${auction.status}">ONGOING</span>
+                </p>
+                <p><strong>현재 입찰가:</strong>
+                    <span class="price"
+                          th:text="${#numbers.formatDecimal(auction.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">1,000,000원</span>
+                </p>
+                <p><strong>시작 가격:</strong>
+                    <span th:text="${#numbers.formatDecimal(auction.startingPrice, 0, 'COMMA', 0, 'POINT')} + '원'">100,000원</span>
+                </p>
+                <p><strong>즉시 구매가:</strong>
+                    <span class="text-success"
+                          th:text="${#numbers.formatDecimal(auction.buyoutPrice, 0, 'COMMA', 0, 'POINT')} + '원'">2,000,000원</span>
+                </p>
+                <p><strong>입찰 횟수:</strong> <span th:text="${auction.bidCount}">0</span> 회</p>
+
+                <hr>
+                <p><strong>시작 시간:</strong>
+                    <span th:text="${#temporals.format(auction.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+                <p><strong>종료 시간:</strong>
+                    <span th:text="${#temporals.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+
+                <hr>
+                <form th:action="@{/auction/bid/{auctionId}(auctionId=${auction.id})}" method="post">
+                    <label>입찰가 입력:</label>
+                    <input type="number" name="bidAmount" placeholder="현재가보다 높은 금액 입력" required style="width:70%;">
+                    <input type="submit" value="입찰하기">
+                </form>
+
+                <form th:action="@{/auction/buyout/{auctionId}(auctionId=${auction.id})}" method="post" class="mt-3">
+                    <input type="submit" value="즉시 구매하기">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/" class="btn btn-outline-secondary">홈으로</a>
+    </div>
+</div>
+
+<script>
+    function changeMainImage(src) {
+        const mainImg = document.querySelector('img[alt="상품 메인 이미지"]');
+        if (mainImg) {
+            mainImg.src = src;
+        }
+    }
+</script>
+
+</body>
+</html>

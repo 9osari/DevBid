@@ -16,6 +16,10 @@ public class Description {
         this.value = value;
     }
 
+    public static Description from(String value) {
+        return new Description(value);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;

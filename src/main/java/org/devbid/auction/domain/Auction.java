@@ -1,17 +1,6 @@
 package org.devbid.auction.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,8 +17,8 @@ public class Auction extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Embedded
@@ -40,6 +29,9 @@ public class Auction extends BaseEntity {
 
     @Embedded
     private CurrentPrice currentPrice;
+
+    @Column(name = "current_bidder_id")
+    private Long currentBidderId;
 
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
@@ -56,4 +48,23 @@ public class Auction extends BaseEntity {
 
     @Column(name = "bid_count", nullable = false)
     private int bidCount = 0;
+
+
+    public static Auction of(Product product,
+                             StartingPrice startingPrice,
+                             BuyoutPrice buyoutPrice,
+                             CurrentPrice currentPrice,
+                             LocalDateTime startTime,
+                             LocalDateTime endTime,
+                             AuctionStatus status) {
+        Auction auction = new Auction();
+        auction.product = product;
+        auction.startingPrice = startingPrice;
+        auction.buyoutPrice = buyoutPrice;
+        auction.currentPrice = currentPrice;
+        auction.startTime = startTime;
+        auction.endTime = endTime;
+        auction.status = status;
+        return auction;
+    }
 }

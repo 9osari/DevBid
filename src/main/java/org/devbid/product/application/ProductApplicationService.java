@@ -7,15 +7,20 @@ import org.devbid.product.domain.Category;
 import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductFactory;
 import org.devbid.product.domain.ProductImage;
+import org.devbid.product.dto.ProductListResponse;
 import org.devbid.product.dto.ProductRegistrationRequest;
+import org.devbid.product.dto.ProductUpdateRequest;
 import org.devbid.product.repository.CategoryRepository;
 import org.devbid.product.repository.ProductImageRepository;
 import org.devbid.product.repository.ProductRepository;
 import org.devbid.user.domain.User;
 import org.devbid.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -28,6 +33,7 @@ public class ProductApplicationService implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     @Override
     public void registerProduct(ProductRegistrationRequest request) {
@@ -37,7 +43,6 @@ public class ProductApplicationService implements ProductService {
         Product product = ProductFactory.createFromPrimitives(
                 request.productName(),
                 request.description(),
-                request.price(),
                 category,
                 request.condition(),
                 seller
@@ -47,6 +52,25 @@ public class ProductApplicationService implements ProductService {
 
         mainImageValidationAndSave(request, product);
         subImagesValidationAndSave(request, product);
+    }
+
+    @Override
+    public void update(Long productId, Long sellerId, ProductUpdateRequest req) {
+        Product product = productRepository.findByIdAndSellerId(productId, sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        if(req.categoryId() != null) {
+            Category category = categoryRepository.findById(req.categoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+            product.updateCategory(category);
+        }
+
+        product.updateProductInfo(
+                req.productName(),
+                req.description(),
+                req.condition());
+        product.updateMainImage(req.keepMainImageId(), req.mainImageKey());
+        product.updateSubImages(req.keepSubImageIds(), req.subImageKeys());
     }
 
     private void mainImageValidationAndSave(ProductRegistrationRequest request, Product product) {
@@ -81,17 +105,48 @@ public class ProductApplicationService implements ProductService {
     }
 
     @Override
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
+    public Page<ProductListResponse> findAllProductsBySellerId(Long sellerId,  Pageable pageable) {
+        Page<Product> productPage = productRepository.findBySellerId(sellerId, pageable);
+        return productPage.map(this::convertToProductListResponse);
     }
 
     @Override
-    public List<Product> findAllProductsBySellerId(Long sellerId) {
-        return productRepository.findBySellerId(sellerId);
+    public ProductListResponse findEditableByIdAndSeller(Long id, Long sellerId) {
+        Product product = productRepository.findEditableByIdAndSeller(id, sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+        return convertToProductListResponse(product);
+    }
+
+    @Override
+    public Page<ProductListResponse> findAllWithImages(Pageable pageable) {
+        Page<Product> productPage = productRepository.findAllWithImages(pageable);
+        return productPage.map(this::convertToProductListResponse);
+    }
+
+    private ProductListResponse convertToProductListResponse(Product product) {
+        String mainImageUrl = product.getImages().stream()
+                .filter(img -> img.getSortOrder() == 1)
+                .findFirst()
+                .map(img -> s3Service.generatePresignedGetUrl(img.getImageKey()))
+                .orElse(null);
+
+        List<String> subImageUrls = product.getImages().stream()
+                .filter(img -> img.getSortOrder() > 1)
+                .sorted(Comparator.comparing(ProductImage::getSortOrder))
+                .map(img -> s3Service.generatePresignedGetUrl(img.getImageKey()))
+                .toList();
+        return ProductListResponse.of(product, mainImageUrl, subImageUrls);
     }
 
     @Override
     public long getProductCount() {
         return productRepository.count();
+    }
+
+    @Override
+    public void deleteProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        product.softDelete();
     }
 }

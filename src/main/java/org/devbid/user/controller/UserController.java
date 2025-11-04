@@ -30,35 +30,48 @@ public class UserController {
 
     @GetMapping("/users/new")
     public String register(Model model) {
-        model.addAttribute("user", new UserRegistrationRequest("", "", "", "", "","","",""));
-        return "user/register";
+        model.addAttribute(
+                "user",
+                new UserRegistrationRequest(
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                )
+        );
+        return "users/new";
     }
 
-    @PostMapping("/users")
+    @PostMapping("/users/new")
     public String registerUser(
-            @Valid @ModelAttribute("user") UserRegistrationRequest request,
+            @Valid
+            @ModelAttribute("user") UserRegistrationRequest request,
             BindingResult result,
             RedirectAttributes ra) {
         if (result.hasErrors()) {
-            return "user/register";
+            return "users/new";
         }
         userService.registerUser(request);
 
         ra.addFlashAttribute("username", request.username());
         ra.addFlashAttribute("nickname", request.nickname());
-        return "redirect:/UserRegisterSuccess";
+        return "redirect:/userSuccess";
     }
 
-    @GetMapping("/UserRegisterSuccess")
-    public String registerSuccess() {
-        return "user/registerSuccess";
+    @GetMapping("/userSuccess")
+    public String success() {
+        return "users/success";
     }
 
     @GetMapping("/users")
     public String userList(Model model) {
         model.addAttribute("users", userService.findAllUsers());
         model.addAttribute("userCount", userService.getUserCount());
-        return "user/userList";
+        return "users/userList";
     }
 
     @GetMapping("/users/{id}/edit")
@@ -66,30 +79,32 @@ public class UserController {
         User user = userService.findById(id);
         model.addAttribute("user", user);
         model.addAttribute("form",
-                new UserUpdateRequest(user.getEmail().getValue(),
+                new UserUpdateRequest(
+                        user.getEmail().getValue(),
                         user.getNickname().getValue(),
                         user.getPhone().getValue(),
                         user.getAddress().getZipCode(),
                         user.getAddress().getStreet(),
                         user.getAddress().getDetail()
-                ));
-        return "user/userUpdate";
+                )
+        );
+        return "users/edit";
     }
 
-    @PutMapping("/users/{id}")
+    @PostMapping("/users/{id}/edit")
     public String userUpdateProc(@PathVariable Long id, @Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult result,
                                  Authentication auth, RedirectAttributes ra, Model model) {
         if (result.hasErrors()) {
             User user = userService.findById(id);
             model.addAttribute("user", user);
-            return "user/userUpdate";
+            return "users/edit";
         }
         userService.updateUser(id, request);
         ra.addFlashAttribute("msg", "User information has been updated.");
         return "redirect:/users";
     }
 
-    @DeleteMapping("/users/{id}")
+    @PostMapping("/users/{id}/delete")
     public String userDelete(@PathVariable Long id, HttpServletRequest request, Authentication auth, RedirectAttributes ra) {
         try {
             User currentUser = userService.findByUsername(auth.getName());
