@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.devbid.infrastructure.common.BaseEntity;
 import org.devbid.product.domain.Product;
+import org.devbid.user.domain.User;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -66,5 +68,28 @@ public class Auction extends BaseEntity {
         auction.endTime = endTime;
         auction.status = status;
         return auction;
+    }
+
+
+    //입찰
+    public Bid placeBid(User bidder, BidAmount bidAmount) {
+        //검증로직
+        if(this.status != AuctionStatus.ONGOING) {
+            throw new IllegalStateException("진행 중인 경매가 아닙니다.");
+        }
+        if(LocalDateTime.now().isAfter(this.endTime)) {
+            throw new IllegalStateException("경매가 종료되었습니다.");
+        }
+        if(this.currentPrice != null && bidAmount.getValue().compareTo(this.currentPrice.getValue()) <= 0) {
+            throw new IllegalStateException("현재가 보다 높은 금액을 입찰해주세요.");
+        }
+        if(this.product.getSeller().getId().equals(bidder.getId())) {
+            throw new IllegalStateException("판매자는 입찰 할 수 없습니다.");
+        }
+
+        this.currentPrice = new CurrentPrice(bidAmount.getValue());
+        this.currentBidderId = bidder.getId();
+        this.bidCount++;
+        return Bid.of(this, bidder, bidAmount); //새 입찰 생성
     }
 }

@@ -35,4 +35,11 @@ public class Bid extends BaseEntity {
     @Embedded
     private BidAmount bidAmount;
 
+    public static Bid of(Auction auction, User bidder, BidAmount bidAmount) {
+        Bid bid = new Bid();
+        bid.auction = auction;
+        bid.bidder = bidder;
+        bid.bidAmount = bidAmount;
+        return bid;
+    }
 }

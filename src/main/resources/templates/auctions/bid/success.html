@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bid Success!</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .check-icon {
+      color: #10B981;
+      width: 8rem;
+      height: 8rem;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'primary-blue': '#3B82F6',
+            'success-green': '#10B981',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+
+<div class="w-full max-w-xl">
+  <div class="bg-white shadow-2xl border border-gray-100 rounded-xl p-8 sm:p-12 text-center">
+
+    <div class="mb-6 flex justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-circle-fill check-icon text-success-green" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+      </svg>
+    </div>
+
+    <h2 class="mb-4 text-4xl font-extrabold text-gray-800">입찰 성공!</h2>
+
+    <p class="text-xl text-gray-600 mb-6">
+      <strong th:text="${auctionId}">[경매 ID]</strong>에 성공적으로 입찰하셨습니다.
+    </p>
+
+    <div th:if="${message != null and message != ''}" class="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-lg mb-8" role="alert">
+      <span class="font-semibold block sm:inline" th:text="${message}">Bid Successfully.</span>
+      <p class="text-sm mt-1 text-blue-600">현재 입찰 상황은 경매 상세 페이지에서 확인하실 수 있습니다.</p>
+    </div>
+
+    <div th:if="${message == null or message == ''}" class="bg-gray-100 text-gray-600 p-4 rounded-lg mb-8" role="alert">
+      <span class="font-semibold block sm:inline">입찰 요청이 성공적으로 처리되었습니다.</span>
+    </div>
+
+
+    <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+      <a th:href="@{/auction/{auctionId}/detail(auctionId=${auctionId})}" class="btn-primary-custom">
+        경매 상세 보기
+      </a>
+
+      <a href="/" class="btn-secondary-custom">
+        홈으로 이동
+      </a>
+    </div>
+
+    <!-- 버튼 스타일 정의 -->
+    <style>
+      .btn-primary-custom {
+        @apply bg-primary-blue text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-600 transition duration-300 ease-in-out w-full sm:w-auto text-lg;
+      }
+      .btn-secondary-custom {
+        @apply bg-white text-gray-700 border border-gray-300 font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-100 transition duration-300 ease-in-out w-full sm:w-auto text-lg;
+      }
+    </style>
+
+  </div>
+</div>
+
+</body>
+</html>

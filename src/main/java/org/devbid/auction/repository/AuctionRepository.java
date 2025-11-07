@@ -1,7 +1,6 @@
 package org.devbid.auction.repository;
 
 import org.devbid.auction.domain.Auction;
-import org.devbid.auction.dto.AuctionListResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

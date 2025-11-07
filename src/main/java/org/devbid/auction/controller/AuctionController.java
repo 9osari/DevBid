@@ -10,13 +10,14 @@ import org.devbid.auction.dto.AuctionRegistrationRequest;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Controller
@@ -27,8 +28,7 @@ public class AuctionController {
     private final ProductService productService;
     private final AuctionService auctionService;
     private final AuctionDtoMapper auctionDtoMapper;
-    @Autowired
-    private AuctionApplicationService auctionApplicationService;
+    private final AuctionApplicationService auctionApplicationService;
 
     @GetMapping("/auctionMain")
     public String auctionMain() {
@@ -88,6 +88,31 @@ public class AuctionController {
         AuctionListResponse dto = auctionApplicationService.getAuctionDetail(auctionId);
         model.addAttribute("auction", dto);
         return "auctions/detail";
+    }
+
+    @PostMapping("/bid/{auctionId}")
+    public String bid(@PathVariable Long auctionId,
+                      @RequestParam("bidAmount") BigDecimal bidAmount,
+                      @AuthenticationPrincipal AuthUser authUser,
+                      RedirectAttributes ra) {
+        try {
+            auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
+            ra.addFlashAttribute("message", "Bid Successfully.");
+            return "redirect:/auction/" + auctionId + "/success";
+        } catch (IllegalStateException e) {
+            log.error("입찰 실패 - auctionId: {}, error: {}", auctionId, e.getMessage(), e);
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/auction/" + auctionId + "/detail";
+        }
+    }
+
+    @GetMapping("/{auctionId}/success")
+    public String success(@PathVariable Long auctionId, Model model) {
+        model.addAttribute("auctionId", auctionId);
+        if(!model.containsAttribute("message")) {
+            model.addAttribute("massage", "");
+        }
+        return "auctions/bid/success";
     }
 
 
