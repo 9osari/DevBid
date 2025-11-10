@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 @Table(name = "auctions")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Auction extends BaseEntity {
+    @Version
+    private Long version;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

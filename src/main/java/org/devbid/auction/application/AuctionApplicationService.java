@@ -16,6 +16,7 @@ import org.devbid.product.domain.ProductImage;
 import org.devbid.product.repository.ProductRepository;
 import org.devbid.user.domain.User;
 import org.devbid.user.repository.UserRepository;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class AuctionApplicationService implements AuctionService{
     private final ProductRepository productRepository;
     private final AuctionRepository auctionRepository;
@@ -80,7 +80,18 @@ public class AuctionApplicationService implements AuctionService{
     private AuctionListResponse convertToResponse(Auction auction) {
         String mainImageUrl = getMainImageUrl(auction);
         List<String> subImageUrls = getSubImageUrls(auction);
-        return auctionDtoMapper.toResponse(auction, mainImageUrl, subImageUrls);
+        String winnerNickname = getWinnerNickname(auction);
+        return auctionDtoMapper.toResponse(auction, winnerNickname, mainImageUrl, subImageUrls);
+    }
+
+    private String getWinnerNickname(Auction auction) {
+        String winnerNickname = null;
+        if (auction.getCurrentBidderId() != null) {
+            winnerNickname = userRepository.findById(auction.getCurrentBidderId())
+                    .orElseThrow(() -> new IllegalArgumentException("user not found"))
+                    .getNickname().getValue();
+        }
+        return winnerNickname;
     }
 
     private String getMainImageUrl(Auction auction) {
@@ -100,14 +111,19 @@ public class AuctionApplicationService implements AuctionService{
     }
 
     @Override
+    @Transactional
     public void placeBid(Long auctionId, Long bidderId, BigDecimal bidAmount) {
         Auction auction = findById(auctionId);  //경매찾기
         User bidder = userRepository.findById(bidderId) //사용자 찾기
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        //도메인 객체에 비즈니스 로직 위임
-        Bid bid = auction.placeBid(bidder, new BidAmount(bidAmount));
-        bidRepository.save(bid);
+        try {
+            //도메인 객체에 비즈니스 로직 위임
+            Bid bid = auction.placeBid(bidder, new BidAmount(bidAmount));
+            bidRepository.save(bid);
+        } catch (OptimisticLockingFailureException e) {
+            throw new IllegalArgumentException("다른 입찰이 먼저 처리되었습니다.");
+        }
     }
 
 }

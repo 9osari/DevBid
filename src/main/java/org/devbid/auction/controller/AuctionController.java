@@ -99,7 +99,7 @@ public class AuctionController {
             auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
             ra.addFlashAttribute("message", "Bid Successfully.");
             return "redirect:/auction/" + auctionId + "/success";
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             log.error("입찰 실패 - auctionId: {}, error: {}", auctionId, e.getMessage(), e);
             ra.addFlashAttribute("error", e.getMessage());
             return "redirect:/auction/" + auctionId + "/detail";
