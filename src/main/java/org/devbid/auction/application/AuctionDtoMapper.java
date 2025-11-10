@@ -8,7 +8,7 @@ import java.util.List;
 
 @Component
 public class AuctionDtoMapper {
-    public AuctionListResponse toResponse(Auction auction, String mainImageUrl, List<String> subImageUrls) {
+    public AuctionListResponse toResponse(Auction auction, String winnerNickname, String mainImageUrl, List<String> subImageUrls) {
         return new AuctionListResponse(
                 auction.getId(),
                 auction.getProduct().getProductName().getValue(),
@@ -20,6 +20,8 @@ public class AuctionDtoMapper {
                 auction.getStartTime(),
                 auction.getEndTime(),
                 auction.getStatus(),
+                auction.getCurrentBidderId(),
+                winnerNickname,
                 auction.getProduct().getDescription().getValue(),
                 mainImageUrl,
                 subImageUrls

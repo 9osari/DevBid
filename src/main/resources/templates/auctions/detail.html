@@ -5,66 +5,6 @@
     <title th:text="${auction.productName} + ' - 경매 상세'">경매 상세</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/theme.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f5f5f5;
-            font-family: "Times New Roman", serif;
-            color: #000;
-        }
-
-        h1, h3 {
-            color: navy;
-            border-bottom: 2px solid #000080;
-            padding-bottom: 4px;
-        }
-
-        .info-box {
-            background: #fff;
-            border: 2px solid #000;
-            padding: 12px;
-            margin-bottom: 15px;
-        }
-
-        .auction-section {
-            background: #f0f0f0;
-            border: 2px ridge #808080;
-            padding: 15px;
-        }
-
-        .btn-primary, .btn-danger {
-            background-color: #e0e0e0;
-            border: 2px outset #fff;
-            color: #000;
-            font-family: "Times New Roman", serif;
-        }
-
-        .btn-primary:hover, .btn-danger:hover {
-            background-color: #d0d0d0;
-            color: #000;
-        }
-
-        .price {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: darkred;
-        }
-
-        .table th {
-            background-color: #000080;
-            color: #fff;
-        }
-
-        .placeholder-box {
-            background: #eee;
-            border: 1px solid #888;
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            color: #555;
-        }
-    </style>
 </head>
 <body>
 
@@ -115,6 +55,14 @@
                         상품 상세 설명이 여기에 표시됩니다.
                     </p>
                 </div>
+                <hr>
+                <!-- 판매자 정보 -->
+                <div class="user-info-box seller-box">
+                    <div class="user-details">
+                        <div class="user-label">판매자</div>
+                        <p class="user-name" th:text="${auction.sellerName()}">판매자</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -125,6 +73,25 @@
                 <p><strong>경매 상태:</strong>
                     <span th:text="${auction.status}">ONGOING</span>
                 </p>
+
+                <!-- 현재 최고 입찰자 정보 -->
+                <div class="user-info-box bidder-box" th:if="${auction.winnerName() != null and !auction.winnerName().isEmpty()}">
+                    <div class="user-details">
+                        <div class="user-label">최고 입찰자</div>
+                        <p class="user-name" th:text="${auction.winnerName()}">입찰자</p>
+                    </div>
+                </div>
+
+                <!-- 입찰자가 없는 경우 -->
+                <div class="user-info-box" th:unless="${auction.winnerName() != null and !auction.winnerName().isEmpty()}">
+                    <div class="user-details">
+                        <div class="user-label">최고 입찰자</div>
+                        <p class="user-name no-bidder">아직 입찰자가 없습니다</p>
+                    </div>
+                </div>
+
+                <hr>
+
                 <p><strong>현재 입찰가:</strong>
                     <span class="price"
                           th:text="${#numbers.formatDecimal(auction.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">1,000,000원</span>
@@ -144,15 +111,62 @@
                 <p><strong>종료 시간:</strong>
                     <span th:text="${#temporals.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
 
+                <!-- 카운트다운 타이머 -->
+                <div id="countdown-container" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+                     padding: 15px; margin: 15px 0; border-radius: 8px; text-align: center;
+                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="color: #fff; font-size: 12px; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px;">
+                        ⏰ TIME REMAINING
+                    </div>
+                    <div id="countdown" style="color: #fff; font-size: 28px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px;">
+                        계산 중...
+                    </div>
+                    <div id="countdown-status" style="color: #ffe0e0; font-size: 11px; margin-top: 5px;">
+                    </div>
+                </div>
+
                 <hr>
-                <form th:action="@{/auction/bid/{auctionId}(auctionId=${auction.id})}" method="post">
-                    <label>입찰가 입력:</label>
-                    <input type="number" name="bidAmount" placeholder="현재가보다 높은 금액 입력" required style="width:70%;">
-                    <input type="submit" value="입찰하기">
+                <form th:action="@{/auction/bid/{auctionId}(auctionId=${auction.id})}" method="post" id="bidForm">
+                    <label><strong>입찰가 입력:</strong></label>
+                    <input type="text" name="bidAmount" id="bidAmountInput" oninput="formatNumberInput(this)"
+                           th:placeholder="${#numbers.formatDecimal(auction.currentPrice + 100, 0, 'COMMA', 0, 'POINT')} + '원 이상'"
+                           required style="width:100%; padding: 8px; margin: 10px 0; font-size: 16px; border: 2px solid #ccc;">
+
+                    <!-- 빠른 입찰 버튼들 -->
+                    <div style="display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <button type="button" class="quick-bid-btn" onclick="setQuickBid(10000, event)"
+                                style="flex: 1; min-width: 80px; padding: 8px; background: #e3f2fd; border: 1px solid #2196F3;
+                                       color: #1976D2; font-size: 12px; cursor: pointer; border-radius: 4px;">
+                            +1만원
+                        </button>
+                        <button type="button" class="quick-bid-btn" onclick="setQuickBid(50000, event)"
+                                style="flex: 1; min-width: 80px; padding: 8px; background: #e3f2fd; border: 1px solid #2196F3;
+                                       color: #1976D2; font-size: 12px; cursor: pointer; border-radius: 4px;">
+                            +5만원
+                        </button>
+                        <button type="button" class="quick-bid-btn" onclick="setQuickBid(100000, event)"
+                                style="flex: 1; min-width: 80px; padding: 8px; background: #e3f2fd; border: 1px solid #2196F3;
+                                       color: #1976D2; font-size: 12px; cursor: pointer; border-radius: 4px;">
+                            +10만원
+                        </button>
+                        <button type="button" class="quick-bid-btn" onclick="setQuickBid(500000, event)"
+                                style="flex: 1; min-width: 80px; padding: 8px; background: #e3f2fd; border: 1px solid #2196F3;
+                                       color: #1976D2; font-size: 12px; cursor: pointer; border-radius: 4px;">
+                            +50만원
+                        </button>
+                    </div>
+
+                    <input type="submit" value="💰 입찰하기"
+                           style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
+                                  background: #4CAF50; color: white; border: none; border-radius: 4px;
+                                  cursor: pointer;">
                 </form>
 
                 <form th:action="@{/auction/buyout/{auctionId}(auctionId=${auction.id})}" method="post" class="mt-3">
-                    <input type="submit" value="즉시 구매하기">
+                    <input type="submit" value="⚡ 즉시 구매하기"
+                           style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
+                                  background: #FF5722; color: white; border: none; border-radius: 4px;
+                                  cursor: pointer;">
                 </form>
             </div>
         </div>
@@ -170,6 +184,127 @@
             mainImg.src = src;
         }
     }
+
+    const currentPrice = Number(/*[[${auction.currentPrice}]]*/ 0);
+
+    // 빠른 입찰 버튼 클릭 시
+    function setQuickBid(amount, event) {
+        const input = document.getElementById('bidAmountInput');
+        let currentValue = Number(input.value.replace(/,/g, '')) || currentPrice;
+        const newValue = currentValue + amount;
+
+        // 콤마 포맷 적용
+        input.value = newValue.toLocaleString('ko-KR');
+
+        // 버튼 클릭 효과
+        event.target.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            event.target.style.transform = 'scale(1)';
+        }, 100);
+    }
+
+    // 숫자에 콤마 추가
+    function formatNumberInput(input) {
+        let value = input.value.replace(/,/g, ''); // 콤마 제거
+        if (value && !isNaN(value)) {
+            input.value = Number(value).toLocaleString('ko-KR');
+        }
+    }
+
+    document.getElementById('bidForm').addEventListener('submit', function(e) {
+        const input = document.getElementById('bidAmountInput');
+        // 콤마 제거하고 순수 숫자만 남김
+        input.value = input.value.replace(/,/g, '');
+    });
+
+    // 카운트다운 타이머
+    function startCountdown() {
+        const endTimeStr = '[[${auction.endTime}]]';
+        if (!endTimeStr) return;
+
+        const endTime = new Date(endTimeStr).getTime();
+        const countdownElement = document.getElementById('countdown');
+        const containerElement = document.getElementById('countdown-container');
+        const statusElement = document.getElementById('countdown-status');
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                countdownElement.innerHTML = "경매 종료";
+                statusElement.innerHTML = "입찰이 마감되었습니다";
+                containerElement.style.background = "linear-gradient(135deg, #757575 0%, #616161 100%)";
+                clearInterval(countdownInterval);
+
+                // 입찰 폼 비활성화
+                document.getElementById('bidForm').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">경매가 종료되었습니다</p>';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // 시간 포맷팅
+            let timeString = '';
+            if (days > 0) {
+                timeString = `${days}일 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                statusElement.innerHTML = "충분한 시간이 남았습니다";
+            } else if (hours > 0) {
+                timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                if (hours < 3) {
+                    containerElement.style.background = "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)";
+                    statusElement.innerHTML = "⚠️ 마감이 임박했습니다!";
+                } else {
+                    statusElement.innerHTML = "서둘러 입찰하세요";
+                }
+            } else {
+                timeString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                containerElement.style.background = "linear-gradient(135deg, #f44336 0%, #d32f2f 100%)";
+                statusElement.innerHTML = "🔥 긴급! 곧 마감됩니다!";
+
+                // 1분 미만일 때 깜빡임 효과
+                if (minutes < 1) {
+                    countdownElement.style.animation = 'blink 1s infinite';
+                    statusElement.innerHTML = "🚨 마지막 기회!";
+                }
+            }
+
+            countdownElement.innerHTML = timeString;
+        }
+
+        // 즉시 실행
+        updateCountdown();
+
+        // 1초마다 업데이트
+        const countdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+    // 깜빡임 애니메이션을 위한 스타일 추가
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            25%, 75% { opacity: 0.3; }
+        }
+        .quick-bid-btn:hover {
+            background: #2196F3 !important;
+            color: white !important;
+            transform: translateY(-2px);
+            transition: all 0.2s;
+        }
+        input[type="submit"]:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            transition: all 0.2s;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 페이지 로드 시 카운트다운 시작
+    window.addEventListener('DOMContentLoaded', startCountdown);
 </script>
 
 </body>

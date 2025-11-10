@@ -153,3 +153,95 @@ hr {
     border-top: 1px solid #808080;
     margin: 10px 0;
 }
+
+body {
+    background-color: #f5f5f5;
+    font-family: "Times New Roman", serif;
+    color: #000;
+}
+
+h1, h3 {
+    color: navy;
+    border-bottom: 2px solid #000080;
+    padding-bottom: 4px;
+}
+
+.info-box {
+    background: #fff;
+    border: 2px solid #000;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.auction-section {
+    background: #f0f0f0;
+    border: 2px ridge #808080;
+    padding: 15px;
+}
+
+.price {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: darkred;
+}
+
+.table th {
+    background-color: #000080;
+    color: #fff;
+}
+
+.placeholder-box {
+    background: #eee;
+    border: 1px solid #888;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #555;
+}
+
+.user-info-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-details {
+    flex-grow: 1;
+}
+
+.user-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.user-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000080;
+    margin: 0;
+}
+
+.bidder-box {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+    border: 1px solid #ffc107;
+}
+
+.seller-box {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border: 1px solid #17a2b8;
+}
+
+.no-bidder {
+    color: #999;
+    font-style: italic;
+}

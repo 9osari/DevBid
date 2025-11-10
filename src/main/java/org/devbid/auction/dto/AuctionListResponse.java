@@ -17,6 +17,8 @@ public record AuctionListResponse(
         LocalDateTime startTime,
         LocalDateTime endTime,
         AuctionStatus status,
+        Long currentBidderId,
+        String winnerName,
         String description,
         String mainImageUrl,
         List<String> subImageUrls
@@ -32,6 +34,8 @@ public record AuctionListResponse(
              LocalDateTime startTime,
              LocalDateTime endTime,
              AuctionStatus status,
+             Long currentBidderId,
+             String winnerName,
              String description,
              String mainImageUrl,
              List<String> subImageUrls
@@ -48,6 +52,8 @@ public record AuctionListResponse(
                 startTime,
                 endTime,
                 status,
+                currentBidderId,
+                winnerName,
                 description,
                 mainImageUrl,
                 subImageUrls
