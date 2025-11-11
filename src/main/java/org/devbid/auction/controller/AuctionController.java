@@ -3,7 +3,6 @@ package org.devbid.auction.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.auction.application.AuctionApplicationService;
-import org.devbid.auction.application.AuctionDtoMapper;
 import org.devbid.auction.application.AuctionService;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
@@ -27,7 +26,6 @@ public class AuctionController {
 
     private final ProductService productService;
     private final AuctionService auctionService;
-    private final AuctionDtoMapper auctionDtoMapper;
     private final AuctionApplicationService auctionApplicationService;
 
     @GetMapping("/auctionMain")

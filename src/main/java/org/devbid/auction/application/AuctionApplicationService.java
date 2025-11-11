@@ -8,6 +8,7 @@ import org.devbid.auction.domain.Bid;
 import org.devbid.auction.domain.BidAmount;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
+import org.devbid.auction.event.BidPlacedEvent;
 import org.devbid.auction.repository.AuctionRepository;
 import org.devbid.auction.repository.BidRepository;
 import org.devbid.product.application.awsService.S3Service;
@@ -16,6 +17,7 @@ import org.devbid.product.domain.ProductImage;
 import org.devbid.product.repository.ProductRepository;
 import org.devbid.user.domain.User;
 import org.devbid.user.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,7 @@ public class AuctionApplicationService implements AuctionService{
     private final BidRepository bidRepository;
     private final AuctionDtoMapper auctionDtoMapper;
     private final S3Service s3Service;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void registerAuction(AuctionRegistrationRequest request,  Long sellerId) {
@@ -121,7 +124,13 @@ public class AuctionApplicationService implements AuctionService{
             //도메인 객체에 비즈니스 로직 위임
             Bid bid = auction.placeBid(bidder, new BidAmount(bidAmount));
             bidRepository.save(bid);
+
+            //웹소켓 이벤트 발행
+            BidPlacedEvent event = BidPlacedEvent.of(auctionId, bidderId, bidAmount);
+            eventPublisher.publishEvent(event);
+            log.info("입찰 이벤트 - event: {}", event);
         } catch (OptimisticLockingFailureException e) {
+            log.error("낙관적 락 충돌 auctionId: {}", auctionId, e);
             throw new IllegalArgumentException("다른 입찰이 먼저 처리되었습니다.");
         }
     }

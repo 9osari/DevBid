@@ -19,6 +19,12 @@ spring:
     hidden method:
       filter:
         enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # 일단 Redis 없이 구현하기 위함.
+      timeout: 2000ms
 
 cloud:
   aws:
