@@ -115,24 +115,31 @@ public class AuctionApplicationService implements AuctionService{
 
     @Override
     @Transactional
-    public void placeBid(Long auctionId, Long bidderId, BigDecimal bidAmount) {
+    public BidPlacedEvent placeBid(Long auctionId, Long bidderId, BigDecimal bidAmount) {
         Auction auction = findById(auctionId);  //경매찾기
         User bidder = userRepository.findById(bidderId) //사용자 찾기
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         try {
-            //도메인 객체에 비즈니스 로직 위임
+            //엔티티에 비즈니스 로직 위임
             Bid bid = auction.placeBid(bidder, new BidAmount(bidAmount));
             bidRepository.save(bid);
 
-            //웹소켓 이벤트 발행
-            BidPlacedEvent event = BidPlacedEvent.of(auctionId, bidderId, bidAmount);
-            eventPublisher.publishEvent(event);
-            log.info("입찰 이벤트 - event: {}", event);
+            return BidPlacedEvent.of(auctionId,
+                    bidderId,
+                    bid.getBidder().getNickname().getValue(),
+                    bidAmount,
+                    auction.getBidCount()
+            );
         } catch (OptimisticLockingFailureException e) {
             log.error("낙관적 락 충돌 auctionId: {}", auctionId, e);
             throw new IllegalArgumentException("다른 입찰이 먼저 처리되었습니다.");
         }
     }
 
+    public void publishBidEvent(BidPlacedEvent event) {
+        //웹소켓 이벤트 발행
+        eventPublisher.publishEvent(event);
+        log.info("입찰 이벤트 발행 - event: {}", event);
+    }
 }

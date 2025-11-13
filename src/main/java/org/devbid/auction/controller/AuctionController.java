@@ -6,6 +6,7 @@ import org.devbid.auction.application.AuctionApplicationService;
 import org.devbid.auction.application.AuctionService;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
+import org.devbid.auction.event.BidPlacedEvent;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
@@ -94,7 +95,9 @@ public class AuctionController {
                       @AuthenticationPrincipal AuthUser authUser,
                       RedirectAttributes ra) {
         try {
-            auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
+            BidPlacedEvent event = auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
+
+            auctionApplicationService.publishBidEvent(event);
             ra.addFlashAttribute("message", "Bid Successfully.");
             return "redirect:/auction/" + auctionId + "/success";
         } catch (IllegalArgumentException e) {
