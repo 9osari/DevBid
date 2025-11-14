@@ -39,7 +39,7 @@
                 </div>
             </td>
             <td>
-                <a th:href="@{/auction/{id}(id=${auction.id()})}"
+                <a th:href="@{/auctions/{id}(id=${auction.id()})}"
                    th:text="${auction.productName()}">상품명</a>
             </td>
             <td th:text="${#numbers.formatDecimal(auction.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">1,000,000원</td>
@@ -51,7 +51,7 @@
             </td>
             <td th:text="${auction.sellerName()}">판매자</td>
             <td>
-            <a th:href="@{/auction/{id}/detail(id=${auction.id})}">입찰하기</a>
+            <a th:href="@{/auctions/{id}/detail(id=${auction.id})}">입찰하기</a>
         </tr>
         </tbody>
     </table>

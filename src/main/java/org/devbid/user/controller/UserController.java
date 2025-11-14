@@ -71,7 +71,7 @@ public class UserController {
     public String userList(Model model) {
         model.addAttribute("users", userService.findAllUsers());
         model.addAttribute("userCount", userService.getUserCount());
-        return "users/userList";
+        return "users/list";
     }
 
     @GetMapping("/users/{id}/edit")

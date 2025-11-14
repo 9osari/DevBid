@@ -42,7 +42,23 @@ public class ProductController {
 
     @GetMapping("/productsMain")
     public String productsMain() {
-        return "products/productsMain";
+        return "products/main";
+    }
+
+    @GetMapping("/products")
+    public String productList(Model model,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size
+    )
+    {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductListResponse> productPage = productService.findAllWithImages(pageable);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("totalElements", productPage.getTotalElements());
+        model.addAttribute("productCount", productService.getProductCount());
+        return "products/list";
     }
 
     @GetMapping("/products/new")
@@ -56,7 +72,7 @@ public class ProductController {
         return "products/new";
     }
 
-    @PostMapping("/products/new")
+    @PostMapping("/products")
     public String createProduct(
             ProductRegistrationRequest request,
             @AuthenticationPrincipal AuthUser authUser,
@@ -126,23 +142,6 @@ public class ProductController {
         return Map.of("imageUrl", presignedGetUrl);
     }
 
-    @GetMapping("/products")
-    public String productList(Model model,
-                              @RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "10") int size
-                              )
-    {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductListResponse> productPage = productService.findAllWithImages(pageable);
-        model.addAttribute("products", productPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages());
-        model.addAttribute("totalElements", productPage.getTotalElements());
-        model.addAttribute("productCount", productService.getProductCount());
-        return "products/productList";
-    }
-
-
     @GetMapping("/products/my")
     public String myProductList(Model model,
                                 @AuthenticationPrincipal AuthUser authUser,
@@ -156,7 +155,7 @@ public class ProductController {
         model.addAttribute("totalPages", productPage.getTotalPages());
         model.addAttribute("totalElements", productPage.getTotalElements());
         model.addAttribute("productCount", productService.getProductCount());
-        return "products/myProductList";
+        return "products/myList";
     }
 
     @PostMapping("/products/{id}")

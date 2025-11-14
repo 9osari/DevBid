@@ -27,7 +27,7 @@ public class AuctionWebSocketEventListener {
         );
 
         //WebSocket 전송
-        messagingTemplate.convertAndSend("/topic/auction/" + event.getAuctionId(), dto);
+        messagingTemplate.convertAndSend("/topic/auctions/" + event.getAuctionId(), dto);
         log.info("WebSocket 전송 이벤트 종료..");
     }
 }

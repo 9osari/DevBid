@@ -128,7 +128,7 @@
                 </div>
 
                 <hr>
-                <form th:action="@{/auction/bid/{auctionId}(auctionId=${auction.id})}" method="post" id="bidForm">
+                <form th:action="@{/auctions/bid/{auctionId}(auctionId=${auction.id})}" method="post" id="bidForm">
                     <label><strong>입찰가 입력:</strong></label>
                     <input type="text" name="bidAmount" id="bidAmountInput" oninput="formatNumberInput(this)"
                            th:placeholder="${#numbers.formatDecimal(auction.currentPrice + 100, 0, 'COMMA', 0, 'POINT')} + '원 이상'"
@@ -164,7 +164,7 @@
                                   cursor: pointer;">
                 </form>
 
-                <form th:action="@{/auction/buyout/{auctionId}(auctionId=${auction.id})}" method="post" class="mt-3">
+                <form th:action="@{/auctions/buyout/{auctionId}(auctionId=${auction.id})}" method="post" class="mt-3">
                     <input type="submit" value="⚡ 즉시 구매하기"
                            style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
                                   background: #FF5722; color: white; border: none; border-radius: 4px;
@@ -321,7 +321,7 @@
 
             // 현재 경매의 토픽 구독
             const auctionId = [[${auction.id}]];
-            stompClient.subscribe('/topic/auction/' + auctionId, function (message) {
+            stompClient.subscribe('/topic/auctions/' + auctionId, function (message) {
                 const bidEvent = JSON.parse(message.body);
                 updateAuctionInfo(bidEvent);  // 화면 업데이트
             });

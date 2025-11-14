@@ -78,7 +78,7 @@
     </div>
 
 
-    <form th:action="@{/auction/{productId}/new(productId=${product.id})}" th:object="${auctionCreateRequest}" method="post">
+    <form th:action="@{/auctions/{productId}(productId=${product.id})}" th:object="${auctionCreateRequest}" method="post">
 
         <input type="hidden" th:field="*{productId}">
 

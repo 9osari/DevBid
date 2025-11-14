@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 
 @Slf4j
 @Controller
-@RequestMapping("/auction")
 @RequiredArgsConstructor
 public class AuctionController {
 
@@ -31,10 +30,16 @@ public class AuctionController {
 
     @GetMapping("/auctionMain")
     public String auctionMain() {
-        return "auctions/auctionMain";
+        return "auctions/main";
     }
 
-    @GetMapping("/{productId}/new")
+    @GetMapping("/auctions")
+    public String auctions(Model model) {
+        model.addAttribute("auctions", auctionService.findAllAuctions());
+        return "auctions/list";
+    }
+
+    @GetMapping("/auctions/{productId}")
     public String newAuction(@PathVariable("productId") Long productId, @AuthenticationPrincipal AuthUser authUser, Model model) {
         Long sellerId = authUser.getId();
         ProductListResponse product = productService.findEditableByIdAndSeller(productId, sellerId);
@@ -51,7 +56,7 @@ public class AuctionController {
         return "auctions/new";
     }
     
-    @PostMapping("/{productId}/new")
+    @PostMapping("/auctions/{productId}")
     public String createAuction(@ModelAttribute("auctionCreateRequest") AuctionRegistrationRequest request,
                                 @AuthenticationPrincipal AuthUser authUser,
                                 BindingResult result,
@@ -76,20 +81,14 @@ public class AuctionController {
         return "auctions/success";
     }
 
-    @GetMapping("/auctions")
-    public String auctions(Model model) {
-        model.addAttribute("auctions", auctionService.findAllAuctions());
-        return "auctions/auctionList";
-    }
-
-    @GetMapping("/{auctionId}/detail")
+    @GetMapping("/auctions/{auctionId}/detail")
     public String detail(@PathVariable Long auctionId, Model model ) {
         AuctionListResponse dto = auctionApplicationService.getAuctionDetail(auctionId);
         model.addAttribute("auction", dto);
         return "auctions/detail";
     }
 
-    @PostMapping("/bid/{auctionId}")
+    @PostMapping("/auctions/bid/{auctionId}")
     public String bid(@PathVariable Long auctionId,
                       @RequestParam("bidAmount") BigDecimal bidAmount,
                       @AuthenticationPrincipal AuthUser authUser,
@@ -99,15 +98,15 @@ public class AuctionController {
 
             auctionApplicationService.publishBidEvent(event);
             ra.addFlashAttribute("message", "Bid Successfully.");
-            return "redirect:/auction/" + auctionId + "/success";
+            return "redirect:/auctions/" + auctionId + "/success";
         } catch (IllegalArgumentException e) {
             log.error("입찰 실패 - auctionId: {}, error: {}", auctionId, e.getMessage(), e);
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/auction/" + auctionId + "/detail";
+            return "redirect:/auctions/" + auctionId + "/detail";
         }
     }
 
-    @GetMapping("/{auctionId}/success")
+    @GetMapping("/auctions/{auctionId}/success")
     public String success(@PathVariable Long auctionId, Model model) {
         model.addAttribute("auctionId", auctionId);
         if(!model.containsAttribute("message")) {
