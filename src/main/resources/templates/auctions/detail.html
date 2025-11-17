@@ -335,11 +335,17 @@
               bidEvent.currentPrice.toLocaleString('ko-KR') + '원';
 
           // 최고 입찰자 업데이트
-          document.getElementById('winnerName').textContent = bidEvent.bidderNickname;
+          document.getElementById('winnerName').textContent = bidEvent.bidderName;
 
           // 입찰 횟수 업데이트
           document.getElementById('bidCount').textContent = bidEvent.bidCount;
-      }
+
+          const bidInput = document.getElementById('bidAmountInput');
+          const minBidAmount = bidEvent.currentPrice + 100;
+          bidInput.placeholder = minBidAmount.toLocaleString('ko-KR') + '원 이상';
+
+          window.currentPrice = bidEvent.currentPrice;
+    }
 
     // 페이지 로드 시 연결
     window.addEventListener('DOMContentLoaded', connectWebSocket);
