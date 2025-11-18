@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.auction.dto.BidEventDto;
 import org.devbid.auction.event.BidPlacedEvent;
+import org.devbid.auction.event.BuyOutEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ public class AuctionWebSocketEventListener {
     public void handleBidPlacedEvent(BidPlacedEvent event ) {
         log.info("입찰 이벤트 수신: {}", event);
         //DTO 생성
-        BidEventDto dto = BidEventDto.from(
+        BidEventDto dto = BidEventDto.fromBid(
                 event.getAuctionId(),
                 event.getCurrentPrice(),
                 event.getBidderNickname(),
@@ -29,5 +30,18 @@ public class AuctionWebSocketEventListener {
         //WebSocket 전송
         messagingTemplate.convertAndSend("/topic/auctions/" + event.getAuctionId(), dto);
         log.info("WebSocket 전송 이벤트 종료..");
+    }
+
+    @EventListener
+    public void handleBuyOutEvent(BuyOutEvent event) {
+        log.info("즉시구매 이벤트 수신: {}", event);
+        BidEventDto dto = BidEventDto.fromBuyOut(
+                event.getAuctionId(),
+                event.getBuyoutPrice(),
+                event.getBuyerNickname(),
+                event.getBuyerId(),
+                event.getEndTime()
+        );
+        messagingTemplate.convertAndSend("/topic/auctions/" + event.getAuctionId(), dto);
     }
 }

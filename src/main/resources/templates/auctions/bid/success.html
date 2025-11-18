@@ -39,19 +39,27 @@
       </svg>
     </div>
 
-    <h2 class="mb-4 text-4xl font-extrabold text-gray-800">입찰 성공!</h2>
+    <h2 class="mb-4 text-4xl font-extrabold text-gray-800"
+          th:text="${eventType == 'BUYOUT'} ? 'Buyout Successfully' : 'Bid Successfully!'">
+        Bid Successfully.
+      </h2>
 
     <p class="text-xl text-gray-600 mb-6">
-      <strong th:text="${auctionId}">[경매 ID]</strong>에 성공적으로 입찰하셨습니다.
-    </p>
+        <strong th:text="${auctionId}">[경매 ID]</strong>에
+        <span th:text="${eventType == 'BUYOUT'} ? 'Buyout Successfully.' : 'Bid Successfully.'">
+          Bid Successfully.
+        </span>
+      </p>
 
-    <div th:if="${message != null and message != ''}" class="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-lg mb-8" role="alert">
-      <span class="font-semibold block sm:inline" th:text="${message}">Bid Successfully.</span>
-      <p class="text-sm mt-1 text-blue-600">현재 입찰 상황은 경매 상세 페이지에서 확인하실 수 있습니다.</p>
-    </div>
-
-    <div th:if="${message == null or message == ''}" class="bg-gray-100 text-gray-600 p-4 rounded-lg mb-8" role="alert">
-      <span class="font-semibold block sm:inline">입찰 요청이 성공적으로 처리되었습니다.</span>
+    <div th:if="${message != null and message != ''}"
+         th:classappend="${eventType == 'BUYOUT'} ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-blue-50 border-blue-200 text-blue-700'"
+         class="border p-4 rounded-lg mb-8" role="alert">
+      <span class="font-semibold block sm:inline" th:text="${message}"></span>
+      <p class="text-sm mt-1"
+         th:classappend="${eventType == 'BUYOUT'} ? 'text-orange-600' : 'text-blue-600'">
+        <span th:if="${eventType == 'BUYOUT'}">경매가 종료되었습니다. 낙찰 확인은 경매 상세 페이지에서 가능합니다.</span>
+        <span th:unless="${eventType == 'BUYOUT'}">현재 입찰 상황은 경매 상세 페이지에서 확인하실 수 있습니다.</span>
+      </p>
     </div>
 
 

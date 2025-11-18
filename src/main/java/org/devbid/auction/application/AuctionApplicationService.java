@@ -9,6 +9,7 @@ import org.devbid.auction.domain.BidAmount;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
 import org.devbid.auction.event.BidPlacedEvent;
+import org.devbid.auction.event.BuyOutEvent;
 import org.devbid.auction.repository.AuctionRepository;
 import org.devbid.auction.repository.BidRepository;
 import org.devbid.product.application.awsService.S3Service;
@@ -137,7 +138,29 @@ public class AuctionApplicationService implements AuctionService{
         }
     }
 
-    public void publishBidEvent(BidPlacedEvent event) {
+    @Override
+    @Transactional
+    public BuyOutEvent buyOut(Long auctionId, Long buyerId) {
+        Auction auction = findById(auctionId);
+        User buyer = userRepository.findById(buyerId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        try {
+            Bid bid = auction.buyOut(buyer);
+            bidRepository.save(bid);
+            return BuyOutEvent.of(
+                    auctionId,
+                    buyerId,
+                    buyer.getNickname().getValue(),
+                    auction.getBuyoutPrice().getValue(),
+                    bid.getAuction().getEndTime()
+            );
+        } catch (OptimisticLockingFailureException e) {
+            log.error("낙관적 락 충돌 auctionId: {}", auctionId, e);
+            throw new IllegalArgumentException("다른 즉시구매가 먼저 처리되었습니다.");
+        }
+    }
+
+    public <T> void publishBidEvent(T event) {
         //웹소켓 이벤트 발행
         eventPublisher.publishEvent(event);
         log.info("입찰 이벤트 발행 - event: {}", event);

@@ -1,7 +1,10 @@
 package org.devbid.auction.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,11 +38,16 @@ public class Bid extends BaseEntity {
     @Embedded
     private BidAmount bidAmount;
 
-    public static Bid of(Auction auction, User bidder, BidAmount bidAmount) {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "bid_type", nullable = false)
+    private BidType type = BidType.NORMAL;
+
+    public static Bid of(Auction auction, User bidder, BidAmount bidAmount, BidType bidtype) {
         Bid bid = new Bid();
         bid.auction = auction;
         bid.bidder = bidder;
         bid.bidAmount = bidAmount;
+        bid.type = bidtype;
         return bid;
     }
 }

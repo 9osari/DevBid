@@ -73,11 +73,12 @@
             <h3>Auction Info</h3>
             <div class="auction-section">
                 <p><strong>경매 상태:</strong>
-                    <span th:text="${auction.status}">ONGOING</span>
+                    <span id="auctionStatus" th:text="${auction.status}">ONGOING</span>
                 </p>
 
                 <!-- 현재 최고 입찰자 정보 -->
-                <div class="user-info-box bidder-box" th:if="${auction.winnerName() != null and !auction.winnerName().isEmpty()}">
+                <div class="user-info-box bidder-box"
+                     th:if="${auction.winnerName() != null and !auction.winnerName().isEmpty()}">
                     <div class="user-details">
                         <div class="user-label">최고 입찰자</div>
                         <p class="user-name" id="winnerName" th:text="${auction.winnerName()}">입찰자</p>
@@ -85,7 +86,8 @@
                 </div>
 
                 <!-- 입찰자가 없는 경우 -->
-                <div class="user-info-box" th:unless="${auction.winnerName() != null and !auction.winnerName().isEmpty()}">
+                <div class="user-info-box"
+                     th:unless="${auction.winnerName() != null and !auction.winnerName().isEmpty()}">
                     <div class="user-details">
                         <div class="user-label">최고 입찰자</div>
                         <p class="user-name no-bidder" id="winnerName">아직 입찰자가 없습니다</p>
@@ -111,7 +113,7 @@
                 <p><strong>시작 시간:</strong>
                     <span th:text="${#temporals.format(auction.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
                 <p><strong>종료 시간:</strong>
-                    <span th:text="${#temporals.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+                    <span id="endTime" th:text="${#temporals.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span>
 
                 <!-- 카운트다운 타이머 -->
                 <div id="countdown-container" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
@@ -120,7 +122,8 @@
                     <div style="color: #fff; font-size: 12px; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px;">
                         ⏰ TIME REMAINING
                     </div>
-                    <div id="countdown" style="color: #fff; font-size: 28px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px;">
+                    <div id="countdown"
+                         style="color: #fff; font-size: 28px; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px;">
                         계산 중...
                     </div>
                     <div id="countdown-status" style="color: #ffe0e0; font-size: 11px; margin-top: 5px;">
@@ -132,7 +135,8 @@
                     <label><strong>입찰가 입력:</strong></label>
                     <input type="text" name="bidAmount" id="bidAmountInput" oninput="formatNumberInput(this)"
                            th:placeholder="${#numbers.formatDecimal(auction.currentPrice + 100, 0, 'COMMA', 0, 'POINT')} + '원 이상'"
-                           required style="width:100%; padding: 8px; margin: 10px 0; font-size: 16px; border: 2px solid #ccc;">
+                           required
+                           style="width:100%; padding: 8px; margin: 10px 0; font-size: 16px; border: 2px solid #ccc;">
 
                     <!-- 빠른 입찰 버튼들 -->
                     <div style="display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
@@ -158,24 +162,59 @@
                         </button>
                     </div>
 
-                    <input type="submit" value="💰 입찰하기"
+                    <input type="submit" value="Place Bid"
                            style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
                                   background: #4CAF50; color: white; border: none; border-radius: 4px;
                                   cursor: pointer;">
                 </form>
 
-                <form th:action="@{/auctions/buyout/{auctionId}(auctionId=${auction.id})}" method="post" class="mt-3">
-                    <input type="submit" value="⚡ 즉시 구매하기"
-                           style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
-                                  background: #FF5722; color: white; border: none; border-radius: 4px;
-                                  cursor: pointer;">
-                </form>
+                <!-- 즉시구매 버튼 (모달 트리거) -->
+                <button type="button" class="mt-3" data-bs-toggle="modal" data-bs-target="#buyoutModal"
+                        style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
+                               background: #FF5722; color: white; border: none; border-radius: 4px;
+                               cursor: pointer;">
+                    Buy Now
+                </button>
             </div>
         </div>
     </div>
 
     <div class="text-center mt-4">
         <a href="/" class="btn btn-outline-secondary">홈으로</a>
+    </div>
+</div>
+
+<!-- 즉시구매 확인 모달 -->
+<div class="modal fade" id="buyoutModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Buy Now</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">
+                    Would you like to buy <strong th:text="${auction.productName}">Product Name</strong> now?
+                </p>
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #FF5722;">
+                    <p class="mb-2"><strong>Buy Now Price</strong></p>
+                    <p class="mb-0" style="font-size: 24px; font-weight: bold; color: #FF5722;">
+                        <span th:text="${#numbers.formatDecimal(auction.buyoutPrice, 0, 'COMMA', 0, 'POINT')}">0</span>원
+                    </p>
+                </div>
+                <p class="text-warning-custom small mt-3">Buying now will end the auction.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+
+                <form th:action="@{/auctions/{auctionId}/buyout(auctionId=${auction.id})}" method="post"
+                      class="d-inline">
+                    <button type="submit" class="btn btn-danger" style="background: #FF5722; border-color: #FF5722;">
+                        Buy Now
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -234,13 +273,13 @@
             const distance = endTime - now;
 
             if (distance < 0) {
-                countdownElement.innerHTML = "경매 종료";
-                statusElement.innerHTML = "입찰이 마감되었습니다";
+                countdownElement.innerHTML = "Auction Ended..";
+                statusElement.innerHTML = "Bidding has closed";
                 containerElement.style.background = "linear-gradient(135deg, #757575 0%, #616161 100%)";
                 clearInterval(countdownInterval);
 
-                // 입찰 폼 비활성화
-                document.getElementById('bidForm').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">경매가 종료되었습니다</p>';
+                // 버튼들 비활성화
+                disableAuctionButtons();
                 return;
             }
 
@@ -252,25 +291,25 @@
             // 시간 포맷팅
             let timeString = '';
             if (days > 0) {
-                timeString = `${days}일 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                statusElement.innerHTML = "충분한 시간이 남았습니다";
+                timeString = `${days}d ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                statusElement.innerHTML = "Plenty of time remaining.";
             } else if (hours > 0) {
                 timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                 if (hours < 3) {
                     containerElement.style.background = "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)";
-                    statusElement.innerHTML = "⚠️ 마감이 임박했습니다!";
+                    statusElement.innerHTML = "Closing soon!";
                 } else {
-                    statusElement.innerHTML = "서둘러 입찰하세요";
+                    statusElement.innerHTML = "Place your bid now!";
                 }
             } else {
                 timeString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                 containerElement.style.background = "linear-gradient(135deg, #f44336 0%, #d32f2f 100%)";
-                statusElement.innerHTML = "🔥 긴급! 곧 마감됩니다!";
+                statusElement.innerHTML = "Ending soon.";
 
                 // 1분 미만일 때 깜빡임 효과
                 if (minutes < 1) {
                     countdownElement.style.animation = 'blink 1s infinite';
-                    statusElement.innerHTML = "🚨 마지막 기회!";
+                    statusElement.innerHTML = "Final chance!";
                 }
             }
 
@@ -281,7 +320,7 @@
         updateCountdown();
 
         // 1초마다 업데이트
-        const countdownInterval = setInterval(updateCountdown, 1000);
+        countdownInterval = setInterval(updateCountdown, 1000);
     }
 
     // 깜빡임 애니메이션을 위한 스타일 추가
@@ -305,12 +344,74 @@
     `;
     document.head.appendChild(style);
 
-    // 페이지 로드 시 카운트다운 시작
-    window.addEventListener('DOMContentLoaded', startCountdown);
-
-
     // 웹소켓 연결 및 구독
     let stompClient = null;
+    let countdownInterval = null;  // 카운트다운 interval 전역 변수
+
+    // 페이지 로드 시 실행
+    window.addEventListener('DOMContentLoaded', function() {
+        checkAuctionStatus();  // 경매 상태 체크
+        startCountdown();
+        connectWebSocket();
+    });
+
+    // 경매 상태 체크
+    function checkAuctionStatus() {
+        const statusStr = '[[${auction.status}]]';
+        const endTimeStr = '[[${auction.endTime}]]';
+
+        // 서버에서 이미 ENDED 상태로 로드되었다면
+        if (statusStr === 'ENDED') {
+            disableAuctionButtons();
+            return;
+        }
+
+        // 시간이 지났다면
+        const endTime = new Date(endTimeStr).getTime();
+        const now = new Date().getTime();
+
+        if (now >= endTime) {
+            disableAuctionButtons();
+        }
+    }
+
+    // Auction Ended 버튼 비활성화
+    function disableAuctionButtons() {
+        // 입찰 input 비활성화
+        const bidInput = document.getElementById('bidAmountInput');
+        if (bidInput) {
+            bidInput.disabled = true;
+            bidInput.style.background = '#f5f5f5';
+            bidInput.placeholder = 'The auction has ended...';
+        }
+
+        // 빠른 입찰 버튼들 비활성화
+        document.querySelectorAll('.quick-bid-btn').forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        });
+
+        // 입찰하기 버튼 비활성화
+        const submitBtn = document.querySelector('input[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.value = 'Auction Ended..';
+            submitBtn.style.background = '#9e9e9e';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+
+        // 즉시구매 버튼 비활성화
+        const buyoutBtn = document.querySelector('button[data-bs-target="#buyoutModal"]');
+        if (buyoutBtn) {
+            buyoutBtn.disabled = true;
+            buyoutBtn.textContent = 'Auction Ended..';
+            buyoutBtn.style.background = '#9e9e9e';
+            buyoutBtn.style.cursor = 'not-allowed';
+            buyoutBtn.removeAttribute('data-bs-toggle');
+            buyoutBtn.removeAttribute('data-bs-target');
+        }
+    }
 
     function connectWebSocket() {
         const socket = new SockJS('/ws');
@@ -322,34 +423,71 @@
             // 현재 경매의 토픽 구독
             const auctionId = [[${auction.id}]];
             stompClient.subscribe('/topic/auctions/' + auctionId, function (message) {
-                const bidEvent = JSON.parse(message.body);
-                updateAuctionInfo(bidEvent);  // 화면 업데이트
+                const event = JSON.parse(message.body);
+
+                if (event.eventType === 'BUY_OUT') {
+                    handleBuyOutEvent(event);
+                } else {
+                    updateAuctionInfo(event);
+                }
             });
         });
     }
 
     // 입찰 정보 실시간 업데이트
     function updateAuctionInfo(bidEvent) {
-          // 현재가 업데이트
-          document.querySelector('.price').textContent =
-              bidEvent.currentPrice.toLocaleString('ko-KR') + '원';
+        // 현재가 업데이트
+        document.querySelector('.price').textContent = bidEvent.currentPrice.toLocaleString('ko-KR') + '원';
 
-          // 최고 입찰자 업데이트
-          document.getElementById('winnerName').textContent = bidEvent.bidderName;
+        // 최고 입찰자 업데이트
+        document.getElementById('winnerName').textContent = bidEvent.bidderName;
 
-          // 입찰 횟수 업데이트
-          document.getElementById('bidCount').textContent = bidEvent.bidCount;
+        // 입찰 횟수 업데이트
+        document.getElementById('bidCount').textContent = bidEvent.bidCount;
 
-          const bidInput = document.getElementById('bidAmountInput');
-          const minBidAmount = bidEvent.currentPrice + 100;
-          bidInput.placeholder = minBidAmount.toLocaleString('ko-KR') + '원 이상';
+        const bidInput = document.getElementById('bidAmountInput');
+        const minBidAmount = bidEvent.currentPrice + 100;
+        bidInput.placeholder = minBidAmount.toLocaleString('ko-KR') + '원 이상';
 
-          window.currentPrice = bidEvent.currentPrice;
+        window.currentPrice = bidEvent.currentPrice;
     }
 
-    // 페이지 로드 시 연결
-    window.addEventListener('DOMContentLoaded', connectWebSocket);
+    //즉시구매 웹소켓
+    function handleBuyOutEvent(event) {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+
+        // 경매 상태
+        document.getElementById('auctionStatus').textContent = 'ENDED';
+
+        // 최고 입찰자
+        document.getElementById('winnerName').textContent = event.bidderName;
+
+        // 현재가
+        document.querySelector('.price').textContent = event.currentPrice.toLocaleString('ko-KR') + '원';
+
+        // 카운트다운 종료
+        document.getElementById('countdown').innerHTML = "Auction Completed!";
+        document.getElementById('countdown-status').innerHTML = "The auction has ended...";
+        document.getElementById('countdown-container').style.background = "linear-gradient(135deg, #FF5722 0%, #E64A19 100%)";
+
+        if (event.timestamp) {
+            const buyoutTime = new Date(event.timestamp);
+            document.getElementById('endTime').textContent = buyoutTime.getFullYear() + '-' +
+                String(buyoutTime.getMonth() + 1).padStart(2, '0') + '-' +
+                String(buyoutTime.getDate()).padStart(2, '0') + ' ' +
+                String(buyoutTime.getHours()).padStart(2, '0') + ':' +
+                String(buyoutTime.getMinutes()).padStart(2, '0');
+        }
+
+        // 버튼들 비활성화
+        disableAuctionButtons();
+    }
 </script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

@@ -7,6 +7,7 @@ import org.devbid.auction.application.AuctionService;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
 import org.devbid.auction.event.BidPlacedEvent;
+import org.devbid.auction.event.BuyOutEvent;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
@@ -97,7 +98,9 @@ public class AuctionController {
             BidPlacedEvent event = auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
 
             auctionApplicationService.publishBidEvent(event);
-            ra.addFlashAttribute("message", "Bid Successfully.");
+
+            ra.addFlashAttribute("eventType", "BID");
+            ra.addFlashAttribute("message", "Bid Successfully!");
             return "redirect:/auctions/" + auctionId + "/success";
         } catch (IllegalArgumentException e) {
             log.error("입찰 실패 - auctionId: {}, error: {}", auctionId, e.getMessage(), e);
@@ -114,6 +117,25 @@ public class AuctionController {
         }
         return "auctions/bid/success";
     }
+
+    @PostMapping("/auctions/{auctionId}/buyout")
+    public String buyout(@PathVariable Long auctionId,
+                         @AuthenticationPrincipal AuthUser authUser,
+                         RedirectAttributes ra) {
+        try{
+            BuyOutEvent event = auctionApplicationService.buyOut(auctionId, authUser.getId());
+            auctionApplicationService.publishBidEvent(event);
+
+            ra.addFlashAttribute("eventType", "BUYOUT");
+            ra.addFlashAttribute("message", "Buyout Successfully!");
+            return "redirect:/auctions/" + auctionId + "/success";
+        } catch (IllegalArgumentException e) {
+            log.error("Buyout fail - auctionId: {}, error: {}", auctionId, e.getMessage(), e);
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/auctions/" + auctionId + "/detail";
+        }
+    }
+
 
 
 }

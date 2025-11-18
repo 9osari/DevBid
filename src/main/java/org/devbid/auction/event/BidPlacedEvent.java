@@ -13,7 +13,16 @@ public class BidPlacedEvent {
     private final BigDecimal currentPrice;  //입찰 후 업데이트된 가격
     private final int bidCount;     //입찰 횟수
 
-    public static BidPlacedEvent of(Long auctionId, Long bidderId, String bidderNickname, BigDecimal currentPrice, int bidCount) {
-        return new BidPlacedEvent(auctionId, bidderId, bidderNickname, currentPrice, bidCount);
+    public static BidPlacedEvent of(Long auctionId,
+                                    Long bidderId,
+                                    String bidderNickname,
+                                    BigDecimal currentPrice,
+                                    int bidCount) {
+        return new BidPlacedEvent(
+                auctionId,
+                bidderId,
+                bidderNickname,
+                currentPrice,
+                bidCount);
     }
 }

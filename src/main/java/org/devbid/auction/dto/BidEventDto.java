@@ -2,12 +2,13 @@ package org.devbid.auction.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.devbid.auction.domain.BidType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * WebSocket으로 전솔할 입찰 이벤트 DTO
+ * WebSocket으로 전송할 입찰 이벤트 DTO
  * 입찰이 발생하는 경우 모든 클라이언트에게 전송할 데이터들
  */
 @Getter
@@ -20,12 +21,13 @@ public class BidEventDto {
     private Integer bidCount;           //입찰 횟수
     private LocalDateTime timestamp;    //입찰 시각
     private String eventType;           //메세지
+    private LocalDateTime endTime;
 
-    public static BidEventDto from(Long auctionId,
-                                   BigDecimal currentPrice,
-                                   String bidderName,
-                                   Long bidderId,
-                                   Integer bidCount) {
+    public static BidEventDto fromBid(Long auctionId,
+                                      BigDecimal currentPrice,
+                                      String bidderName,
+                                      Long bidderId,
+                                      Integer bidCount) {
         return BidEventDto.builder()
                 .auctionId(auctionId)
                 .currentPrice(currentPrice)
@@ -33,9 +35,30 @@ public class BidEventDto {
                 .bidderId(bidderId.toString())
                 .bidCount(bidCount)
                 .timestamp(LocalDateTime.now())
-                .eventType("BID_PLACED")
+                .eventType(BidType.NORMAL.getEventType())
                 .build();
 
+    }
+
+    /**
+     * WebSocket으로 전송할 입찰 이벤트 DTO
+     * 즉시구매가 발생하는 경우 모든 클라이언트에게 전송할 데이터들
+     */
+    public static BidEventDto fromBuyOut(Long auctionId,
+                                         BigDecimal buyoutPrice,
+                                         String buyerNickname,
+                                         Long buyerId,
+                                         LocalDateTime endTime) {
+        return BidEventDto.builder()
+                .auctionId(auctionId)
+                .currentPrice(buyoutPrice)
+                .bidderName(buyerNickname)
+                .bidderId(buyerId.toString())
+                .bidCount(null)
+                .timestamp(LocalDateTime.now())
+                .eventType(BidType.BUYOUT.getEventType())
+                .endTime(endTime)
+                .build();
     }
 
 }

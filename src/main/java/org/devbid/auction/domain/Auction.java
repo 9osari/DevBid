@@ -93,6 +93,26 @@ public class Auction extends BaseEntity {
         this.currentPrice = new CurrentPrice(bidAmount.getValue());
         this.currentBidderId = bidder.getId();
         this.bidCount++;
-        return Bid.of(this, bidder, bidAmount); //새 입찰 생성
+        return Bid.of(this, bidder, bidAmount, BidType.NORMAL); //새 입찰 생성
+    }
+
+    //즉시구매
+    public Bid buyOut(User buyer) {
+        //검증로직
+        if(this.status != AuctionStatus.ONGOING) {
+            throw new IllegalStateException("진행 중인 경매가 아닙니다.");
+        }
+        if(LocalDateTime.now().isAfter(this.endTime)) {
+            throw new IllegalStateException("경매가 종료되었습니다.");
+        }
+        if(this.product.getSeller().getId().equals(buyer.getId())) {
+            throw new IllegalStateException("판매자는 즉시구매 할 수 없습니다.");
+        }
+        this.currentPrice = new CurrentPrice(this.buyoutPrice.getValue());  //현재가 -> 즉시구매가 갱신
+        this.currentBidderId = buyer.getId();
+        this.endTime= LocalDateTime.now();
+        this.status = AuctionStatus.ENDED;  //경매 종료
+        return Bid.of(this, buyer, new BidAmount(this.buyoutPrice.getValue()), BidType.BUYOUT);
+
     }
 }
