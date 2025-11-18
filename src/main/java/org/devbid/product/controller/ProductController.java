@@ -38,7 +38,6 @@ public class ProductController {
     private final CategoryService categoryService;
     private final ProductService productService;
     private final S3Service s3Service;
-    private final RestClient.Builder builder;
 
     @GetMapping("/productsMain")
     public String productsMain() {

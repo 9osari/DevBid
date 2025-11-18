@@ -127,13 +127,13 @@ public class ProductApplicationService implements ProductService {
         String mainImageUrl = product.getImages().stream()
                 .filter(img -> img.getSortOrder() == 1)
                 .findFirst()
-                .map(img -> s3Service.generatePresignedGetUrl(img.getImageKey()))
+                .map(img -> s3Service.buildPublicUrl(img.getImageKey()))
                 .orElse(null);
 
         List<String> subImageUrls = product.getImages().stream()
                 .filter(img -> img.getSortOrder() > 1)
                 .sorted(Comparator.comparing(ProductImage::getSortOrder))
-                .map(img -> s3Service.generatePresignedGetUrl(img.getImageKey()))
+                .map(img -> s3Service.buildPublicUrl(img.getImageKey()))
                 .toList();
         return ProductListResponse.of(product, mainImageUrl, subImageUrls);
     }
