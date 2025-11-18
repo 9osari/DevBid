@@ -73,7 +73,22 @@ public class Auction extends BaseEntity {
         return auction;
     }
 
+    //스케줄러 경매전 -> 시작
+    public void startAuction() {
+        if(this.status != AuctionStatus.BEFORE_START) {
+            throw new IllegalStateException("시작 대기 상태인 경매만 시작할 수 있습니다.");
+        }
+        this.status = AuctionStatus.ONGOING;
+    }
 
+    //스케줄러 경매시작 -> 종료
+    public void endAuction() {
+        if(this.status != AuctionStatus.ONGOING) {
+            throw new IllegalStateException("진행 중 경매만 종료할 수 있습니다.");
+        }
+        this.status = AuctionStatus.ENDED;
+    }
+    
     //입찰
     public Bid placeBid(User bidder, BidAmount bidAmount) {
         //검증로직

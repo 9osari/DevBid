@@ -1,10 +1,12 @@
 package org.devbid.auction.repository;
 
 import org.devbid.auction.domain.Auction;
+import org.devbid.auction.domain.AuctionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +16,10 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     List<Auction> findAllAuctions();
 
     Optional<Auction> findById(Long auctionId);
+
+    //스케줄러 경매 시작전 -> 시작
+    List<Auction> findByStatusAndStartTimeBefore(AuctionStatus status, LocalDateTime startTime);
+
+    //스케줄러 경매 시작 -> 종료
+    List<Auction> findByStatusAndEndTimeBefore(AuctionStatus status, LocalDateTime endTime);
 }
