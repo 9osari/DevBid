@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:p6spy:mysql://localhost:3306/devbid_test
+    url: jdbc:p6spy:mysql://devbid-aws.ctcs86yq6ak9.ap-northeast-2.rds.amazonaws.com:3306/devbid_home?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:}
     password: ${DB_PASSWORD:}
     driver-class-name: com.p6spy.engine.spy.P6SpyDriver
@@ -29,10 +29,10 @@ spring:
 cloud:
   aws:
     s3:
-      bucket: ${AWS_S3_BUCKET:aws-s3-bucket-devbid}
-      region: ${AWS_REGION:eu-north-1}
+      bucket: ${AWS_S3_BUCKET:}
+      region: ${AWS_REGION:ap-northeast-2}
     cloudfront:
-      domain: ${AWS_CLOUDFRONT_DOMAIN:dqtqfyr92dz08.cloudfront.net}
+      domain: ${AWS_CLOUDFRONT_DOMAIN:}
     credentials:
       access-key: ${AWS_ACCESS_KEY:}
       secret-key: ${AWS_SECRET_KEY:}
