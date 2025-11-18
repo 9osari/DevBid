@@ -30,6 +30,7 @@
 
 ### Frontend
 - 최소한의 구현
+- HTML, JSP, BootStrap
 
 ### 실시간 통신
 - WebSocket: 실시간 입찰 현황 및 알림 처리
