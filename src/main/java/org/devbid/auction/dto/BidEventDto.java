@@ -1,7 +1,9 @@
 package org.devbid.auction.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.devbid.auction.domain.BidType;
 
 import java.math.BigDecimal;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Builder
+@NoArgsConstructor  //Jackson이 객체 만들 때 사용
+@AllArgsConstructor // @Builder가 내부적으로 필요함 둘 다 있어야 @Builder + Jackson 역직렬화 가능
 public class BidEventDto {
     private Long auctionId;             //경매 ID
     private BigDecimal currentPrice;    //현재가
@@ -21,7 +25,7 @@ public class BidEventDto {
     private Integer bidCount;           //입찰 횟수
     private LocalDateTime timestamp;    //입찰 시각
     private String eventType;           //메세지
-    private LocalDateTime endTime;
+    private LocalDateTime endTime;      //종료시간
 
     public static BidEventDto fromBid(Long auctionId,
                                       BigDecimal currentPrice,

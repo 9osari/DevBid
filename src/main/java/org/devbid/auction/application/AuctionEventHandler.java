@@ -3,17 +3,19 @@ package org.devbid.auction.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.auction.dto.BidEventDto;
-import org.devbid.auction.event.BidPlacedEvent;
-import org.devbid.auction.event.BuyOutEvent;
+import org.devbid.auction.dto.BidPlacedEvent;
+import org.devbid.auction.dto.BuyOutEvent;
+import org.devbid.auction.infrastructure.cache.AuctionCacheManager;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AuctionWebSocketEventListener {
-    private final SimpMessagingTemplate messagingTemplate;
+public class AuctionEventHandler {
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final AuctionCacheManager auctionCacheManager;
 
     @EventListener
     public void handleBidPlacedEvent(BidPlacedEvent event ) {
@@ -26,10 +28,14 @@ public class AuctionWebSocketEventListener {
                 event.getBidderId(),
                 event.getBidCount()
         );
-
-        //WebSocket 전송
-        messagingTemplate.convertAndSend("/topic/auctions/" + event.getAuctionId(), dto);
-        log.info("WebSocket 전송 이벤트 종료..");
+        // Redis에 최신 정보 저장
+        auctionCacheManager.setLatestBid(event.getAuctionId(), dto);
+        try {
+            redisTemplate.convertAndSend("auction.events", dto); // Pub/Sub 전송
+            log.info("Redis 발행 완료: {}", event.getAuctionId());
+        } catch (Exception e) {
+            log.error("Redis 발행 실패", e);
+        }
     }
 
     @EventListener
@@ -42,6 +48,13 @@ public class AuctionWebSocketEventListener {
                 event.getBuyerId(),
                 event.getEndTime()
         );
-        messagingTemplate.convertAndSend("/topic/auctions/" + event.getAuctionId(), dto);
+        // Redis에 최신 정보 저장
+        auctionCacheManager.setLatestBid(event.getAuctionId(), dto);
+        try {
+            redisTemplate.convertAndSend("auction.events", dto);
+            log.info("Redis 발행 완료: {}", event.getAuctionId());
+        } catch (Exception e) {
+            log.error("Redis 발행 실패", e);
+        }
     }
 }

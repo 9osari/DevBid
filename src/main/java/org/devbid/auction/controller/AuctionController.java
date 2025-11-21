@@ -6,8 +6,8 @@ import org.devbid.auction.application.AuctionApplicationService;
 import org.devbid.auction.application.AuctionService;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
-import org.devbid.auction.event.BidPlacedEvent;
-import org.devbid.auction.event.BuyOutEvent;
+import org.devbid.auction.dto.BidPlacedEvent;
+import org.devbid.auction.dto.BuyOutEvent;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
@@ -97,7 +97,7 @@ public class AuctionController {
         try {
             BidPlacedEvent event = auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
 
-            auctionApplicationService.publishBidEvent(event);
+            auctionApplicationService.publishDomainEvent(event);
 
             ra.addFlashAttribute("eventType", "BID");
             ra.addFlashAttribute("message", "Bid Successfully!");
@@ -124,7 +124,7 @@ public class AuctionController {
                          RedirectAttributes ra) {
         try{
             BuyOutEvent event = auctionApplicationService.buyOut(auctionId, authUser.getId());
-            auctionApplicationService.publishBidEvent(event);
+            auctionApplicationService.publishDomainEvent(event);
 
             ra.addFlashAttribute("eventType", "BUYOUT");
             ra.addFlashAttribute("message", "Buyout Successfully!");

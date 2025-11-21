@@ -1,4 +1,4 @@
-package org.devbid.auction.event;
+package org.devbid.auction.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
