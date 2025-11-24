@@ -12,6 +12,9 @@ import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,6 +43,20 @@ public class AuctionController {
     public String auctions(Model model) {
         model.addAttribute("auctions", auctionService.findAllAuctions());
         return "auctions/list";
+    }
+
+    @GetMapping("/auctions/my")
+    public String myAuctions(Model model,
+                             @AuthenticationPrincipal AuthUser authUser,
+                             @RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AuctionListResponse> auctionPage = auctionService.findAllAuctionsById(authUser.getId(), pageable);
+        model.addAttribute("auctions", auctionPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", auctionPage.getTotalPages());
+        model.addAttribute("totalItems", auctionPage.getTotalElements());
+        return "auctions/myList";
     }
 
     @GetMapping("/auctions/{productId}")

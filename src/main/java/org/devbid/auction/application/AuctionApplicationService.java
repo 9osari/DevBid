@@ -15,6 +15,8 @@ import org.devbid.product.domain.ProductImage;
 import org.devbid.product.repository.ProductRepository;
 import org.devbid.user.repository.UserRepository;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -62,6 +64,12 @@ public class AuctionApplicationService implements AuctionService{
         return auctionRepository.findAll().stream()
                 .map(this::convertToResponse)
                 .toList();
+    }
+
+    @Override
+    public Page<AuctionListResponse> findAllAuctionsById(Long id, Pageable pageable) {
+        Page<Auction> auctions = auctionRepository.findBySellerId(id, pageable);
+        return auctions.map(this::convertToResponse);
     }
 
     @Override
