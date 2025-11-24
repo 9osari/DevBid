@@ -58,17 +58,9 @@ public class RedisConfig {
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://" + redisHost + ":" + redisPort)
-                .setPassword(redisPassword);
+                .setAddress("redis://" + redisHost + ":" + redisPort);
+                /*.setPassword(redisPassword);*/
         return Redisson.create(config);
-    }
-
-    @Bean
-    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory) {
-        //Redis 메세지를 듣는 컨테이너
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        return container;
     }
 
     @Bean
@@ -77,7 +69,8 @@ public class RedisConfig {
         return new ChannelTopic("auction.events");  //채널 이름
     }
 
-    @Bean RedisMessageListenerContainer redisMessageListenerContainer(
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
             AuctionRedisSubscriber subscriber,
             ChannelTopic auctionTopic) {

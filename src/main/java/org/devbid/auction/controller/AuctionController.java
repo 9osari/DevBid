@@ -6,9 +6,12 @@ import org.devbid.auction.application.AuctionApplicationService;
 import org.devbid.auction.application.AuctionService;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
+import org.devbid.auction.dto.BidPlacedEvent;
+import org.devbid.auction.dto.BuyOutEvent;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +29,7 @@ public class AuctionController {
     private final ProductService productService;
     private final AuctionService auctionService;
     private final AuctionApplicationService auctionApplicationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @GetMapping("/auctionMain")
     public String auctionMain() {
@@ -93,7 +97,9 @@ public class AuctionController {
                       @AuthenticationPrincipal AuthUser authUser,
                       RedirectAttributes ra) {
         try {
-            auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
+            BidPlacedEvent event = auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
+
+            eventPublisher.publishEvent(event);
 
             ra.addFlashAttribute("eventType", "BID");
             ra.addFlashAttribute("message", "Bid Successfully!");
@@ -119,7 +125,10 @@ public class AuctionController {
                          @AuthenticationPrincipal AuthUser authUser,
                          RedirectAttributes ra) {
         try{
-            auctionApplicationService.buyOut(auctionId, authUser.getId());
+            BuyOutEvent event = auctionApplicationService.buyOut(auctionId, authUser.getId());
+
+            eventPublisher.publishEvent(event);
+
             ra.addFlashAttribute("eventType", "BUYOUT");
             ra.addFlashAttribute("message", "Buyout Successfully!");
             return "redirect:/auctions/" + auctionId + "/success";

@@ -9,14 +9,12 @@ import org.devbid.auction.dto.AuctionRegistrationRequest;
 import org.devbid.auction.dto.BidPlacedEvent;
 import org.devbid.auction.dto.BuyOutEvent;
 import org.devbid.auction.repository.AuctionRepository;
-import org.devbid.auction.repository.BidRepository;
 import org.devbid.product.application.awsService.S3Service;
 import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductImage;
 import org.devbid.product.repository.ProductRepository;
 import org.devbid.user.repository.UserRepository;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
