@@ -21,7 +21,11 @@ public class AuctionLockManager {
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("락 대기 중 인터럽트 발생" +e);
+
+        } catch (IllegalStateException  e) {
+            // 비즈니스 로직 예외는 그대로 전파
+            throw e;
 
         } catch (Exception e) {
             throw new IllegalStateException("락 실행 중 오류", e);

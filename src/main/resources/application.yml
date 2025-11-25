@@ -1,5 +1,5 @@
 server:
-  port: 3000
+  port: ${SERVER_PORT:3000}
 
 spring:
   datasource:
@@ -21,10 +21,13 @@ spring:
         enabled: true
   data:
     redis:
-      host: localhost
+      host: 13.125.27.106
       port: 6379
-      timeout: 2000ms
       password: ${REDIS_PASSWORD}
+  session:
+    store-type: redis
+    redis:
+      namespace: devbid:session
 
 cloud:
   aws:
