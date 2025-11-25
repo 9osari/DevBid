@@ -7,8 +7,6 @@ import org.devbid.product.dto.ProductUpdateRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface ProductService {
     void registerProduct(ProductRegistrationRequest product);
 
@@ -19,6 +17,7 @@ public interface ProductService {
     ProductListResponse findEditableByIdAndSeller(Long id, Long seller);
 
     long getProductCount();
+    long countBySellerIdAndStatusNot(Long sellerId);
 
     void deleteProductById(Long id);
 }

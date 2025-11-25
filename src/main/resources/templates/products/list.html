@@ -99,8 +99,6 @@
 
     <p>전체 상품: <span th:text="${totalElements}">0</span>개</p>
     <p>현재 페이지: <span th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span></p>
-
-    <p>Total Products: <span th:text="${productCount}">0</span></p>
 </div>
 
 <div th:if="${products == null or products.isEmpty()}">

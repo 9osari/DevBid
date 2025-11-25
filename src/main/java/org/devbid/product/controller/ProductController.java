@@ -151,7 +151,7 @@ public class ProductController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
         model.addAttribute("totalElements", productPage.getTotalElements());
-        model.addAttribute("productCount", productService.getProductCount());
+        model.addAttribute("productCount", productService.countBySellerIdAndStatusNot(authUser.getId()));
         return "products/myList";
     }
 

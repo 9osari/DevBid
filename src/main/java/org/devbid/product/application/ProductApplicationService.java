@@ -7,6 +7,7 @@ import org.devbid.product.domain.Category;
 import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductFactory;
 import org.devbid.product.domain.ProductImage;
+import org.devbid.product.domain.ProductStatus;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.product.dto.ProductRegistrationRequest;
 import org.devbid.product.dto.ProductUpdateRequest;
@@ -141,6 +142,11 @@ public class ProductApplicationService implements ProductService {
     @Override
     public long getProductCount() {
         return productRepository.count();
+    }
+
+    @Override
+    public long countBySellerIdAndStatusNot(Long sellerId) {
+        return productRepository.countBySellerIdAndSaleStatusNot(sellerId, ProductStatus.DELETED);
     }
 
     @Override
