@@ -19,6 +19,8 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     Optional<Auction> findById(Long auctionId);
 
+    Optional<Auction> findByIdAndProductSellerId(Long auctionId, Long sellerId);
+
     @Query("SELECT a FROM Auction a " +
     "LEFT JOIN a.product b " +
     "WHERE b.seller.id = :sellerId " +

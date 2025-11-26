@@ -1,9 +1,11 @@
 package org.devbid.auction.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.auction.application.AuctionApplicationService;
 import org.devbid.auction.application.AuctionService;
+import org.devbid.auction.dto.AuctionEditRequest;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
 import org.devbid.auction.dto.BidPlacedEvent;
@@ -99,6 +101,39 @@ public class AuctionController {
 
         ra.addFlashAttribute("message", "경매가 성공적으로 등록되었습니다.");
         return "auctions/success";
+    }
+
+    @GetMapping("/auctions/{id}/edit")
+    public String editAuction(@PathVariable Long id,
+                              Model model) {
+        AuctionListResponse auction = auctionApplicationService.getAuctionDetail(id);
+        if(auction.bidCount() > 0) {
+            throw new IllegalStateException("입찰이 진행 중인 경매는 수정할 수 없습니다.");
+        }
+
+        AuctionEditRequest editRequest = new AuctionEditRequest(
+                id,
+                auction.startingPrice(),
+                auction.buyoutPrice(),
+                auction.startTime(),
+                auction.endTime()
+        );
+
+        model.addAttribute("auction", auction);
+        model.addAttribute("auctionEditRequest", editRequest);
+        return "auctions/edit";
+    }
+
+    @PostMapping("/auctions/{id}/edit")
+    public String updateAuction(@PathVariable Long id,
+                                @AuthenticationPrincipal AuthUser authUser,
+                                @Valid @ModelAttribute("auctionEditRequest") AuctionEditRequest request,
+                                BindingResult result) {
+        if(result.hasErrors()) {
+            return "auctions/edit";
+        }
+        auctionService.updateAuction(id, request, authUser.getId());
+        return "redirect:/auctions/my";
     }
 
     @GetMapping("/auctions/{auctionId}/detail")

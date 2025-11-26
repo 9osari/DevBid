@@ -20,6 +20,10 @@ public class BuyoutPrice {
         this.value = value;
     }
 
+    public static BuyoutPrice from(BigDecimal value) {
+        return new BuyoutPrice(value);
+    }
+
     private void validateBuyoutPrice(BigDecimal value) {
         if(value == null) {
             throw new IllegalArgumentException("BuyoutPrice cannot be null");

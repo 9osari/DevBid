@@ -20,6 +20,10 @@ public class StartingPrice {
 
     protected StartingPrice() {}
 
+    public static StartingPrice from(BigDecimal value) {
+        return new StartingPrice(value);
+    }
+
     private void validateStartingPrice(BigDecimal value) {
         if(value == null) {
             throw new IllegalArgumentException("StartingPrice cannot be null");

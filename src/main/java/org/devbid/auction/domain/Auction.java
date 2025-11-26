@@ -8,6 +8,7 @@ import org.devbid.infrastructure.common.BaseEntity;
 import org.devbid.product.domain.Product;
 import org.devbid.user.domain.User;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -68,6 +69,42 @@ public class Auction extends BaseEntity {
         auction.endTime = endTime;
         auction.status = status;
         return auction;
+    }
+
+    public boolean updateAuction(
+            BigDecimal startingPrice,
+            BigDecimal buyoutPrice,
+            LocalDateTime startTime,
+            LocalDateTime endTime
+    ) {
+        boolean isUpdated = false;
+
+        if(this.bidCount > 0) {
+            throw new IllegalStateException("입찰이 진행 중인 경매는 수정할 수 없습니다.");
+        }
+
+        if(startingPrice != null) {
+            this.startingPrice = StartingPrice.from(startingPrice);
+            this.currentPrice = CurrentPrice.from(startingPrice);
+            isUpdated = true;
+        }
+
+        if(buyoutPrice != null) {
+            this.buyoutPrice = BuyoutPrice.from(buyoutPrice);
+            isUpdated = true;
+        }
+
+        if(startTime != null) {
+            this.startTime = startTime;
+            isUpdated = true;
+        }
+
+        if(endTime != null) {
+            this.endTime = endTime;
+            isUpdated = true;
+        }
+
+        return isUpdated;
     }
 
     //스케줄러 경매전 -> 시작

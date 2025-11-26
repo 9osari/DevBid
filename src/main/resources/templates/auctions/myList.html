@@ -23,7 +23,7 @@
         <th>상태</th>
         <th>시작 시간</th>
         <th>종료 시간</th>
-        <th>판매자</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -50,7 +50,12 @@
         <td th:text="${auction.status()}">ONGOING</td>
         <td th:text="${#temporals.format(auction.startTime, 'yyyy-MM-dd HH:mm')}">시작 시간</td>
         <td th:text="${#temporals.format(auction.endTime, 'yyyy-MM-dd HH:mm')}">종료 시간</td>
-        <td th:text="${auction.sellerName()}">판매자</td>
+        <td>
+          <div style="display:flex; gap:8px; align-items:center;">
+              <a th:href="@{/auctions/{id}/edit(id=${auction.id})}"
+                 class="btn btn-sm btn-primary">수정</a>
+          </div>
+        </td>
       </tr>
     </tbody>
   </table>

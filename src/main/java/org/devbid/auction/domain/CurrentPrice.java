@@ -19,6 +19,11 @@ public class CurrentPrice {
         validateCurrentPrice(value);
         this.value = value;
     }
+
+    public static CurrentPrice from(BigDecimal value) {
+        return new CurrentPrice(value);
+    }
+
     private void validateCurrentPrice(BigDecimal value) {
         if(value == null) {
             throw new IllegalArgumentException("CurrentPrice cannot be null");

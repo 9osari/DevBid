@@ -1,9 +1,11 @@
 package org.devbid.auction.application;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.auction.domain.Auction;
 import org.devbid.auction.domain.AuctionFactory;
+import org.devbid.auction.dto.AuctionEditRequest;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
 import org.devbid.auction.dto.BidPlacedEvent;
@@ -14,6 +16,7 @@ import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductImage;
 import org.devbid.product.repository.ProductRepository;
 import org.devbid.user.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +53,21 @@ public class AuctionApplicationService implements AuctionService{
                 request.endTime()
         );
         auctionRepository.save(auction);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "auctionDetail", key = "#auctionId")
+    public void updateAuction(Long auctionId, AuctionEditRequest req, Long sellerId) {
+        Auction auction = auctionRepository.findByIdAndProductSellerId(auctionId, sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("Auction Not found"));
+
+        auction.updateAuction(
+                req.startingPrice(),
+                req.buyoutPrice(),
+                req.startTime(),
+                req.endTime()
+        );
     }
 
     private static void matchedSeller(Long sellerId, Product product) {
