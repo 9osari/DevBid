@@ -42,8 +42,8 @@ public class AuctionLockManager {
     }
 
     private static void acquireLockOrThrow(RLock lock) throws InterruptedException {
-        //락을 못 얻으면 1초 후 예외, 락을 얻은 후 3초 유지
-        boolean acquired = lock.tryLock(1000, 3000, TimeUnit.MILLISECONDS);
+        //락을 못 얻으면 1초 후 예외, 락을 얻은 후 2초 유지
+        boolean acquired = lock.tryLock(1000, 2000, TimeUnit.MILLISECONDS);
         if(!acquired) {
             throw new IllegalStateException("잠시 후 다시 시도해주세요.");
         }

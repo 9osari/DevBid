@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.auction.application.AuctionApplicationService;
+import org.devbid.auction.application.AuctionFacade;
 import org.devbid.auction.application.AuctionService;
 import org.devbid.auction.dto.AuctionEditRequest;
 import org.devbid.auction.dto.AuctionListResponse;
@@ -34,6 +35,7 @@ public class AuctionController {
     private final ProductService productService;
     private final AuctionService auctionService;
     private final AuctionApplicationService auctionApplicationService;
+    private final AuctionFacade auctionFacade;
     private final ApplicationEventPublisher eventPublisher;
 
     @GetMapping("/auctionMain")
@@ -145,7 +147,7 @@ public class AuctionController {
                       @AuthenticationPrincipal AuthUser authUser,
                       RedirectAttributes ra) {
         try {
-            BidPlacedEvent event = auctionApplicationService.placeBid(auctionId, authUser.getId(), bidAmount);
+            BidPlacedEvent event = auctionFacade.placeBid(auctionId, authUser.getId(), bidAmount);
 
             eventPublisher.publishEvent(event);
 
@@ -159,21 +161,12 @@ public class AuctionController {
         }
     }
 
-    @GetMapping("/auctions/{auctionId}/success")
-    public String success(@PathVariable Long auctionId, Model model) {
-        model.addAttribute("auctionId", auctionId);
-        if(!model.containsAttribute("message")) {
-            model.addAttribute("massage", "");
-        }
-        return "auctions/bid/success";
-    }
-
     @PostMapping("/auctions/{auctionId}/buyout")
     public String buyout(@PathVariable Long auctionId,
                          @AuthenticationPrincipal AuthUser authUser,
                          RedirectAttributes ra) {
         try{
-            BuyOutEvent event = auctionApplicationService.buyOut(auctionId, authUser.getId());
+            BuyOutEvent event = auctionFacade.buyOut(auctionId, authUser.getId());
 
             eventPublisher.publishEvent(event);
 
@@ -187,6 +180,13 @@ public class AuctionController {
         }
     }
 
-
+    @GetMapping("/auctions/{auctionId}/success")
+    public String success(@PathVariable Long auctionId, Model model) {
+        model.addAttribute("auctionId", auctionId);
+        if(!model.containsAttribute("message")) {
+            model.addAttribute("massage", "");
+        }
+        return "auctions/bid/success";
+    }
 
 }

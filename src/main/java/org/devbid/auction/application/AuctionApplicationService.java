@@ -5,16 +5,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.auction.domain.Auction;
 import org.devbid.auction.domain.AuctionFactory;
+import org.devbid.auction.domain.Bid;
+import org.devbid.auction.domain.BidAmount;
 import org.devbid.auction.dto.AuctionEditRequest;
 import org.devbid.auction.dto.AuctionListResponse;
 import org.devbid.auction.dto.AuctionRegistrationRequest;
 import org.devbid.auction.dto.BidPlacedEvent;
 import org.devbid.auction.dto.BuyOutEvent;
 import org.devbid.auction.repository.AuctionRepository;
+import org.devbid.auction.repository.BidRepository;
 import org.devbid.product.application.awsService.S3Service;
 import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductImage;
 import org.devbid.product.repository.ProductRepository;
+import org.devbid.user.domain.User;
 import org.devbid.user.repository.UserRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -35,8 +39,7 @@ public class AuctionApplicationService implements AuctionService{
     private final UserRepository userRepository;
     private final AuctionDtoMapper auctionDtoMapper;
     private final S3Service s3Service;
-    private final BidApplicationService bidApplicationService;
-    private final AuctionLockManager auctionLockManager;
+    private final BidRepository bidRepository;
 
     @Override
     public void registerAuction(AuctionRegistrationRequest request,  Long sellerId) {
@@ -139,17 +142,44 @@ public class AuctionApplicationService implements AuctionService{
                 .toList();
     }
 
+    @Override
+    @Transactional
     public BidPlacedEvent placeBid(Long auctionId, Long bidderId, BigDecimal bidAmount) {
-        return auctionLockManager.executeWithLock(
-                auctionId,
-                () -> bidApplicationService.placeBid(auctionId, bidderId, bidAmount)
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new IllegalArgumentException("auction not found"));
+        User bidder = userRepository.findById(bidderId) //사용자 찾기
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Bid bid = auction.placeBid(bidder, new BidAmount(bidAmount)); //엔티티에 비즈니스 로직 위임
+
+        bidRepository.save(bid);
+
+        return BidPlacedEvent.of(auctionId,
+                bidderId,
+                bid.getBidder().getNickname().getValue(),
+                bidAmount,
+                auction.getBidCount()
         );
     }
 
+    @Override
+    @Transactional
     public BuyOutEvent buyOut(Long auctionId, Long buyerId) {
-        return auctionLockManager.executeWithLock(
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new IllegalArgumentException("auction not found"));
+        User buyer = userRepository.findById(buyerId) //사용자 찾기
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Bid bid = auction.buyOut(buyer);
+
+        bidRepository.save(bid);
+
+        return BuyOutEvent.of(
                 auctionId,
-                () -> bidApplicationService.buyOut(auctionId, buyerId)
+                buyerId,
+                buyer.getNickname().getValue(),
+                auction.getBuyoutPrice().getValue(),
+                bid.getAuction().getEndTime()
         );
     }
 }
