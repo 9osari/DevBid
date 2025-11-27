@@ -107,10 +107,6 @@ public class AuctionController {
     public String editAuction(@PathVariable Long id,
                               Model model) {
         AuctionListResponse auction = auctionApplicationService.getAuctionDetail(id);
-        if(auction.bidCount() > 0) {
-            throw new IllegalStateException("입찰이 진행 중인 경매는 수정할 수 없습니다.");
-        }
-
         AuctionEditRequest editRequest = new AuctionEditRequest(
                 id,
                 auction.startingPrice(),

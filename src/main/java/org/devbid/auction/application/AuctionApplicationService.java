@@ -61,6 +61,9 @@ public class AuctionApplicationService implements AuctionService{
     public void updateAuction(Long auctionId, AuctionEditRequest req, Long sellerId) {
         Auction auction = auctionRepository.findByIdAndProductSellerId(auctionId, sellerId)
                 .orElseThrow(() -> new IllegalArgumentException("Auction Not found"));
+        if(auction.getBidCount() > 0) {
+            throw new IllegalStateException("입찰이 진행 중인 경매는 수정할 수 없습니다.");
+        }
 
         auction.updateAuction(
                 req.startingPrice(),

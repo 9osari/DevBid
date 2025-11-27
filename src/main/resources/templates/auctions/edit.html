@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Auction Edit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/theme.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Auction</h2>
+
+    <div th:if="${message}" class="alert alert-danger" role="alert">
+        <p th:text="${message}"></p>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger" role="alert">
+        <p th:text="${error}"></p>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>주의!</strong> 수정 중에 입찰이 들어오면 수정이 불가능합니다.
+        입찰 전에 신중하게 등록해주세요.
+    </div>
+
+    <!-- 상품 정보 카드 -->
+    <div class="card shadow-sm border-0 mb-4" th:if="${auction}">
+        <div class="card-header bg-white border-bottom">
+            <h5 class="fw-bold mb-0">
+                <i class="bi bi-box-seam me-2 text-primary"></i>Product Info
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row align-items-start">
+                <!-- 이미지 영역 -->
+                <div class="col-md-4 text-center">
+                    <div class="border rounded p-2 bg-light mb-3">
+                        <img th:if="${auction.mainImageUrl()}"
+                             th:src="${auction.mainImageUrl()}"
+                             alt="상품 이미지"
+                             class="img-fluid rounded"
+                             style="max-height: 250px; object-fit: contain;">
+                        <div th:unless="${auction.mainImageUrl()}"
+                             class="bg-secondary text-white d-flex align-items-center justify-content-center rounded"
+                             style="height: 250px;">
+                            이미지 없음
+                        </div>
+                    </div>
+
+                    <!-- 서브 이미지 -->
+                    <div th:if="${auction.subImageUrls() != null and !auction.subImageUrls().isEmpty()}"
+                         class="d-flex flex-wrap justify-content-center gap-2">
+                        <img th:each="subImage : ${auction.subImageUrls()}"
+                             th:src="${subImage}"
+                             alt="서브 이미지"
+                             class="rounded border"
+                             style="width: 70px; height: 70px; object-fit: cover;">
+                    </div>
+                    <span th:if="${auction.subImageUrls() == null or auction.subImageUrls().isEmpty()}"
+                          class="text-muted small">서브 이미지 없음</span>
+                </div>
+
+                <!-- 상품 정보 -->
+                <div class="col-md-8">
+                    <h4 class="fw-bold mb-2" th:text="${auction.productName}">상품명</h4>
+                    <hr class="mt-0 mb-3">
+
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <strong class="text-secondary me-2">현재 상태:</strong>
+                            <span th:text="${auction.status}">상태</span>
+                        </li>
+                        <li class="mb-2">
+                            <strong class="text-secondary me-2">현재 입찰가:</strong>
+                            <span th:text="${#numbers.formatDecimal(auction.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">현재가</span>
+                        </li>
+                        <li class="mb-2">
+                            <strong class="text-secondary me-2">입찰 횟수:</strong>
+                            <span th:text="${auction.bidCount} + '회'">입찰 횟수</span>
+                        </li>
+                        <li>
+                            <strong class="text-secondary me-2">상품 설명:</strong><br>
+                            <span th:utext="${auction.description}">상품 설명</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <form th:action="@{/auctions/{auctionId}/edit(auctionId=${auction.id})}" th:object="${auctionEditRequest}" method="post">
+
+        <input type="hidden" th:field="*{auctionId}">
+
+        <div class="mb-3">
+            <label for="startingPrice" class="form-label">경매 시작 가격 (원) *</label>
+            <input type="text" id="startingPrice" name="startingPrice"
+                   th:value="${#numbers.formatDecimal(auctionEditRequest.startingPrice, 0, 'COMMA', 0, 'POINT')}"
+                   oninput="formatNumberInput(this)"
+                   class="form-control" required
+                   placeholder="최소 1,000원 이상">
+            <div class="text-danger" th:if="${#fields.hasErrors('startingPrice')}"
+                 th:errors="*{startingPrice}">Invalid starting price</div>
+            <div class="form-text">경매 시작 가격을 입력하세요</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="buyoutPrice" class="form-label">즉시 구매 가격 (원)</label>
+            <input type="text" id="buyoutPrice" name="buyoutPrice"
+                   th:value="${#numbers.formatDecimal(auctionEditRequest.buyoutPrice, 0, 'COMMA', 0, 'POINT')}"
+                   oninput="formatNumberInput(this)"
+                   class="form-control"
+                   placeholder="선택사항 - 즉시 구매 가능 가격">
+            <div class="text-danger" th:if="${#fields.hasErrors('buyoutPrice')}"
+                 th:errors="*{buyoutPrice}">Invalid buyout price</div>
+            <div class="form-text">즉시 구매 가격 설정 (선택사항)</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="startTime" class="form-label">경매 시작 시간 *</label>
+            <input type="datetime-local" id="startTime"
+                   th:value="${#temporals.format(auctionEditRequest.startTime, 'yyyy-MM-dd''T''HH:mm')}"
+                   name="startTime"
+                   class="form-control" required>
+            <div class="text-danger" th:if="${#fields.hasErrors('startTime')}"
+                 th:errors="*{startTime}">Invalid start time</div>
+            <div class="form-text">경매가 시작될 시간을 선택하세요</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="endTime" class="form-label">경매 종료 시간 *</label>
+            <input type="datetime-local" id="endTime"
+                   th:value="${#temporals.format(auctionEditRequest.endTime, 'yyyy-MM-dd''T''HH:mm')}"
+                   name="endTime"
+                   class="form-control" required>
+            <div class="text-danger" th:if="${#fields.hasErrors('endTime')}"
+                 th:errors="*{endTime}">Invalid end time</div>
+            <div class="form-text">경매가 종료될 시간을 선택하세요</div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <button type="submit" class="btn btn-primary">경매 수정 완료</button>
+            <a th:href="@{/auctions/{auctionId}/detail(auctionId=${auction.id()})}" class="btn btn-secondary">취소</a>
+        </div>
+    </form>
+
+    <div class="mt-4">
+        <p><a href="/auctions/my" class="btn btn-outline-secondary">내 경매 목록으로</a></p>
+        <p><a href="/" class="btn btn-link">홈으로</a></p>
+    </div>
+</div>
+
+<script>
+    // 숫자에 콤마 추가
+    function formatNumberInput(input) {
+        let value = input.value.replace(/,/g, ''); // 콤마 제거
+        if (value && !isNaN(value)) {
+            input.value = Number(value).toLocaleString('ko-KR');
+        }
+    }
+
+    // 폼 제출 전 검증
+    document.querySelector('form').addEventListener('submit', function(e) {
+        // 콤마 제거하고 순수 숫자만 남김
+        const startingPriceInput = document.getElementById('startingPrice');
+        const buyoutPriceInput = document.getElementById('buyoutPrice');
+
+        const startingPrice = parseInt(startingPriceInput.value.replace(/,/g, ''));
+        const buyoutPrice = parseInt(buyoutPriceInput.value.replace(/,/g, ''));
+        const startTime = new Date(document.getElementById('startTime').value);
+        const endTime = new Date(document.getElementById('endTime').value);
+        const now = new Date();
+
+        // 시작가격 검증
+        if (startingPrice < 1000) {
+            alert('경매 시작 가격은 최소 1,000원 이상이어야 합니다.');
+            e.preventDefault();
+            return;
+        }
+
+        // 즉시 구매가 검증
+        if (buyoutPrice && buyoutPrice <= startingPrice) {
+            alert('즉시 구매 가격은 시작 가격보다 높아야 합니다.');
+            e.preventDefault();
+            return;
+        }
+
+        // 종료 시간 검증
+        if (endTime <= startTime) {
+            alert('경매 종료 시간은 시작 시간 이후여야 합니다.');
+            e.preventDefault();
+            return;
+        }
+
+        // 최소 경매 기간 검증 (예: 1시간)
+        const minDuration = 60 * 60 * 1000; // 1시간 (밀리초)
+        if (endTime - startTime < minDuration) {
+            alert('경매는 최소 1시간 이상 진행되어야 합니다.');
+            e.preventDefault();
+            return;
+        }
+
+        // 제출 전 콤마 제거
+        startingPriceInput.value = startingPriceInput.value.replace(/,/g, '');
+        buyoutPriceInput.value = buyoutPriceInput.value.replace(/,/g, '');
+    });
+</script>
+
+</body>
+</html>
