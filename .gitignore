@@ -61,3 +61,8 @@ docs/.obsidian/
 *.http
 
 ~/.gradle/gradle.propertiesdevbid-redis-key.pem
+/devbid-redis-key.pem
+/.fastRequest/config/fastRequestCurrentProjectConfig.json
+/.claude/settings.local.json
+/test.jmx
+/users.csv
