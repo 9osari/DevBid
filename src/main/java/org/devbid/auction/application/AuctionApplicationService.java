@@ -144,6 +144,7 @@ public class AuctionApplicationService implements AuctionService{
 
     @Override
     @Transactional
+    @CacheEvict(value = "auctionDetail", key = "#auctionId")
     public BidPlacedEvent placeBid(Long auctionId, Long bidderId, BigDecimal bidAmount) {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new IllegalArgumentException("auction not found"));
@@ -164,6 +165,7 @@ public class AuctionApplicationService implements AuctionService{
 
     @Override
     @Transactional
+    @CacheEvict(value = "auctionDetail", key = "#auctionId")
     public BuyOutEvent buyOut(Long auctionId, Long buyerId) {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new IllegalArgumentException("auction not found"));
