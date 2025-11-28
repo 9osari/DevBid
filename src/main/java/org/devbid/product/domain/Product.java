@@ -5,9 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.devbid.auction.domain.Auction;
+import org.devbid.auction.domain.AuctionStatus;
 import org.devbid.infrastructure.common.BaseEntity;
 import org.devbid.user.domain.User;
-import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -157,5 +157,13 @@ public class Product extends BaseEntity {
 
     public void softDelete() {
         this.saleStatus = ProductStatus.DELETED;
+    }
+    
+    public int activeAuctionCount() {
+        return (int) auctions.stream()
+            .filter(auction ->
+                    auction.getStatus() == AuctionStatus.BEFORE_START ||
+                    auction.getStatus() == AuctionStatus.ONGOING
+            ).count();
     }
 }

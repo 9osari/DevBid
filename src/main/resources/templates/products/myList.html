@@ -60,8 +60,11 @@
               <button type="submit" class="btn btn-sm btn-danger">삭제</button>
             </form>
 
-            <a th:href="@{/auctions/{id}(id=${product.id})}"
-               class="btn btn-sm btn-success">경매</a>
+            <a th:if="${product.activeAuctionCount == 0}"
+                 th:href="@{/auctions/{id}(id=${product.id})}"
+                 class="btn btn-sm btn-success">경매</a>
+              <span th:if="${product.activeAuctionCount > 0}"
+                    class="text-danger">경매 진행 중 ([[${product.activeAuctionCount}]]건)</span>
           </div>
         </td>
       </tr>

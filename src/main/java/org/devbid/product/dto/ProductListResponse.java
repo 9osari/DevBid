@@ -18,7 +18,8 @@ public record ProductListResponse(
         String sellerName,
         String mainImageUrl,  // 메인 이미지 URL
         List<String> subImageUrls,  // 서브 이미지 URL 리스트
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        int activeAuctionCount
 ) {
     public static ProductListResponse of(Product product, String mainImageUrl, List<String> subImageUrls) {
         return new ProductListResponse(
@@ -32,7 +33,8 @@ public record ProductListResponse(
                 product.getSeller().getUsername().getValue(),
                 mainImageUrl,
                 subImageUrls,
-                product.getCreatedAt()
+                product.getCreatedAt(),
+                product.activeAuctionCount()
         );
     }
 }
