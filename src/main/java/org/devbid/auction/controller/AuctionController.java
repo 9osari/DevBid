@@ -14,6 +14,7 @@ import org.devbid.auction.dto.BuyOutEvent;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
