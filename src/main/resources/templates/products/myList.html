@@ -76,13 +76,13 @@
   <div class="pagination" th:if="${totalPages > 1}" style="margin-top: 20px; text-align: center;">
     <!-- 이전 페이지 -->
     <a th:if="${currentPage > 0}"
-       th:href="@{/products(page=${currentPage - 1}, size=10)}"
+       th:href="@{/products/my(page=${currentPage - 1}, size=10)}"
        th:text="'이전'">이전</a>
     <span th:if="${currentPage == 0}" class="disabled">이전</span>
 
     <!-- 첫 페이지 -->
     <a th:if="${currentPage > 2}"
-       th:href="@{/products(page=0, size=10)}"
+       th:href="@{/products/my(page=0, size=10)}"
        th:text="1">1</a>
     <span th:if="${currentPage > 3}">...</span>
 
@@ -92,7 +92,7 @@
         (currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1)
     )}">
         <a th:if="${i != currentPage}"
-           th:href="@{/products(page=${i}, size=10)}"
+           th:href="@{/products/my(page=${i}, size=10)}"
            th:text="${i + 1}"></a>
         <span th:if="${i == currentPage}"
               class="current"
@@ -103,12 +103,12 @@
     <!-- 마지막 페이지 -->
     <span th:if="${currentPage < totalPages - 4}">...</span>
     <a th:if="${currentPage < totalPages - 3}"
-       th:href="@{/products(page=${totalPages - 1}, size=10)}"
+       th:href="@{/products/my(page=${totalPages - 1}, size=10)}"
        th:text="${totalPages}">마지막</a>
 
     <!-- 다음 페이지 -->
     <a th:if="${currentPage < totalPages - 1}"
-       th:href="@{/products(page=${currentPage + 1}, size=10)}"
+       th:href="@{/products/my(page=${currentPage + 1}, size=10)}"
        th:text="'다음'">다음</a>
     <span th:if="${currentPage >= totalPages - 1}" class="disabled">다음</span>
   </div>
