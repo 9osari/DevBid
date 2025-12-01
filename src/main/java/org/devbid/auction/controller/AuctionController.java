@@ -3,7 +3,6 @@ package org.devbid.auction.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.devbid.auction.application.AuctionApplicationService;
 import org.devbid.auction.application.AuctionFacade;
 import org.devbid.auction.application.AuctionService;
 import org.devbid.auction.dto.AuctionEditRequest;
@@ -14,7 +13,6 @@ import org.devbid.auction.dto.BuyOutEvent;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +33,6 @@ public class AuctionController {
 
     private final ProductService productService;
     private final AuctionService auctionService;
-    private final AuctionApplicationService auctionApplicationService;
     private final AuctionFacade auctionFacade;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -109,7 +106,7 @@ public class AuctionController {
     @GetMapping("/auctions/{id}/edit")
     public String editAuction(@PathVariable Long id,
                               Model model) {
-        AuctionListResponse auction = auctionApplicationService.getAuctionDetail(id);
+        AuctionListResponse auction = auctionService.getAuctionDetail(id);
         AuctionEditRequest editRequest = new AuctionEditRequest(
                 id,
                 auction.startingPrice(),
@@ -137,7 +134,7 @@ public class AuctionController {
 
     @GetMapping("/auctions/{auctionId}/detail")
     public String detail(@PathVariable Long auctionId, Model model ) {
-        AuctionListResponse dto = auctionApplicationService.getAuctionDetail(auctionId);
+        AuctionListResponse dto = auctionService.getAuctionDetail(auctionId);
         model.addAttribute("auction", dto);
         return "auctions/detail";
     }
@@ -188,6 +185,17 @@ public class AuctionController {
             model.addAttribute("massage", "");
         }
         return "auctions/bid/success";
+    }
+
+    @PostMapping("auction/{id}")
+    public String deleteAuction(@PathVariable Long id,
+                                @AuthenticationPrincipal AuthUser authUser) {
+        AuctionListResponse currentAuction = auctionService.getAuctionDetail(id);
+        if (currentAuction == null) {
+            throw new IllegalArgumentException("Auction not found");
+        }
+        auctionService.deleteAuction(id, authUser.getId());
+        return "redirect:/auctions/my";
     }
 
 }

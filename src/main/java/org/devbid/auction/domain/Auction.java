@@ -164,4 +164,8 @@ public class Auction extends BaseEntity {
         return Bid.of(this, buyer, new BidAmount(this.buyoutPrice.getValue()), BidType.BUYOUT);
 
     }
+
+    public void delete() {
+        this.status = AuctionStatus.CANCELLED;
+    }
 }

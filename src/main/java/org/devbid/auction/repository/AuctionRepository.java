@@ -24,6 +24,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     @Query("SELECT a FROM Auction a " +
     "LEFT JOIN a.product b " +
     "WHERE b.seller.id = :sellerId " +
+    "AND a.status != 'CANCELLED'" +
     "ORDER BY COALESCE(a.updatedAt, a.createdAt) DESC ")
     Page<Auction> findBySellerId(Long sellerId, Pageable pageable);
 

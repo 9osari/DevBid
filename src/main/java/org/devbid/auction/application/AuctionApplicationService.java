@@ -184,4 +184,16 @@ public class AuctionApplicationService implements AuctionService{
                 bid.getAuction().getEndTime()
         );
     }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "auctionDetail", key = "#auctionId")
+    public void deleteAuction(Long auctionId, Long sellerId) {
+        Auction auction = auctionRepository.findByIdAndProductSellerId(auctionId, sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("Auction Not found"));
+        if(auction.getBidCount() > 0) {
+            throw new IllegalStateException("입찰이 진행 중인 경매는 삭제할 수 없습니다.");
+        }
+        auction.delete();
+    }
 }

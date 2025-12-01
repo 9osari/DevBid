@@ -20,7 +20,7 @@ public class PerformanceAspect {
         if(elapsedTime > 1000) {
             log.warn("느린 메서드 감지: {} ms", elapsedTime);
         }
-        log.info("입찰 실행 시간: {} ms", elapsedTime);
+        log.info("실행 시간: {} ms", elapsedTime);
 
         return result;
     }

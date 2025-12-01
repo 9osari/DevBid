@@ -23,7 +23,8 @@
             <th>상태</th>
             <th>시작 시간</th>
             <th>종료 시간</th>
-            <th></th>
+            <th>수정</th>
+            <th>삭제</th>
         </tr>
         </thead>
         <tbody>
@@ -56,6 +57,17 @@
                    class="btn btn-primary">수정</a>
                 <span th:if="${auction.bidCount > 0}"
                       class="text-muted" style="color: red">입찰 진행 중</span>
+            </td>
+            <td>
+                <form th:if="${auction.bidCount == 0}"
+                      th:action="@{/auction/{id}(id=${auction.id})}"
+                      method="post"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');"
+                      style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger">삭제</button>
+                </form>
+                <span th:if="${auction.bidCount > 0}"
+                      class="text-muted" style="color: red; font-size: 0.9em;">입찰 진행 중</span>
             </td>
         </tr>
         </tbody>
