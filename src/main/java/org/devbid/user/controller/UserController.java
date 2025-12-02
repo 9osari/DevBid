@@ -5,11 +5,15 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.devbid.user.application.MyPageQueryService;
 import org.devbid.user.domain.User;
+import org.devbid.user.dto.MyPageData;
 import org.devbid.user.dto.UserRegistrationRequest;
 import org.devbid.user.dto.UserUpdateRequest;
 import org.devbid.user.application.UserService;
+import org.devbid.user.security.AuthUser;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final MyPageQueryService myPageQueryService;
 
     @GetMapping("/login")
     public String login() {
@@ -72,6 +77,21 @@ public class UserController {
         model.addAttribute("users", userService.findAllUsers());
         model.addAttribute("userCount", userService.getUserCount());
         return "users/list";
+    }
+
+    @GetMapping("/users/myPage")
+    public String myPage(@AuthenticationPrincipal AuthUser user, Model model) {
+        MyPageData data = myPageQueryService.getMyPageData(user.getId());
+        model.addAttribute("user", data.getUser());
+        model.addAttribute("ongoingAuctionCount", data.getAuctionActiveCount());
+        model.addAttribute("productCount", data.getProductCount());
+        model.addAttribute("totalAuctionCount", data.getAuctionCount());
+        model.addAttribute("participatingAuctionCount", data.getParticipatingAuctionCount());
+        model.addAttribute("recentAuctions", data.getRecentAuctions());
+        model.addAttribute("recentProducts", data.getRecentProducts());
+        model.addAttribute("recentBids", data.getRecentBids());
+        model.addAttribute("recentBuyouts", data.getRecentBuyouts());
+        return "users/myPage";
     }
 
     @GetMapping("/users/{id}/edit")

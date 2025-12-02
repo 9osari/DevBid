@@ -1,14 +1,17 @@
 package org.devbid.product.repository;
 
 
+import org.springframework.data.repository.query.Param;
 import org.devbid.product.domain.Product;
 import org.devbid.product.domain.ProductStatus;
+import org.devbid.user.dto.RecentProductDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,6 +29,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "ORDER BY COALESCE(p.updatedAt, p.createdAt) DESC ")
     Page<Product> findBySellerId(Long sellerId, Pageable pageable);
 
+    @Query("SELECT p FROM Product p " +
+            "WHERE p.seller.id = :sellerId " +
+            "ORDER BY p.createdAt DESC")
+    List<Product> findRecentProduct(@Param("sellerId") Long sellerId);
+
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.category " +
             "LEFT JOIN FETCH p.seller " +
@@ -41,4 +49,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findEditableByIdAndSeller(Long id, Long sellerId);
 
     long countBySellerIdAndSaleStatusNot(Long sellerId, ProductStatus status);
+    int countBySellerId(Long sellerId);
 }

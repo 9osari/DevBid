@@ -166,4 +166,21 @@ public class Product extends BaseEntity {
                     auction.getStatus() == AuctionStatus.ONGOING
             ).count();
     }
+
+    public String getMainImageUrl() {
+        return images.stream()
+                .filter(img -> img.getSortOrder() == 1)
+                .findFirst()
+                .map(ProductImage::getImageKey)
+                .orElse(null);
+    }
+
+    public List<String> getSubImageUrls() {
+        return images.stream()
+                .filter(img -> img.getSortOrder() > 1)
+                .sorted(Comparator.comparing(ProductImage::getSortOrder))
+                .map(ProductImage::getImageKey)
+                .toList();
+    }
+
 }

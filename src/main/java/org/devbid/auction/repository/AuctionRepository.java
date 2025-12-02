@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -28,9 +29,18 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     "ORDER BY COALESCE(a.updatedAt, a.createdAt) DESC ")
     Page<Auction> findBySellerId(Long sellerId, Pageable pageable);
 
+    @Query("SELECT a FROM Auction a " +
+            "JOIN a.product p " +
+            "WHERE p.seller.id = :sellerId " +
+            "ORDER BY a.createdAt DESC LIMIT 5")
+    List<Auction> findRecentBySellerId(@Param("sellerId") Long sellerId);
+
     //스케줄러 경매 시작전 -> 시작
     List<Auction> findByStatusAndStartTimeBefore(AuctionStatus status, LocalDateTime startTime);
 
     //스케줄러 경매 시작 -> 종료
     List<Auction> findByStatusAndEndTimeBefore(AuctionStatus status, LocalDateTime endTime);
+
+    int countByProductSellerId(Long sellerId);
+    int countByProductSellerIdAndStatus(Long sellerId, AuctionStatus status);
 }
