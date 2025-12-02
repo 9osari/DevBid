@@ -15,9 +15,6 @@ import java.util.Optional;
 
 @Repository
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
-    @Query("SELECT a FROM Auction a JOIN FETCH a.product")
-    List<Auction> findAllAuctions();
-
     Optional<Auction> findById(Long auctionId);
 
     Optional<Auction> findByIdAndProductSellerId(Long auctionId, Long sellerId);
@@ -32,8 +29,8 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     @Query("SELECT a FROM Auction a " +
             "JOIN a.product p " +
             "WHERE p.seller.id = :sellerId " +
-            "ORDER BY a.createdAt DESC LIMIT 5")
-    List<Auction> findRecentBySellerId(@Param("sellerId") Long sellerId);
+            "ORDER BY a.createdAt DESC")
+    Page<Auction> findRecentBySellerId(@Param("sellerId") Long sellerId, Pageable pageable);
 
     //스케줄러 경매 시작전 -> 시작
     List<Auction> findByStatusAndStartTimeBefore(AuctionStatus status, LocalDateTime startTime);

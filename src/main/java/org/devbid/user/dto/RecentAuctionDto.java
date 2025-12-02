@@ -13,6 +13,7 @@ public record RecentAuctionDto (
         BigDecimal currentPrice,
         int bidCount,
         LocalDateTime endTime,
+        LocalDateTime startTime,
 
         String productName,
         String mainImageUrl,  // 메인 이미지 URL

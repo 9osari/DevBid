@@ -39,23 +39,38 @@ public class PrettySqlFormat implements MessageFormattingStrategy {
     private String getCallingMethodInfo() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
-        // 스택 트레이스에서 org.devbid 패키지의 실제 비즈니스 로직 찾기
-        for (int i = stackTrace.length - 1; i >= 0; i--) {
-            StackTraceElement element = stackTrace[i];
+        // 1차: Repository 메서드를 우선적으로 찾기
+        for (StackTraceElement element : stackTrace) {
             String className = element.getClassName();
             String methodName = element.getMethodName();
 
-            // org.devbid 패키지의 클래스 중에서 config가 아닌 것들 찾기 (역순으로)
             if (className.startsWith("org.devbid") &&
-                !className.contains("config") &&
-                !className.contains("PrettySqlFormat")) {
+                className.contains("Repository") &&
+                !className.contains("$Proxy") &&
+                !methodName.equals("getStackTrace") &&
+                !methodName.equals("getCallingMethodInfo")) {
 
                 return extractSimpleMethodName(className, methodName);
             }
         }
 
-        // 역순으로 못 찾으면 정순으로 다시 찾기
-        /*for (StackTraceElement element : stackTrace) {
+        // 2차: Service 메서드 찾기
+        for (StackTraceElement element : stackTrace) {
+            String className = element.getClassName();
+            String methodName = element.getMethodName();
+
+            if (className.startsWith("org.devbid") &&
+                (className.contains("Service") || className.contains("Facade")) &&
+                !className.contains("config") &&
+                !methodName.equals("getStackTrace") &&
+                !methodName.equals("getCallingMethodInfo")) {
+
+                return extractSimpleMethodName(className, methodName);
+            }
+        }
+
+        // 3차: 그 외 org.devbid 패키지의 메서드 (Controller 등)
+        for (StackTraceElement element : stackTrace) {
             String className = element.getClassName();
             String methodName = element.getMethodName();
 
@@ -67,7 +82,7 @@ public class PrettySqlFormat implements MessageFormattingStrategy {
 
                 return extractSimpleMethodName(className, methodName);
             }
-        }*/
+        }
 
         return "Unknown.method()";
     }

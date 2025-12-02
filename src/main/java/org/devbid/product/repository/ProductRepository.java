@@ -29,10 +29,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "ORDER BY COALESCE(p.updatedAt, p.createdAt) DESC ")
     Page<Product> findBySellerId(Long sellerId, Pageable pageable);
 
-    @Query("SELECT p FROM Product p " +
+    @Query("SELECT DISTINCT p FROM Product p " +
+            "LEFT JOIN FETCH p.images " +
             "WHERE p.seller.id = :sellerId " +
             "ORDER BY p.createdAt DESC")
-    List<Product> findRecentProduct(@Param("sellerId") Long sellerId);
+    Page<Product> findRecentProduct(@Param("sellerId") Long sellerId, Pageable pageable);
 
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.category " +

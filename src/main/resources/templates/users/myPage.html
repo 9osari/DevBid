@@ -305,6 +305,43 @@
         .nav-links a:hover {
             background: #f0f0f0;
         }
+
+        /* 슬라이드 애니메이션 */
+        .slide-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-content {
+            transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        .slide-out-left {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .slide-out-right {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        .slide-in {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        /* 로딩 스피너 */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -364,7 +401,7 @@
             <h2>최근 경매</h2>
             <a href="/auctions/my" class="view-all">전체 보기 →</a>
         </div>
-        <div class="item-list" th:if="${recentAuctions != null and !recentAuctions.isEmpty()}">
+        <div class="item-list" id="auctions-list" th:if="${recentAuctions != null and !recentAuctions.isEmpty()}">
             <div class="item-card" th:each="auction : ${recentAuctions}">
                 <img th:if="${auction.mainImageUrl() != null}"
                      th:src="${auction.mainImageUrl()}"
@@ -387,7 +424,8 @@
                     <div class="item-meta">
                         <span>현재가: <strong th:text="${#numbers.formatDecimal(auction.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
                         <span>입찰: <strong th:text="${auction.bidCount} + '건'">0건</strong></span>
-                        <span th:text="'종료: ' + ${#temporals.format(auction.endTime, 'MM-dd HH:mm')}">종료일</span>
+                        <span th:text="'시작: ' + ${#temporals.format(auction.startTime(), 'YYYY-MM-dd HH:mm')}">시작일</span>
+                        <span th:text="'종료: ' + ${#temporals.format(auction.endTime, 'YYYY-MM-dd HH:mm')}">종료일</span>
                     </div>
                 </div>
             </div>
@@ -395,6 +433,26 @@
         <div class="empty-state" th:if="${recentAuctions == null or recentAuctions.isEmpty()}">
             <div class="empty-state-icon">🏷️</div>
             <p>진행 중인 경매가 없습니다</p>
+        </div>
+        <!-- Auction Pagination -->
+        <div id="auctions-pagination" style="padding: 15px 0; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 15px;">
+            <div style="display: inline-flex; gap: 10px; align-items: center;">
+                <a th:if="${auctionCurrentPage > 0}"
+                   href="#"
+                   th:onclick="|loadSection('auctions', ${auctionCurrentPage - 1}, 'prev'); return false;|"
+                   style="padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    ← 이전
+                </a>
+                <span style="color: #666; font-size: 0.9em;">
+                    <span th:text="${auctionCurrentPage + 1}">1</span> / <span th:text="${auctionTotalPages > 0 ? auctionTotalPages : 1}">1</span>
+                </span>
+                <a th:if="${auctionHasNext}"
+                   href="#"
+                   th:onclick="|loadSection('auctions', ${auctionCurrentPage + 1}, 'next'); return false;|"
+                   style="padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    다음 →
+                </a>
+            </div>
         </div>
     </div>
 
@@ -404,7 +462,7 @@
             <h2>최근 등록 상품</h2>
             <a href="/products/my" class="view-all">전체 보기 →</a>
         </div>
-        <div class="item-list" th:if="${recentProducts != null and !recentProducts.isEmpty()}">
+        <div class="item-list" id="products-list" th:if="${recentProducts != null and !recentProducts.isEmpty()}">
             <div class="item-card" th:each="product : ${recentProducts}">
                 <img th:if="${product.mainImageUrl}"
                      th:src="${product.mainImageUrl}"
@@ -429,6 +487,12 @@
                         <span th:if="${product.activeAuctionCount == 0}" style="color: #38ef7d;">
                             경매 가능
                         </span>
+                        <span style="color: #666; font-size: 0.9em;">
+                            등록: <span th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                        </span>
+                                <span style="color: #666; font-size: 0.9em;">
+                            수정: <span th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -436,6 +500,26 @@
         <div class="empty-state" th:if="${recentProducts == null or recentProducts.isEmpty()}">
             <div class="empty-state-icon">📦</div>
             <p>등록된 상품이 없습니다</p>
+        </div>
+        <!-- Product Pagination -->
+        <div id="products-pagination" style="padding: 15px 0; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 15px;">
+            <div style="display: inline-flex; gap: 10px; align-items: center;">
+                <a th:if="${productCurrentPage > 0}"
+                   href="#"
+                   th:onclick="|loadSection('products', ${productCurrentPage - 1}, 'prev'); return false;|"
+                   style="padding: 8px 16px; background: #11998e; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    ← 이전
+                </a>
+                <span style="color: #666; font-size: 0.9em;">
+                    <span th:text="${productCurrentPage + 1}">1</span> / <span th:text="${productTotalPages > 0 ? productTotalPages : 1}">1</span>
+                </span>
+                <a th:if="${productHasNext}"
+                   href="#"
+                   th:onclick="|loadSection('products', ${productCurrentPage + 1}, 'next'); return false;|"
+                   style="padding: 8px 16px; background: #11998e; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    다음 →
+                </a>
+            </div>
         </div>
     </div>
 
@@ -445,7 +529,7 @@
             <h2>최근 입찰 내역</h2>
             <a href="#" class="view-all">전체 보기 →</a>
         </div>
-        <div class="item-list" th:if="${recentBids != null and !recentBids.isEmpty()}">
+        <div class="item-list" id="bids-list" th:if="${recentBids != null and !recentBids.isEmpty()}">
             <div class="item-card" th:each="bid : ${recentBids}">
                 <img th:if="${bid.mainImageUrl != null}"
                      th:src="${bid.mainImageUrl}"
@@ -475,6 +559,26 @@
             <div class="empty-state-icon">🔨</div>
             <p>입찰 내역이 없습니다</p>
         </div>
+        <!-- Bid Pagination -->
+        <div id="bids-pagination" style="padding: 15px 0; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 15px;">
+            <div style="display: inline-flex; gap: 10px; align-items: center;">
+                <a th:if="${bidCurrentPage > 0}"
+                   href="#"
+                   th:onclick="|loadSection('bids', ${bidCurrentPage - 1}, 'prev'); return false;|"
+                   style="padding: 8px 16px; background: #f093fb; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    ← 이전
+                </a>
+                <span style="color: #666; font-size: 0.9em;">
+                    <span th:text="${bidCurrentPage + 1}">1</span> / <span th:text="${bidTotalPages > 0 ? bidTotalPages : 1}">1</span>
+                </span>
+                <a th:if="${bidHasNext}"
+                   href="#"
+                   th:onclick="|loadSection('bids', ${bidCurrentPage + 1}, 'next'); return false;|"
+                   style="padding: 8px 16px; background: #f093fb; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    다음 →
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Recent Buyout History -->
@@ -483,7 +587,7 @@
             <h2>최근 구매 내역</h2>
             <a href="#" class="view-all">전체 보기 →</a>
         </div>
-        <div class="item-list" th:if="${recentBuyouts != null and !recentBuyouts.isEmpty()}">
+        <div class="item-list" id="buyouts-list" th:if="${recentBuyouts != null and !recentBuyouts.isEmpty()}">
             <div class="item-card" th:each="buyout : ${recentBuyouts}">
                 <img th:if="${buyout.mainImageUrl != null}"
                      th:src="${buyout.mainImageUrl}"
@@ -513,6 +617,26 @@
             <div class="empty-state-icon">💳</div>
             <p>구매 내역이 없습니다</p>
         </div>
+        <!-- Buyout Pagination -->
+        <div id="buyouts-pagination" style="padding: 15px 0; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 15px;">
+            <div style="display: inline-flex; gap: 10px; align-items: center;">
+                <a th:if="${buyoutCurrentPage > 0}"
+                   href="#"
+                   th:onclick="|loadSection('buyouts', ${buyoutCurrentPage - 1}, 'prev'); return false;|"
+                   style="padding: 8px 16px; background: #4facfe; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    ← 이전
+                </a>
+                <span style="color: #666; font-size: 0.9em;">
+                    <span th:text="${buyoutCurrentPage + 1}">1</span> / <span th:text="${buyoutTotalPages > 0 ? buyoutTotalPages : 1}">1</span>
+                </span>
+                <a th:if="${buyoutHasNext}"
+                   href="#"
+                   th:onclick="|loadSection('buyouts', ${buyoutCurrentPage + 1}, 'next'); return false;|"
+                   style="padding: 8px 16px; background: #4facfe; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    다음 →
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Navigation Links -->
@@ -523,5 +647,233 @@
         <a href="/logout">로그아웃</a>
     </div>
 </div>
+
+<script>
+//AJAX로 섹션 업데이트
+function loadSection(sectionType, page, direction) {
+    const container = document.getElementById(sectionType + '-list');
+    const pagination = document.getElementById(sectionType + '-pagination');
+
+    if (!container) return;
+
+    // 슬라이드 애니메이션 시작
+    container.style.transform = direction === 'next' ? 'translateX(-30px)' : 'translateX(30px)';
+    container.style.opacity = '0.3';
+
+    // AJAX 요청
+    fetch(`/api/users/myPage/${sectionType}?page=${page}&size=5`)
+        .then(response => response.json())
+        .then(data => {
+            // HTML 렌더링
+            if (data.items && data.items.length > 0) {
+                container.innerHTML = renderItems(sectionType, data.items);
+            } else {
+                container.innerHTML = renderEmptyState(sectionType);
+            }
+
+            // 페이징 업데이트
+            if (pagination) {
+                updatePagination(sectionType, data.currentPage, data.totalPages, data.hasNext);
+            }
+
+            // 슬라이드 애니메이션 완료
+            setTimeout(() => {
+                container.style.transform = 'translateX(0)';
+                container.style.opacity = '1';
+            }, 50);
+        })
+        .catch(error => {
+            console.error('Error loading section:', error);
+            container.style.transform = 'translateX(0)';
+            container.style.opacity = '1';
+        });
+}
+
+// 아이템 렌더링 함수
+function renderItems(sectionType, items) {
+    if (sectionType === 'auctions') {
+        return items.map(auction => `
+            <div class="item-card">
+                ${auction.mainImageUrl ?
+                    `<img src="${auction.mainImageUrl}" alt="상품 이미지" class="item-image">` :
+                    '<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">No Image</div>'
+                }
+                <div class="item-details">
+                    <div class="item-title">
+                        <a href="/auctions/${auction.id}/detail" style="text-decoration: none; color: #333;">${auction.productName}</a>
+                    </div>
+                    <span class="status-badge ${auction.status === 'ONGOING' ? 'ongoing' : (auction.status === 'COMPLETED' ? 'completed' : 'failed')}">${auction.status}</span>
+                    <div class="item-meta">
+                        <span>현재가: <strong>${formatNumber(auction.currentPrice)}원</strong></span>
+                        <span>입찰: <strong>${auction.bidCount}건</strong></span>
+                        <span>시작: ${formatDateTime(auction.startTime)}</span>
+                        <span>종료: ${formatDateTime(auction.endTime)}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else if (sectionType === 'products') {
+        return items.map(product => `
+            <div class="item-card">
+                ${product.mainImageUrl ?
+                    `<img src="${product.mainImageUrl}" alt="상품 이미지" class="item-image">` :
+                    '<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">No Image</div>'
+                }
+                <div class="item-details">
+                    <div class="item-title">${product.productName}</div>
+                    <span class="status-badge ${product.saleStatus === 'AVAILABLE' ? 'ongoing' : 'completed'}">${product.saleStatus}</span>
+                    <div class="item-meta">
+                        <span>${product.condition}</span>
+                        <span>${product.categoryName}</span>
+                        ${product.activeAuctionCount > 0 ?
+                            `<span style="color: #f5576c;">경매 진행 중 (<strong>${product.activeAuctionCount}</strong>건)</span>` :
+                            '<span style="color: #38ef7d;">경매 가능</span>'
+                        }
+                        <span style="color: #666; font-size: 0.9em;">등록: ${formatDateTime(product.createdAt)}</span>
+                        <span style="color: #666; font-size: 0.9em;">수정: ${formatDateTime(product.updatedAt)}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else if (sectionType === 'bids') {
+        return items.map(bid => `
+            <div class="item-card">
+                ${bid.mainImageUrl ?
+                    `<img src="${bid.mainImageUrl}" alt="경매 이미지" class="item-image">` :
+                    '<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">No Image</div>'
+                }
+                <div class="item-details">
+                    <div class="item-title">
+                        <a href="/auctions/${bid.id}/detail" style="text-decoration: none; color: #333;">${bid.productName}</a>
+                    </div>
+                    <span class="status-badge ongoing">입찰</span>
+                    <div class="item-meta">
+                        <span>입찰가: <strong>${formatNumber(bid.bidAmount)}원</strong></span>
+                        <span>현재가: <strong>${formatNumber(bid.currentPrice)}원</strong></span>
+                        <span>입찰일: ${formatShortDateTime(bid.bidTime)}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else if (sectionType === 'buyouts') {
+        return items.map(buyout => `
+            <div class="item-card">
+                ${buyout.mainImageUrl ?
+                    `<img src="${buyout.mainImageUrl}" alt="경매 이미지" class="item-image">` :
+                    '<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">No Image</div>'
+                }
+                <div class="item-details">
+                    <div class="item-title">
+                        <a href="/auctions/${buyout.auctionId}/detail" style="text-decoration: none; color: #333;">${buyout.productName}</a>
+                    </div>
+                    <span class="status-badge completed">즉시구매</span>
+                    <div class="item-meta">
+                        <span>구매가: <strong>${formatNumber(buyout.buyoutPrice)}원</strong></span>
+                        <span>구매일: ${formatShortDateTime(buyout.buyoutTime)}</span>
+                        <span class="status-badge completed">거래 완료</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    return '';
+}
+
+// 빈 상태 렌더링
+function renderEmptyState(sectionType) {
+    const messages = {
+        'auctions': '진행 중인 경매가 없습니다',
+        'products': '등록된 상품이 없습니다',
+        'bids': '입찰 내역이 없습니다',
+        'buyouts': '구매 내역이 없습니다'
+    };
+    const icons = {
+        'auctions': '🏷️',
+        'products': '📦',
+        'bids': '🔨',
+        'buyouts': '💳'
+    };
+    return `
+        <div class="empty-state">
+            <div class="empty-state-icon">${icons[sectionType]}</div>
+            <p>${messages[sectionType]}</p>
+        </div>
+    `;
+}
+
+// 페이징 업데이트
+function updatePagination(sectionType, currentPage, totalPages, hasNext) {
+    const pagination = document.getElementById(sectionType + '-pagination');
+    if (!pagination) return;
+
+    const colors = {
+        'auctions': '#667eea',
+        'products': '#11998e',
+        'bids': '#f093fb',
+        'buyouts': '#4facfe'
+    };
+    const color = colors[sectionType];
+
+    pagination.innerHTML = `
+        <div style="display: inline-flex; gap: 10px; align-items: center;">
+            ${currentPage > 0 ?
+                `<a href="#" onclick="loadSection('${sectionType}', ${currentPage - 1}, 'prev'); return false;"
+                   style="padding: 8px 16px; background: ${color}; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    ← 이전
+                </a>` : ''
+            }
+            <span style="color: #666; font-size: 0.9em;">
+                ${currentPage + 1} / ${totalPages > 0 ? totalPages : 1}
+            </span>
+            ${hasNext ?
+                `<a href="#" onclick="loadSection('${sectionType}', ${currentPage + 1}, 'next'); return false;"
+                   style="padding: 8px 16px; background: ${color}; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
+                    다음 →
+                </a>` : ''
+            }
+        </div>
+    `;
+}
+
+// 숫자 포맷팅
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// 날짜 포맷팅
+function formatDateTime(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).replace(/\. /g, '-').replace('.', '');
+}
+
+function formatShortDateTime(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('ko-KR', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).replace(/\. /g, '-').replace('.', '');
+}
+
+// 초기화: 각 섹션에 transition 적용
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = ['auctions', 'products', 'bids', 'buyouts'];
+    sections.forEach(sectionType => {
+        const container = document.getElementById(sectionType + '-list');
+        if (container) {
+            container.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+        }
+    });
+});
+</script>
 </body>
 </html>

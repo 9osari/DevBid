@@ -12,6 +12,8 @@ import org.devbid.user.dto.UserRegistrationRequest;
 import org.devbid.user.dto.UserUpdateRequest;
 import org.devbid.user.application.UserService;
 import org.devbid.user.security.AuthUser;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -80,8 +85,20 @@ public class UserController {
     }
 
     @GetMapping("/users/myPage")
-    public String myPage(@AuthenticationPrincipal AuthUser user, Model model) {
-        MyPageData data = myPageQueryService.getMyPageData(user.getId());
+    public String myPage(@AuthenticationPrincipal AuthUser user,
+                         Model model,
+                         @RequestParam(defaultValue = "0") int auctionPage,
+                         @RequestParam(defaultValue = "0") int productPage,
+                         @RequestParam(defaultValue = "0") int bidPage,
+                         @RequestParam(defaultValue = "0") int buyoutPage,
+                         @RequestParam(defaultValue = "5") int size) {
+        Pageable auctionPageable = PageRequest.of(auctionPage, size);
+        Pageable productPageable = PageRequest.of(productPage, size);
+        Pageable bidPageable = PageRequest.of(bidPage, size);
+        Pageable buyoutPageable = PageRequest.of(buyoutPage, size);
+
+        MyPageData data = myPageQueryService.getMyPageData(user.getId(), auctionPageable, productPageable, bidPageable, buyoutPageable);
+
         model.addAttribute("user", data.getUser());
         model.addAttribute("ongoingAuctionCount", data.getAuctionActiveCount());
         model.addAttribute("productCount", data.getProductCount());
@@ -91,6 +108,25 @@ public class UserController {
         model.addAttribute("recentProducts", data.getRecentProducts());
         model.addAttribute("recentBids", data.getRecentBids());
         model.addAttribute("recentBuyouts", data.getRecentBuyouts());
+
+        // 각 섹션별 페이징 정보
+        model.addAttribute("auctionCurrentPage", data.getAuctionCurrentPage());
+        model.addAttribute("auctionTotalPages", data.getAuctionTotalPages());
+        model.addAttribute("auctionHasNext", data.isAuctionHasNext());
+
+        model.addAttribute("productCurrentPage", data.getProductCurrentPage());
+        model.addAttribute("productTotalPages", data.getProductTotalPages());
+        model.addAttribute("productHasNext", data.isProductHasNext());
+
+        model.addAttribute("bidCurrentPage", data.getBidCurrentPage());
+        model.addAttribute("bidTotalPages", data.getBidTotalPages());
+        model.addAttribute("bidHasNext", data.isBidHasNext());
+
+        model.addAttribute("buyoutCurrentPage", data.getBuyoutCurrentPage());
+        model.addAttribute("buyoutTotalPages", data.getBuyoutTotalPages());
+        model.addAttribute("buyoutHasNext", data.isBuyoutHasNext());
+
+        model.addAttribute("pageSize", size);
         return "users/myPage";
     }
 
@@ -146,5 +182,70 @@ public class UserController {
             return "redirect:/users/" + id + "/edit";
         }
         return "redirect:/";
+    }
+
+    // AJAX API 엔드포인트들
+    @GetMapping("/api/users/myPage/auctions")
+    @ResponseBody
+    public Map<String, Object> getAuctions(@AuthenticationPrincipal AuthUser user,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        MyPageData data = myPageQueryService.getMyPageData(user.getId(), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", data.getRecentAuctions());
+        response.put("currentPage", data.getAuctionCurrentPage());
+        response.put("totalPages", data.getAuctionTotalPages());
+        response.put("hasNext", data.isAuctionHasNext());
+        return response;
+    }
+
+    @GetMapping("/api/users/myPage/products")
+    @ResponseBody
+    public Map<String, Object> getProducts(@AuthenticationPrincipal AuthUser user,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        MyPageData data = myPageQueryService.getMyPageData(user.getId(), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", data.getRecentProducts());
+        response.put("currentPage", data.getProductCurrentPage());
+        response.put("totalPages", data.getProductTotalPages());
+        response.put("hasNext", data.isProductHasNext());
+        return response;
+    }
+
+    @GetMapping("/api/users/myPage/bids")
+    @ResponseBody
+    public Map<String, Object> getBids(@AuthenticationPrincipal AuthUser user,
+                                       @RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        MyPageData data = myPageQueryService.getMyPageData(user.getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", data.getRecentBids());
+        response.put("currentPage", data.getBidCurrentPage());
+        response.put("totalPages", data.getBidTotalPages());
+        response.put("hasNext", data.isBidHasNext());
+        return response;
+    }
+
+    @GetMapping("/api/users/myPage/buyouts")
+    @ResponseBody
+    public Map<String, Object> getBuyouts(@AuthenticationPrincipal AuthUser user,
+                                          @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        MyPageData data = myPageQueryService.getMyPageData(user.getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", data.getRecentBuyouts());
+        response.put("currentPage", data.getBuyoutCurrentPage());
+        response.put("totalPages", data.getBuyoutTotalPages());
+        response.put("hasNext", data.isBuyoutHasNext());
+        return response;
     }
 }
