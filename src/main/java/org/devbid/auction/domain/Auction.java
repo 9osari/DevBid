@@ -25,6 +25,9 @@ public class Auction extends BaseEntity {
     private Product product;
 
     @Embedded
+    private AuctionName auctionName;
+
+    @Embedded
     private StartingPrice startingPrice;
 
     @Embedded
