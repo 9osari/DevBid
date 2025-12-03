@@ -1,879 +1,815 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마이페이지 - DevBid</title>
-    <link href="/css/theme.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Common CSS -->
+    <link href="/css/common.css" rel="stylesheet">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
+        /* MyPage specific styles */
         .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            background: hsl(var(--card) / 0.6);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid hsl(var(--border) / 0.5);
+            box-shadow: var(--shadow-card);
         }
 
         .header h1 {
-            color: #667eea;
-            font-size: 2em;
-            font-weight: 600;
+            font-size: 2rem;
+            font-weight: 700;
+            color: hsl(var(--foreground));
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 1rem;
         }
 
         .user-avatar {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient-primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
+            color: hsl(var(--primary-foreground));
+            font-size: 1.75rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-glow);
         }
 
         .user-details h3 {
-            color: #333;
-            margin-bottom: 5px;
+            color: hsl(var(--foreground));
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
         }
 
         .user-details p {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .stat-card .icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        .stat-card.purple .icon {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .stat-card.green .icon {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-
-        .stat-card.orange .icon {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-
-        .stat-card.blue .icon {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-
-        .stat-card h3 {
-            color: #999;
-            font-size: 0.9em;
-            font-weight: 500;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-card .number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #333;
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
         }
 
         .section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .section-header h2 {
-            color: #333;
-            font-size: 1.5em;
-            font-weight: 600;
-        }
-
-        .view-all {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .view-all:hover {
-            color: #764ba2;
+            background: hsl(var(--card) / 0.6);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            border: 1px solid hsl(var(--border) / 0.5);
+            box-shadow: var(--shadow-card);
         }
 
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            gap: 1rem;
         }
 
         .action-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
+            background: var(--gradient-primary);
+            color: hsl(var(--primary-foreground));
+            padding: 0.875rem 1.5rem;
+            border-radius: calc(var(--radius) - 2px);
             text-decoration: none;
             text-align: center;
             font-weight: 600;
+            font-size: 0.875rem;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .action-btn.secondary {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #e2e8f0;
+        }
+        .action-btn.secondary:hover {
+            background: linear-gradient(135deg, #4a8fff, #2c6df5);
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #21f3b7, #0bbf9a);
+            color: #073b3a;
+        }
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #2affd5, #12d4ae);
         }
 
         .action-btn.danger {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #ff6b6b, #f04444);
+            color: white;
+        }
+        .action-btn.danger:hover {
+            background: linear-gradient(135deg, #ff7b7b, #f35555);
         }
 
         .item-list {
             display: grid;
-            gap: 15px;
+            gap: 1rem;
         }
 
         .item-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 15px;
+            border: 1px solid hsl(var(--border));
+            border-radius: calc(var(--radius) - 2px);
+            padding: 1.25rem;
             display: flex;
-            gap: 15px;
+            gap: 1rem;
             align-items: center;
             transition: all 0.3s ease;
+            background: hsl(var(--card) / 0.3);
         }
 
         .item-card:hover {
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            border-color: #667eea;
+            box-shadow: var(--shadow-card);
+            border-color: hsl(var(--primary));
+            transform: translateY(-2px);
         }
 
         .item-image {
             width: 80px;
             height: 80px;
-            border-radius: 8px;
+            border-radius: calc(var(--radius) - 4px);
             object-fit: cover;
-            background: #f0f0f0;
+            background: hsl(var(--muted));
+            flex-shrink: 0;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .item-card:hover .item-image {
+            transform: scale(1.05);
         }
 
         .item-details {
             flex: 1;
+            min-width: 0;
         }
 
         .item-title {
             font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 1.1em;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .item-title a {
+            color: hsl(var(--foreground));
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .item-card:hover .item-title a {
+            color: hsl(var(--primary));
         }
 
         .item-meta {
-            color: #666;
-            font-size: 0.9em;
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
             display: flex;
-            gap: 15px;
-            margin-top: 8px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .status-badge.ongoing {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .status-badge.completed {
-            background: #e3f2fd;
-            color: #1565c0;
-        }
-
-        .status-badge.failed {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        .nav-links {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 15px;
             flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
         }
 
-        .nav-links a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 8px 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+        .item-meta strong {
+            color: hsl(var(--foreground));
         }
 
-        .nav-links a:hover {
-            background: #f0f0f0;
-        }
-
-        /* 슬라이드 애니메이션 */
-        .slide-container {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .slide-content {
-            transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
-        }
-
-        .slide-out-left {
-            transform: translateX(-100%);
-            opacity: 0;
-        }
-
-        .slide-out-right {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        .slide-in {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        /* 로딩 스피너 */
-        .loading-spinner {
-            display: none;
+        .pagination {
+            padding: 1rem 0;
             text-align: center;
-            padding: 40px;
-            color: #667eea;
+            border-top: 1px solid hsl(var(--border));
+            margin-top: 1rem;
         }
 
-        .loading-spinner.active {
-            display: block;
+        .pagination-inner {
+            display: inline-flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .pagination a {
+            padding: 0.5rem 1rem;
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            text-decoration: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .pagination a:hover {
+            background: hsl(var(--primary) / 0.9);
+            transform: translateY(-2px);
+        }
+
+        .pagination span {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .item-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <!-- Header -->
-    <div class="header">
-        <h1>마이페이지</h1>
-        <div class="user-info">
-            <div class="user-avatar" th:text="${user.nickname.value.substring(0,1).toUpperCase()}">U</div>
-            <div class="user-details">
-                <h3 th:text="${user.nickname.value}">사용자 닉네임</h3>
-                <p th:text="${user.email.value}">user@example.com</p>
-            </div>
-        </div>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-blob bg-blob-1 animate-float"></div>
+        <div class="bg-blob bg-blob-2 animate-float"></div>
     </div>
 
-    <!-- Statistics -->
-    <div class="stats-grid">
-        <div class="stat-card purple">
-            <div class="icon">🏆</div>
-            <h3>진행 중인 경매</h3>
-            <div class="number" th:text="${ongoingAuctionCount}">0</div>
-        </div>
-        <div class="stat-card green">
-            <div class="icon">📦</div>
-            <h3>등록된 상품</h3>
-            <div class="number" th:text="${productCount}">0</div>
-        </div>
-        <div class="stat-card orange">
-            <div class="icon">💰</div>
-            <h3>총 경매 수</h3>
-            <div class="number" th:text="${totalAuctionCount}">0</div>
-        </div>
-        <div class="stat-card blue">
-            <div class="icon">🔥</div>
-            <h3>참여 중 경매</h3>
-            <div class="number" th:text="${participatingAuctionCount}">0</div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="section">
-        <div class="section-header">
-            <h2>빠른 작업</h2>
-        </div>
-        <div class="quick-actions">
-            <a href="/products/new" class="action-btn">상품 등록</a>
-            <a href="/products/my" class="action-btn secondary">내 상품 관리</a>
-            <a href="/auctions/my" class="action-btn secondary">내 경매 관리</a>
-            <a th:href="@{/users/{id}/edit(id=${user.id})}" class="action-btn danger">회원정보 수정</a>
-        </div>
-    </div>
-
-    <!-- Recent Auctions -->
-    <div class="section">
-        <div class="section-header">
-            <h2>최근 경매</h2>
-            <a href="/auctions/my" class="view-all">전체 보기 →</a>
-        </div>
-        <div class="item-list" id="auctions-list" th:if="${recentAuctions != null and !recentAuctions.isEmpty()}">
-            <div class="item-card" th:each="auction : ${recentAuctions}">
-                <img th:if="${auction.mainImageUrl() != null}"
-                     th:src="${auction.mainImageUrl()}"
-                     alt="상품 이미지"
-                     class="item-image">
-                <div th:unless="${auction.mainImageUrl() != null}"
-                     class="item-image"
-                     style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">
-                    No Image
-                </div>
-                <div class="item-details">
-                    <div class="item-title">
-                        <a th:href="@{/auctions/{id}/detail(id=${auction.id()})}"
-                           th:text="${auction.productName()}"
-                           style="text-decoration: none; color: #333;">상품명</a>
-                    </div>
-                    <span class="status-badge"
-                          th:classappend="${auction.status() == 'ONGOING'} ? 'ongoing' : (${auction.status() == 'COMPLETED'} ? 'completed' : 'failed')"
-                          th:text="${auction.status()}">상태</span>
-                    <div class="item-meta">
-                        <span>현재가: <strong th:text="${#numbers.formatDecimal(auction.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
-                        <span>입찰: <strong th:text="${auction.bidCount} + '건'">0건</strong></span>
-                        <span th:text="'시작: ' + ${#temporals.format(auction.startTime(), 'YYYY-MM-dd HH:mm')}">시작일</span>
-                        <span th:text="'종료: ' + ${#temporals.format(auction.endTime, 'YYYY-MM-dd HH:mm')}">종료일</span>
+    <main class="main-content">
+        <div class="container">
+            <!-- Header -->
+            <div class="header glass animate-fade-up">
+                <h1>마이페이지</h1>
+                <div class="user-info">
+                    <div class="user-avatar" th:text="${user.nickname.value.substring(0,1).toUpperCase()}">U</div>
+                    <div class="user-details">
+                        <h3 th:text="${user.nickname.value}">사용자 닉네임</h3>
+                        <p th:text="${user.email.value}">user@example.com</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="empty-state" th:if="${recentAuctions == null or recentAuctions.isEmpty()}">
-            <div class="empty-state-icon">🏷️</div>
-            <p>진행 중인 경매가 없습니다</p>
-        </div>
-        <!-- Auction Pagination -->
-        <div id="auctions-pagination" style="padding: 15px 0; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 15px;">
-            <div style="display: inline-flex; gap: 10px; align-items: center;">
-                <a th:if="${auctionCurrentPage > 0}"
-                   href="#"
-                   th:onclick="|loadSection('auctions', ${auctionCurrentPage - 1}, 'prev'); return false;|"
-                   style="padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    ← 이전
-                </a>
-                <span style="color: #666; font-size: 0.9em;">
-                    <span th:text="${auctionCurrentPage + 1}">1</span> / <span th:text="${auctionTotalPages > 0 ? auctionTotalPages : 1}">1</span>
-                </span>
-                <a th:if="${auctionHasNext}"
-                   href="#"
-                   th:onclick="|loadSection('auctions', ${auctionCurrentPage + 1}, 'next'); return false;|"
-                   style="padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    다음 →
-                </a>
-            </div>
-        </div>
-    </div>
 
-    <!-- Recent Products -->
-    <div class="section">
-        <div class="section-header">
-            <h2>최근 등록 상품</h2>
-            <a href="/products/my" class="view-all">전체 보기 →</a>
-        </div>
-        <div class="item-list" id="products-list" th:if="${recentProducts != null and !recentProducts.isEmpty()}">
-            <div class="item-card" th:each="product : ${recentProducts}">
-                <img th:if="${product.mainImageUrl}"
-                     th:src="${product.mainImageUrl}"
-                     alt="상품 이미지"
-                     class="item-image">
-                <div th:unless="${product.mainImageUrl}"
-                     class="item-image"
-                     style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">
-                    No Image
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card glass hover-lift animate-fade-up delay-100">
+                    <div class="stat-card-inner">
+                        <div class="stat-icon">
+                            <i data-lucide="trophy"></i>
+                        </div>
+                        <div>
+                            <p class="stat-label">진행 중인 경매</p>
+                            <p class="stat-value" th:text="${ongoingAuctionCount}">0</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="item-details">
-                    <div class="item-title" th:text="${product.productName}">상품명</div>
-                    <span class="status-badge"
-                          th:classappend="${product.saleStatus == 'AVAILABLE'} ? 'ongoing' : 'completed'"
-                          th:text="${product.saleStatus}">상태</span>
-                    <div class="item-meta">
-                        <span th:text="${product.condition}">상태</span>
-                        <span th:text="${product.categoryName}">카테고리</span>
-                        <span th:if="${product.activeAuctionCount > 0}" style="color: #f5576c;">
-                            경매 진행 중 (<strong th:text="${product.activeAuctionCount}">0</strong>건)
+                <div class="stat-card glass hover-lift animate-fade-up delay-200">
+                    <div class="stat-card-inner">
+                        <div class="stat-icon">
+                            <i data-lucide="package"></i>
+                        </div>
+                        <div>
+                            <p class="stat-label">등록된 상품</p>
+                            <p class="stat-value" th:text="${productCount}">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card glass hover-lift animate-fade-up delay-300">
+                    <div class="stat-card-inner">
+                        <div class="stat-icon">
+                            <i data-lucide="coins"></i>
+                        </div>
+                        <div>
+                            <p class="stat-label">총 경매 수</p>
+                            <p class="stat-value" th:text="${totalAuctionCount}">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card glass hover-lift animate-fade-up delay-400">
+                    <div class="stat-card-inner">
+                        <div class="stat-icon">
+                            <i data-lucide="flame"></i>
+                        </div>
+                        <div>
+                            <p class="stat-label">참여 중 경매</p>
+                            <p class="stat-value" th:text="${participatingAuctionCount}">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>빠른 작업</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="/products/new" class="action-btn secondary">
+                        <i data-lucide="plus-circle"></i>
+                        상품 등록
+                    </a>
+                    <a href="/products/my" class="action-btn secondary">
+                        <i data-lucide="package"></i>
+                        내 상품 관리
+                    </a>
+                    <a href="/auctions/my" class="action-btn secondary">
+                        <i data-lucide="gavel"></i>
+                        내 경매 관리
+                    </a>
+                    <a th:href="@{/users/{id}/edit(id=${user.id})}" class="action-btn danger">
+                        <i data-lucide="settings"></i>
+                        회원정보 수정
+                    </a>
+                </div>
+            </section>
+
+            <!-- Recent Auctions -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>최근 경매</h2>
+                    <a href="/auctions/my" class="view-all">
+                        전체 보기 <i data-lucide="chevron-right"></i>
+                    </a>
+                </div>
+                <div class="item-list" id="auctions-list" th:if="${recentAuctions != null and !recentAuctions.isEmpty()}">
+                    <div class="item-card" th:each="auction : ${recentAuctions}">
+                        <img th:if="${auction.mainImageUrl() != null}"
+                             th:src="${auction.mainImageUrl()}"
+                             alt="상품 이미지"
+                             class="item-image">
+                        <div th:unless="${auction.mainImageUrl() != null}"
+                             class="item-image"
+                             style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground));">
+                            <i data-lucide="image" style="width: 2rem; height: 2rem;"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-title">
+                                <a th:href="@{/auctions/{id}/detail(id=${auction.id()})}"
+                                   th:text="${auction.productName()}">상품명</a>
+                            </div>
+                            <span class="status-badge"
+                                  th:classappend="${auction.status() == 'ONGOING'} ? 'ongoing' : (${auction.status() == 'COMPLETED'} ? 'completed' : 'failed')"
+                                  th:text="${auction.status()}">상태</span>
+                            <div class="item-meta">
+                                <span>현재가: <strong th:text="${#numbers.formatDecimal(auction.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
+                                <span>입찰: <strong th:text="${auction.bidCount} + '건'">0건</strong></span>
+                                <span th:text="'시작: ' + ${#temporals.format(auction.startTime(), 'MM-dd HH:mm')}">시작일</span>
+                                <span th:text="'종료: ' + ${#temporals.format(auction.endTime, 'MM-dd HH:mm')}">종료일</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${recentAuctions == null or recentAuctions.isEmpty()}">
+                    <i data-lucide="package" class="empty-state-icon" style="width: 3rem; height: 3rem; margin: 0 auto 1rem;"></i>
+                    <p>진행 중인 경매가 없습니다</p>
+                </div>
+                <!-- Auction Pagination -->
+                <div id="auctions-pagination" class="pagination">
+                    <div class="pagination-inner">
+                        <a th:if="${auctionCurrentPage > 0}"
+                           href="#"
+                           th:onclick="|loadSection('auctions', ${auctionCurrentPage - 1}, 'prev'); return false;|">
+                            <i data-lucide="chevron-left"></i> 이전
+                        </a>
+                        <span>
+                            <span th:text="${auctionCurrentPage + 1}">1</span> / <span th:text="${auctionTotalPages > 0 ? auctionTotalPages : 1}">1</span>
                         </span>
-                        <span th:if="${product.activeAuctionCount == 0}" style="color: #38ef7d;">
-                            경매 가능
+                        <a th:if="${auctionHasNext}"
+                           href="#"
+                           th:onclick="|loadSection('auctions', ${auctionCurrentPage + 1}, 'next'); return false;|">
+                            다음 <i data-lucide="chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Products -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>최근 등록 상품</h2>
+                    <a href="/products/my" class="view-all">
+                        전체 보기 <i data-lucide="chevron-right"></i>
+                    </a>
+                </div>
+                <div class="item-list" id="products-list" th:if="${recentProducts != null and !recentProducts.isEmpty()}">
+                    <div class="item-card" th:each="product : ${recentProducts}">
+                        <img th:if="${product.mainImageUrl}"
+                             th:src="${product.mainImageUrl}"
+                             alt="상품 이미지"
+                             class="item-image">
+                        <div th:unless="${product.mainImageUrl}"
+                             class="item-image"
+                             style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground));">
+                            <i data-lucide="image" style="width: 2rem; height: 2rem;"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-title" th:text="${product.productName}">상품명</div>
+                            <span class="status-badge"
+                                  th:classappend="${product.saleStatus == 'AVAILABLE'} ? 'ongoing' : 'completed'"
+                                  th:text="${product.saleStatus}">상태</span>
+                            <div class="item-meta">
+                                <span th:text="${product.condition}">상태</span>
+                                <span th:text="${product.categoryName}">카테고리</span>
+                                <span th:if="${product.activeAuctionCount > 0}" style="color: hsl(var(--destructive));">
+                                    경매 진행 중 (<strong th:text="${product.activeAuctionCount}">0</strong>건)
+                                </span>
+                                <span th:if="${product.activeAuctionCount == 0}" style="color: hsl(var(--success));">
+                                    경매 가능
+                                </span>
+                                <span>
+                                    등록: <span th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${recentProducts == null or recentProducts.isEmpty()}">
+                    <i data-lucide="package" class="empty-state-icon" style="width: 3rem; height: 3rem; margin: 0 auto 1rem;"></i>
+                    <p>등록된 상품이 없습니다</p>
+                </div>
+                <!-- Product Pagination -->
+                <div id="products-pagination" class="pagination">
+                    <div class="pagination-inner">
+                        <a th:if="${productCurrentPage > 0}"
+                           href="#"
+                           th:onclick="|loadSection('products', ${productCurrentPage - 1}, 'prev'); return false;|">
+                            <i data-lucide="chevron-left"></i> 이전
+                        </a>
+                        <span>
+                            <span th:text="${productCurrentPage + 1}">1</span> / <span th:text="${productTotalPages > 0 ? productTotalPages : 1}">1</span>
                         </span>
-                        <span style="color: #666; font-size: 0.9em;">
-                            등록: <span th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                        <a th:if="${productHasNext}"
+                           href="#"
+                           th:onclick="|loadSection('products', ${productCurrentPage + 1}, 'next'); return false;|">
+                            다음 <i data-lucide="chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Bid History -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>최근 입찰 내역</h2>
+                </div>
+                <div class="item-list" id="bids-list" th:if="${recentBids != null and !recentBids.isEmpty()}">
+                    <div class="item-card" th:each="bid : ${recentBids}">
+                        <img th:if="${bid.mainImageUrl != null}"
+                             th:src="${bid.mainImageUrl}"
+                             alt="경매 이미지"
+                             class="item-image">
+                        <div th:unless="${bid.mainImageUrl != null}"
+                             class="item-image"
+                             style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground));">
+                            <i data-lucide="image" style="width: 2rem; height: 2rem;"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-title">
+                                <a th:href="@{/auctions/{id}/detail(id=${bid.id()})}"
+                                   th:text="${bid.productName}">상품명</a>
+                            </div>
+                            <span class="status-badge ongoing">입찰</span>
+                            <div class="item-meta">
+                                <span>입찰가: <strong th:text="${#numbers.formatDecimal(bid.bidAmount, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
+                                <span>현재가: <strong th:text="${#numbers.formatDecimal(bid.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
+                                <span th:text="'입찰일: ' + ${#temporals.format(bid.bidTime, 'MM-dd HH:mm')}">입찰일</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${recentBids == null or recentBids.isEmpty()}">
+                    <i data-lucide="gavel" class="empty-state-icon" style="width: 3rem; height: 3rem; margin: 0 auto 1rem;"></i>
+                    <p>입찰 내역이 없습니다</p>
+                </div>
+                <!-- Bid Pagination -->
+                <div id="bids-pagination" class="pagination">
+                    <div class="pagination-inner">
+                        <a th:if="${bidCurrentPage > 0}"
+                           href="#"
+                           th:onclick="|loadSection('bids', ${bidCurrentPage - 1}, 'prev'); return false;|">
+                            <i data-lucide="chevron-left"></i> 이전
+                        </a>
+                        <span>
+                            <span th:text="${bidCurrentPage + 1}">1</span> / <span th:text="${bidTotalPages > 0 ? bidTotalPages : 1}">1</span>
                         </span>
-                                <span style="color: #666; font-size: 0.9em;">
-                            수정: <span th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+                        <a th:if="${bidHasNext}"
+                           href="#"
+                           th:onclick="|loadSection('bids', ${bidCurrentPage + 1}, 'next'); return false;|">
+                            다음 <i data-lucide="chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Buyout History -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>최근 구매 내역</h2>
+                </div>
+                <div class="item-list" id="buyouts-list" th:if="${recentBuyouts != null and !recentBuyouts.isEmpty()}">
+                    <div class="item-card" th:each="buyout : ${recentBuyouts}">
+                        <img th:if="${buyout.mainImageUrl != null}"
+                             th:src="${buyout.mainImageUrl}"
+                             alt="경매 이미지"
+                             class="item-image">
+                        <div th:unless="${buyout.mainImageUrl != null}"
+                             class="item-image"
+                             style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground));">
+                            <i data-lucide="image" style="width: 2rem; height: 2rem;"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-title">
+                                <a th:href="@{/auctions/{id}/detail(id=${buyout.auctionId})}"
+                                   th:text="${buyout.productName}">상품명</a>
+                            </div>
+                            <span class="status-badge completed">즉시구매</span>
+                            <div class="item-meta">
+                                <span>구매가: <strong th:text="${#numbers.formatDecimal(buyout.buyoutPrice, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
+                                <span th:text="'구매일: ' + ${#temporals.format(buyout.buyoutTime, 'MM-dd HH:mm')}">구매일</span>
+                                <span class="status-badge completed">거래 완료</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${recentBuyouts == null or recentBuyouts.isEmpty()}">
+                    <i data-lucide="credit-card" class="empty-state-icon" style="width: 3rem; height: 3rem; margin: 0 auto 1rem;"></i>
+                    <p>구매 내역이 없습니다</p>
+                </div>
+                <!-- Buyout Pagination -->
+                <div id="buyouts-pagination" class="pagination">
+                    <div class="pagination-inner">
+                        <a th:if="${buyoutCurrentPage > 0}"
+                           href="#"
+                           th:onclick="|loadSection('buyouts', ${buyoutCurrentPage - 1}, 'prev'); return false;|">
+                            <i data-lucide="chevron-left"></i> 이전
+                        </a>
+                        <span>
+                            <span th:text="${buyoutCurrentPage + 1}">1</span> / <span th:text="${buyoutTotalPages > 0 ? buyoutTotalPages : 1}">1</span>
                         </span>
+                        <a th:if="${buyoutHasNext}"
+                           href="#"
+                           th:onclick="|loadSection('buyouts', ${buyoutCurrentPage + 1}, 'next'); return false;|">
+                            다음 <i data-lucide="chevron-right"></i>
+                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="empty-state" th:if="${recentProducts == null or recentProducts.isEmpty()}">
-            <div class="empty-state-icon">📦</div>
-            <p>등록된 상품이 없습니다</p>
-        </div>
-        <!-- Product Pagination -->
-        <div id="products-pagination" style="padding: 15px 0; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 15px;">
-            <div style="display: inline-flex; gap: 10px; align-items: center;">
-                <a th:if="${productCurrentPage > 0}"
-                   href="#"
-                   th:onclick="|loadSection('products', ${productCurrentPage - 1}, 'prev'); return false;|"
-                   style="padding: 8px 16px; background: #11998e; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    ← 이전
-                </a>
-                <span style="color: #666; font-size: 0.9em;">
-                    <span th:text="${productCurrentPage + 1}">1</span> / <span th:text="${productTotalPages > 0 ? productTotalPages : 1}">1</span>
-                </span>
-                <a th:if="${productHasNext}"
-                   href="#"
-                   th:onclick="|loadSection('products', ${productCurrentPage + 1}, 'next'); return false;|"
-                   style="padding: 8px 16px; background: #11998e; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    다음 →
-                </a>
-            </div>
-        </div>
-    </div>
+            </section>
 
-    <!-- Recent Bid History -->
-    <div class="section">
-        <div class="section-header">
-            <h2>최근 입찰 내역</h2>
-            <a href="#" class="view-all">전체 보기 →</a>
-        </div>
-        <div class="item-list" id="bids-list" th:if="${recentBids != null and !recentBids.isEmpty()}">
-            <div class="item-card" th:each="bid : ${recentBids}">
-                <img th:if="${bid.mainImageUrl != null}"
-                     th:src="${bid.mainImageUrl}"
-                     alt="경매 이미지"
-                     class="item-image">
-                <div th:unless="${bid.mainImageUrl != null}"
-                     class="item-image"
-                     style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">
-                    No Image
+            <!-- Navigation Links -->
+            <nav class="quick-links glass">
+                <div class="quick-links-inner">
+                    <a href="/">홈</a>
+                    <span class="separator">|</span>
+                    <a href="/auctionMain">경매 메인</a>
+                    <span class="separator">|</span>
+                    <a href="/productsMain">상품 메인</a>
+                    <span class="separator">|</span>
+                    <a href="/logout" class="logout">로그아웃</a>
                 </div>
-                <div class="item-details">
-                    <div class="item-title">
-                        <a th:href="@{/auctions/{id}/detail(id=${bid.id()})}"
-                           th:text="${bid.productName}"
-                           style="text-decoration: none; color: #333;">상품명</a>
-                    </div>
-                    <span class="status-badge ongoing">입찰</span>
-                    <div class="item-meta">
-                        <span>입찰가: <strong th:text="${#numbers.formatDecimal(bid.bidAmount, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
-                        <span>현재가: <strong th:text="${#numbers.formatDecimal(bid.currentPrice, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
-                        <span th:text="'입찰일: ' + ${#temporals.format(bid.bidTime, 'MM-dd HH:mm')}">입찰일</span>
-                    </div>
-                </div>
-            </div>
+            </nav>
         </div>
-        <div class="empty-state" th:if="${recentBids == null or recentBids.isEmpty()}">
-            <div class="empty-state-icon">🔨</div>
-            <p>입찰 내역이 없습니다</p>
-        </div>
-        <!-- Bid Pagination -->
-        <div id="bids-pagination" style="padding: 15px 0; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 15px;">
-            <div style="display: inline-flex; gap: 10px; align-items: center;">
-                <a th:if="${bidCurrentPage > 0}"
-                   href="#"
-                   th:onclick="|loadSection('bids', ${bidCurrentPage - 1}, 'prev'); return false;|"
-                   style="padding: 8px 16px; background: #f093fb; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    ← 이전
-                </a>
-                <span style="color: #666; font-size: 0.9em;">
-                    <span th:text="${bidCurrentPage + 1}">1</span> / <span th:text="${bidTotalPages > 0 ? bidTotalPages : 1}">1</span>
-                </span>
-                <a th:if="${bidHasNext}"
-                   href="#"
-                   th:onclick="|loadSection('bids', ${bidCurrentPage + 1}, 'next'); return false;|"
-                   style="padding: 8px 16px; background: #f093fb; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    다음 →
-                </a>
-            </div>
-        </div>
-    </div>
+    </main>
 
-    <!-- Recent Buyout History -->
-    <div class="section">
-        <div class="section-header">
-            <h2>최근 구매 내역</h2>
-            <a href="#" class="view-all">전체 보기 →</a>
-        </div>
-        <div class="item-list" id="buyouts-list" th:if="${recentBuyouts != null and !recentBuyouts.isEmpty()}">
-            <div class="item-card" th:each="buyout : ${recentBuyouts}">
-                <img th:if="${buyout.mainImageUrl != null}"
-                     th:src="${buyout.mainImageUrl}"
-                     alt="경매 이미지"
-                     class="item-image">
-                <div th:unless="${buyout.mainImageUrl != null}"
-                     class="item-image"
-                     style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">
-                    No Image
-                </div>
-                <div class="item-details">
-                    <div class="item-title">
-                        <a th:href="@{/auctions/{id}/detail(id=${buyout.auctionId})}"
-                           th:text="${buyout.productName}"
-                           style="text-decoration: none; color: #333;">상품명</a>
-                    </div>
-                    <span class="status-badge completed">즉시구매</span>
-                    <div class="item-meta">
-                        <span>구매가: <strong th:text="${#numbers.formatDecimal(buyout.buyoutPrice, 0, 'COMMA', 0, 'POINT')} + '원'">0원</strong></span>
-                        <span th:text="'구매일: ' + ${#temporals.format(buyout.buyoutTime, 'MM-dd HH:mm')}">구매일</span>
-                        <span class="status-badge completed">거래 완료</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="empty-state" th:if="${recentBuyouts == null or recentBuyouts.isEmpty()}">
-            <div class="empty-state-icon">💳</div>
-            <p>구매 내역이 없습니다</p>
-        </div>
-        <!-- Buyout Pagination -->
-        <div id="buyouts-pagination" style="padding: 15px 0; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 15px;">
-            <div style="display: inline-flex; gap: 10px; align-items: center;">
-                <a th:if="${buyoutCurrentPage > 0}"
-                   href="#"
-                   th:onclick="|loadSection('buyouts', ${buyoutCurrentPage - 1}, 'prev'); return false;|"
-                   style="padding: 8px 16px; background: #4facfe; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    ← 이전
-                </a>
-                <span style="color: #666; font-size: 0.9em;">
-                    <span th:text="${buyoutCurrentPage + 1}">1</span> / <span th:text="${buyoutTotalPages > 0 ? buyoutTotalPages : 1}">1</span>
-                </span>
-                <a th:if="${buyoutHasNext}"
-                   href="#"
-                   th:onclick="|loadSection('buyouts', ${buyoutCurrentPage + 1}, 'next'); return false;|"
-                   style="padding: 8px 16px; background: #4facfe; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    다음 →
-                </a>
-            </div>
-        </div>
-    </div>
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
 
-    <!-- Navigation Links -->
-    <div class="nav-links">
-        <a href="/">홈</a>
-        <a href="/auctionMain">경매 메인</a>
-        <a href="/productsMain">상품 메인</a>
-        <a href="/logout">로그아웃</a>
-    </div>
-</div>
+        // AJAX로 섹션 업데이트
+        function loadSection(sectionType, page, direction) {
+            const container = document.getElementById(sectionType + '-list');
+            const pagination = document.getElementById(sectionType + '-pagination');
 
-<script>
-//AJAX로 섹션 업데이트
-function loadSection(sectionType, page, direction) {
-    const container = document.getElementById(sectionType + '-list');
-    const pagination = document.getElementById(sectionType + '-pagination');
+            if (!container) return;
 
-    if (!container) return;
+            // 슬라이드 애니메이션 시작
+            container.style.transform = direction === 'next' ? 'translateX(-30px)' : 'translateX(30px)';
+            container.style.opacity = '0.3';
 
-    // 슬라이드 애니메이션 시작
-    container.style.transform = direction === 'next' ? 'translateX(-30px)' : 'translateX(30px)';
-    container.style.opacity = '0.3';
+            // AJAX 요청
+            fetch(`/api/users/myPage/${sectionType}?page=${page}&size=5`)
+                .then(response => response.json())
+                .then(data => {
+                    // HTML 렌더링
+                    if (data.items && data.items.length > 0) {
+                        container.innerHTML = renderItems(sectionType, data.items);
+                    } else {
+                        container.innerHTML = renderEmptyState(sectionType);
+                    }
 
-    // AJAX 요청
-    fetch(`/api/users/myPage/${sectionType}?page=${page}&size=5`)
-        .then(response => response.json())
-        .then(data => {
-            // HTML 렌더링
-            if (data.items && data.items.length > 0) {
-                container.innerHTML = renderItems(sectionType, data.items);
-            } else {
-                container.innerHTML = renderEmptyState(sectionType);
-            }
+                    // 페이징 업데이트
+                    if (pagination) {
+                        updatePagination(sectionType, data.currentPage, data.totalPages, data.hasNext);
+                    }
 
-            // 페이징 업데이트
-            if (pagination) {
-                updatePagination(sectionType, data.currentPage, data.totalPages, data.hasNext);
-            }
+                    // 슬라이드 애니메이션 완료
+                    setTimeout(() => {
+                        container.style.transform = 'translateX(0)';
+                        container.style.opacity = '1';
+                    }, 50);
 
-            // 슬라이드 애니메이션 완료
-            setTimeout(() => {
-                container.style.transform = 'translateX(0)';
-                container.style.opacity = '1';
-            }, 50);
-        })
-        .catch(error => {
-            console.error('Error loading section:', error);
-            container.style.transform = 'translateX(0)';
-            container.style.opacity = '1';
-        });
-}
-
-// 아이템 렌더링 함수
-function renderItems(sectionType, items) {
-    if (sectionType === 'auctions') {
-        return items.map(auction => `
-            <div class="item-card">
-                ${auction.mainImageUrl ?
-                    `<img src="${auction.mainImageUrl}" alt="상품 이미지" class="item-image">` :
-                    '<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">No Image</div>'
-                }
-                <div class="item-details">
-                    <div class="item-title">
-                        <a href="/auctions/${auction.id}/detail" style="text-decoration: none; color: #333;">${auction.productName}</a>
-                    </div>
-                    <span class="status-badge ${auction.status === 'ONGOING' ? 'ongoing' : (auction.status === 'COMPLETED' ? 'completed' : 'failed')}">${auction.status}</span>
-                    <div class="item-meta">
-                        <span>현재가: <strong>${formatNumber(auction.currentPrice)}원</strong></span>
-                        <span>입찰: <strong>${auction.bidCount}건</strong></span>
-                        <span>시작: ${formatDateTime(auction.startTime)}</span>
-                        <span>종료: ${formatDateTime(auction.endTime)}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    } else if (sectionType === 'products') {
-        return items.map(product => `
-            <div class="item-card">
-                ${product.mainImageUrl ?
-                    `<img src="${product.mainImageUrl}" alt="상품 이미지" class="item-image">` :
-                    '<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">No Image</div>'
-                }
-                <div class="item-details">
-                    <div class="item-title">${product.productName}</div>
-                    <span class="status-badge ${product.saleStatus === 'AVAILABLE' ? 'ongoing' : 'completed'}">${product.saleStatus}</span>
-                    <div class="item-meta">
-                        <span>${product.condition}</span>
-                        <span>${product.categoryName}</span>
-                        ${product.activeAuctionCount > 0 ?
-                            `<span style="color: #f5576c;">경매 진행 중 (<strong>${product.activeAuctionCount}</strong>건)</span>` :
-                            '<span style="color: #38ef7d;">경매 가능</span>'
-                        }
-                        <span style="color: #666; font-size: 0.9em;">등록: ${formatDateTime(product.createdAt)}</span>
-                        <span style="color: #666; font-size: 0.9em;">수정: ${formatDateTime(product.updatedAt)}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    } else if (sectionType === 'bids') {
-        return items.map(bid => `
-            <div class="item-card">
-                ${bid.mainImageUrl ?
-                    `<img src="${bid.mainImageUrl}" alt="경매 이미지" class="item-image">` :
-                    '<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">No Image</div>'
-                }
-                <div class="item-details">
-                    <div class="item-title">
-                        <a href="/auctions/${bid.id}/detail" style="text-decoration: none; color: #333;">${bid.productName}</a>
-                    </div>
-                    <span class="status-badge ongoing">입찰</span>
-                    <div class="item-meta">
-                        <span>입찰가: <strong>${formatNumber(bid.bidAmount)}원</strong></span>
-                        <span>현재가: <strong>${formatNumber(bid.currentPrice)}원</strong></span>
-                        <span>입찰일: ${formatShortDateTime(bid.bidTime)}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    } else if (sectionType === 'buyouts') {
-        return items.map(buyout => `
-            <div class="item-card">
-                ${buyout.mainImageUrl ?
-                    `<img src="${buyout.mainImageUrl}" alt="경매 이미지" class="item-image">` :
-                    '<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">No Image</div>'
-                }
-                <div class="item-details">
-                    <div class="item-title">
-                        <a href="/auctions/${buyout.auctionId}/detail" style="text-decoration: none; color: #333;">${buyout.productName}</a>
-                    </div>
-                    <span class="status-badge completed">즉시구매</span>
-                    <div class="item-meta">
-                        <span>구매가: <strong>${formatNumber(buyout.buyoutPrice)}원</strong></span>
-                        <span>구매일: ${formatShortDateTime(buyout.buyoutTime)}</span>
-                        <span class="status-badge completed">거래 완료</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-    return '';
-}
-
-// 빈 상태 렌더링
-function renderEmptyState(sectionType) {
-    const messages = {
-        'auctions': '진행 중인 경매가 없습니다',
-        'products': '등록된 상품이 없습니다',
-        'bids': '입찰 내역이 없습니다',
-        'buyouts': '구매 내역이 없습니다'
-    };
-    const icons = {
-        'auctions': '🏷️',
-        'products': '📦',
-        'bids': '🔨',
-        'buyouts': '💳'
-    };
-    return `
-        <div class="empty-state">
-            <div class="empty-state-icon">${icons[sectionType]}</div>
-            <p>${messages[sectionType]}</p>
-        </div>
-    `;
-}
-
-// 페이징 업데이트
-function updatePagination(sectionType, currentPage, totalPages, hasNext) {
-    const pagination = document.getElementById(sectionType + '-pagination');
-    if (!pagination) return;
-
-    const colors = {
-        'auctions': '#667eea',
-        'products': '#11998e',
-        'bids': '#f093fb',
-        'buyouts': '#4facfe'
-    };
-    const color = colors[sectionType];
-
-    pagination.innerHTML = `
-        <div style="display: inline-flex; gap: 10px; align-items: center;">
-            ${currentPage > 0 ?
-                `<a href="#" onclick="loadSection('${sectionType}', ${currentPage - 1}, 'prev'); return false;"
-                   style="padding: 8px 16px; background: ${color}; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    ← 이전
-                </a>` : ''
-            }
-            <span style="color: #666; font-size: 0.9em;">
-                ${currentPage + 1} / ${totalPages > 0 ? totalPages : 1}
-            </span>
-            ${hasNext ?
-                `<a href="#" onclick="loadSection('${sectionType}', ${currentPage + 1}, 'next'); return false;"
-                   style="padding: 8px 16px; background: ${color}; color: white; text-decoration: none; border-radius: 5px; font-size: 0.9em;">
-                    다음 →
-                </a>` : ''
-            }
-        </div>
-    `;
-}
-
-// 숫자 포맷팅
-function formatNumber(num) {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
-
-// 날짜 포맷팅
-function formatDateTime(dateStr) {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    }).replace(/\. /g, '-').replace('.', '');
-}
-
-function formatShortDateTime(dateStr) {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleString('ko-KR', {
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    }).replace(/\. /g, '-').replace('.', '');
-}
-
-// 초기화: 각 섹션에 transition 적용
-document.addEventListener('DOMContentLoaded', function() {
-    const sections = ['auctions', 'products', 'bids', 'buyouts'];
-    sections.forEach(sectionType => {
-        const container = document.getElementById(sectionType + '-list');
-        if (container) {
-            container.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+                    // Re-initialize icons
+                    lucide.createIcons();
+                })
+                .catch(error => {
+                    console.error('Error loading section:', error);
+                    container.style.transform = 'translateX(0)';
+                    container.style.opacity = '1';
+                });
         }
-    });
-});
-</script>
+
+        // 아이템 렌더링 함수
+        function renderItems(sectionType, items) {
+            if (sectionType === 'auctions') {
+                return items.map(auction => `
+                    <div class="item-card">
+                        ${auction.mainImageUrl ?
+                            `<img src="${auction.mainImageUrl}" alt="상품 이미지" class="item-image">` :
+                            '<div class="item-image" style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground));"><i data-lucide="image" style="width: 2rem; height: 2rem;"></i></div>'
+                        }
+                        <div class="item-details">
+                            <div class="item-title">
+                                <a href="/auctions/${auction.id}/detail">${auction.productName}</a>
+                            </div>
+                            <span class="status-badge ${auction.status === 'ONGOING' ? 'ongoing' : (auction.status === 'COMPLETED' ? 'completed' : 'failed')}">${auction.status}</span>
+                            <div class="item-meta">
+                                <span>현재가: <strong>${formatNumber(auction.currentPrice)}원</strong></span>
+                                <span>입찰: <strong>${auction.bidCount}건</strong></span>
+                                <span>시작: ${formatDateTime(auction.startTime)}</span>
+                                <span>종료: ${formatDateTime(auction.endTime)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else if (sectionType === 'products') {
+                return items.map(product => `
+                    <div class="item-card">
+                        ${product.mainImageUrl ?
+                            `<img src="${product.mainImageUrl}" alt="상품 이미지" class="item-image">` :
+                            '<div class="item-image" style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground));"><i data-lucide="image" style="width: 2rem; height: 2rem;"></i></div>'
+                        }
+                        <div class="item-details">
+                            <div class="item-title">${product.productName}</div>
+                            <span class="status-badge ${product.saleStatus === 'AVAILABLE' ? 'ongoing' : 'completed'}">${product.saleStatus}</span>
+                            <div class="item-meta">
+                                <span>${product.condition}</span>
+                                <span>${product.categoryName}</span>
+                                ${product.activeAuctionCount > 0 ?
+                                    `<span style="color: hsl(var(--destructive));">경매 진행 중 (<strong>${product.activeAuctionCount}</strong>건)</span>` :
+                                    '<span style="color: hsl(var(--success));">경매 가능</span>'
+                                }
+                                <span>등록: ${formatDateTime(product.createdAt)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else if (sectionType === 'bids') {
+                return items.map(bid => `
+                    <div class="item-card">
+                        ${bid.mainImageUrl ?
+                            `<img src="${bid.mainImageUrl}" alt="경매 이미지" class="item-image">` :
+                            '<div class="item-image" style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground));"><i data-lucide="image" style="width: 2rem; height: 2rem;"></i></div>'
+                        }
+                        <div class="item-details">
+                            <div class="item-title">
+                                <a href="/auctions/${bid.id}/detail">${bid.productName}</a>
+                            </div>
+                            <span class="status-badge ongoing">입찰</span>
+                            <div class="item-meta">
+                                <span>입찰가: <strong>${formatNumber(bid.bidAmount)}원</strong></span>
+                                <span>현재가: <strong>${formatNumber(bid.currentPrice)}원</strong></span>
+                                <span>입찰일: ${formatShortDateTime(bid.bidTime)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else if (sectionType === 'buyouts') {
+                return items.map(buyout => `
+                    <div class="item-card">
+                        ${buyout.mainImageUrl ?
+                            `<img src="${buyout.mainImageUrl}" alt="경매 이미지" class="item-image">` :
+                            '<div class="item-image" style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground));"><i data-lucide="image" style="width: 2rem; height: 2rem;"></i></div>'
+                        }
+                        <div class="item-details">
+                            <div class="item-title">
+                                <a href="/auctions/${buyout.auctionId}/detail">${buyout.productName}</a>
+                            </div>
+                            <span class="status-badge completed">즉시구매</span>
+                            <div class="item-meta">
+                                <span>구매가: <strong>${formatNumber(buyout.buyoutPrice)}원</strong></span>
+                                <span>구매일: ${formatShortDateTime(buyout.buyoutTime)}</span>
+                                <span class="status-badge completed">거래 완료</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            return '';
+        }
+
+        // 빈 상태 렌더링
+        function renderEmptyState(sectionType) {
+            const messages = {
+                'auctions': '진행 중인 경매가 없습니다',
+                'products': '등록된 상품이 없습니다',
+                'bids': '입찰 내역이 없습니다',
+                'buyouts': '구매 내역이 없습니다'
+            };
+            const icons = {
+                'auctions': 'package',
+                'products': 'package',
+                'bids': 'gavel',
+                'buyouts': 'credit-card'
+            };
+            return `
+                <div class="empty-state">
+                    <i data-lucide="${icons[sectionType]}" class="empty-state-icon" style="width: 3rem; height: 3rem; margin: 0 auto 1rem;"></i>
+                    <p>${messages[sectionType]}</p>
+                </div>
+            `;
+        }
+
+        // 페이징 업데이트
+        function updatePagination(sectionType, currentPage, totalPages, hasNext) {
+            const pagination = document.getElementById(sectionType + '-pagination');
+            if (!pagination) return;
+
+            pagination.innerHTML = `
+                <div class="pagination-inner">
+                    ${currentPage > 0 ?
+                        `<a href="#" onclick="loadSection('${sectionType}', ${currentPage - 1}, 'prev'); return false;">
+                            <i data-lucide="chevron-left"></i> 이전
+                        </a>` : ''
+                    }
+                    <span>
+                        ${currentPage + 1} / ${totalPages > 0 ? totalPages : 1}
+                    </span>
+                    ${hasNext ?
+                        `<a href="#" onclick="loadSection('${sectionType}', ${currentPage + 1}, 'next'); return false;">
+                            다음 <i data-lucide="chevron-right"></i>
+                        </a>` : ''
+                    }
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // 숫자 포맷팅
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // 날짜 포맷팅
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleString('ko-KR', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).replace(/\. /g, '-').replace('.', '');
+        }
+
+        function formatShortDateTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleString('ko-KR', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).replace(/\. /g, '-').replace('.', '');
+        }
+
+        // 초기화: 각 섹션에 transition 적용
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = ['auctions', 'products', 'bids', 'buyouts'];
+            sections.forEach(sectionType => {
+                const container = document.getElementById(sectionType + '-list');
+                if (container) {
+                    container.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
