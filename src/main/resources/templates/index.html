@@ -1,33 +1,241 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>ㅇㅅㅇ</title>
-    <link href="/css/theme.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBid - 개발자 경매 플랫폼</title>
+    <meta name="description" content="DevBid - 실시간 경매로 원하는 상품을 득템하세요. 안전한 거래와 다양한 상품이 기다립니다.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Common CSS -->
+    <link href="/css/common.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-blob bg-blob-1 animate-float"></div>
+        <div class="bg-blob bg-blob-2 animate-float"></div>
+    </div>
 
-<div th:if="${message}">
-  <script th:inline="javascript">
-    alert([[${message}]]);
-  </script>
-</div>
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero animate-fade-up">
+                <div class="hero-bg animate-gradient"></div>
+                <div class="hero-pattern"></div>
+                <div class="hero-content">
+                    <!-- Thymeleaf: 로그인 상태일 때만 표시 -->
+                    <div th:if="${isLoggedIn}" class="welcome-box glass">
+                        <h2><span th:text="${nickname}"> 님</span>, 환영합니다! 👋</h2>
+                        <p>새로운 경매를 확인해보세요</p>
+                    </div>
 
-<div th:if="${isLoggedIn}">
-    <p><span th:text="${nickname}" style="color: red;"></span>  welcome</p>
-    <p>status : <span th:text="${status}" style="color: greenyellow"></span></p>
-    <p><a href="/logout">logOut</a></p>
-    <p><a href="/users/myPage">myPage</a></p>
-    <p><a href="/users">userList</a></p>
-    <br>
-    <p><a href="/productsMain">productsMain</a></p>
-    <a href="/auctionMain">auctionMain</a>
-</div>
+                    <h1 class="hero-title">
+                        <span class="gradient-text">DevBid</span>
+                    </h1>
+                    <p class="hero-subtitle">실시간 경매로 원하는 상품을 득템하세요</p>
 
-<div th:unless="${isLoggedIn}">
-    <p>not login</p>
-    <p><a href="/login">login</a></p>
-</div>
-<p><a href="/users/new">userRegister</a></p>
+                    <div class="hero-buttons">
+                        <!-- Thymeleaf: 로그인 상태에 따라 버튼 변경 -->
+                        <th:block th:if="${isLoggedIn}">
+                            <a href="/users/myPage" class="btn btn-primary glow">마이페이지</a>
+                            <a href="/productsMain" class="btn btn-secondary">상품 관리</a>
+                        </th:block>
+                        <th:block th:unless="${isLoggedIn}">
+                            <a href="/login" class="btn btn-primary glow">로그인</a>
+                            <a href="/users/new" class="btn btn-secondary">회원가입</a>
+                        </th:block>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Overview -->
+            <section class="stats-grid">
+                <div class="stat-card glass hover-lift animate-fade-up delay-100">
+                    <div class="stat-card-inner">
+                        <div class="stat-icon">
+                            <i data-lucide="flame"></i>
+                        </div>
+                        <div>
+                            <p class="stat-label">진행 중인 경매</p>
+                            <p class="stat-value" th:text="${totalOngoingAuctions != null ? totalOngoingAuctions : '0'}">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card glass hover-lift animate-fade-up delay-200">
+                    <div class="stat-card-inner">
+                        <div class="stat-icon">
+                            <i data-lucide="package"></i>
+                        </div>
+                        <div>
+                            <p class="stat-label">등록된 상품</p>
+                            <p class="stat-value" th:text="${totalProducts != null ? totalProducts : '0'}">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card glass hover-lift animate-fade-up delay-300">
+                    <div class="stat-card-inner">
+                        <div class="stat-icon">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <div>
+                            <p class="stat-label">활성 사용자</p>
+                            <p class="stat-value" th:text="${userCount != null ? userCount : '0'}">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card glass hover-lift animate-fade-up delay-400">
+                    <div class="stat-card-inner">
+                        <div class="stat-icon">
+                            <i data-lucide="coins"></i>
+                        </div>
+                        <div>
+                            <p class="stat-label">오늘의 거래</p>
+                            <p class="stat-value" th:text="${todayDeals != null ? todayDeals : '0'}">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Auction Tabs -->
+            <section>
+                <h2 class="section-title">🔥 인기 경매</h2>
+
+                <div class="carousel">
+                    <div class="carousel-track">
+                        <article th:each="auction : ${hotAuctions}" class="carousel-item">
+                            <img th:src="${auction.mainImageUrl}" class="thumb">
+                            <a th:href="@{/auctions/{id}/detail(id=${auction.id})}" class="title-link">
+                                <p class="title" th:text="${auction.productName}">상품명</p>
+                            </a>
+                            <p class="price">
+                                <span th:text="${#numbers.formatInteger(auction.currentPrice, 3, 'COMMA')}">0</span>원
+                            </p>
+                        </article>
+
+                        <!-- 무한 루프 위해 복제 -->
+                        <article th:each="auction : ${hotAuctions}" class="carousel-item">
+                            <img th:src="${auction.mainImageUrl}" class="thumb">
+                            <a th:href="@{/auctions/{id}/detail(id=${auction.id})}" class="title-link">
+                                <p class="title" th:text="${auction.productName}">상품명</p>
+                            </a>
+                            <p class="price">
+                                <span th:text="${#numbers.formatInteger(auction.currentPrice, 3, 'COMMA')}">0</span>원
+                            </p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+
+            <section style="margin-top: 3rem;">
+                <h2 class="section-title">⏰ 신규 등록</h2>
+
+                <div class="carousel">
+                    <div class="carousel-track">
+                        <article th:each="auction : ${recentAuctions}" class="carousel-item">
+                            <img th:src="${auction.mainImageUrl}" class="thumb">
+                            <a th:href="@{/auctions/{id}/detail(id=${auction.id})}" class="title-link">
+                                <p class="title" th:text="${auction.productName}">상품명</p>
+                            </a>
+                            <p class="price">
+                                <span th:text="${#numbers.formatInteger(auction.startingPrice, 3, 'COMMA')}">0</span>원
+                            </p>
+                        </article>
+
+                        <!-- 무한 루프 위해 복제 -->
+                        <article th:each="auction : ${recentAuctions}" class="carousel-item">
+                            <img th:src="${auction.mainImageUrl}" class="thumb">
+                            <a th:href="@{/auctions/{id}/detail(id=${auction.id})}" class="title-link">
+                                <p class="title" th:text="${auction.productName}">상품명</p>
+                            </a>
+                            <p class="price">
+                                <span th:text="${#numbers.formatInteger(auction.startingPrice, 3, 'COMMA')}">0</span>원
+                            </p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section>
+                <h2 class="section-title">왜 DevBid인가요?</h2>
+                <div class="features-grid">
+                    <div class="feature-card glass hover-lift">
+                        <div class="feature-icon">
+                            <i data-lucide="gavel"></i>
+                        </div>
+                        <h3 class="feature-title">실시간 경매</h3>
+                        <p class="feature-desc">다양한 상품을 실시간으로 경매에 참여하고 원하는 아이템을 낙찰받으세요.</p>
+                    </div>
+                    <div class="feature-card glass hover-lift">
+                        <div class="feature-icon">
+                            <i data-lucide="package"></i>
+                        </div>
+                        <h3 class="feature-title">상품 등록</h3>
+                        <p class="feature-desc">손쉽게 상품을 등록하고 판매할 수 있습니다. 경매와 즉시구매 옵션을 선택하세요.</p>
+                    </div>
+                    <div class="feature-card glass hover-lift">
+                        <div class="feature-icon">
+                            <i data-lucide="shopping-cart"></i>
+                        </div>
+                        <h3 class="feature-title">즉시 구매</h3>
+                        <p class="feature-desc">경매를 기다리지 않고 즉시구매 가격으로 바로 상품을 구매할 수 있습니다.</p>
+                    </div>
+                    <div class="feature-card glass hover-lift">
+                        <div class="feature-icon">
+                            <i data-lucide="shield"></i>
+                        </div>
+                        <h3 class="feature-title">안전한 거래</h3>
+                        <p class="feature-desc">검증된 사용자와 안전한 결제 시스템으로 걱정 없는 거래를 경험하세요.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Links -->
+            <nav class="quick-links glass">
+                <div class="quick-links-inner">
+                    <a href="/productsMain">상품 메인</a>
+                    <span class="separator">|</span>
+                    <a href="/auctionMain">경매 메인</a>
+                    <!-- Thymeleaf: 로그인 상태에 따라 링크 변경 -->
+                    <th:block th:if="${isLoggedIn}">
+                        <span class="separator">|</span>
+                        <a href="/users/myPage">마이페이지</a>
+                        <span class="separator">|</span>
+                        <a href="/users">사용자 목록</a>
+                        <span class="separator">|</span>
+                        <a href="/logout" class="logout">로그아웃</a>
+                    </th:block>
+                    <th:block th:unless="${isLoggedIn}">
+                        <span class="separator">|</span>
+                        <a href="/login">로그인</a>
+                        <span class="separator">|</span>
+                        <a href="/users/new">회원가입</a>
+                    </th:block>
+                </div>
+            </nav>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Number formatting for stats (if needed for static demo)
+        document.querySelectorAll('.stat-value').forEach(el => {
+            const num = parseInt(el.textContent.replace(/,/g, ''));
+            if (!isNaN(num)) {
+                el.textContent = num.toLocaleString('ko-KR');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.devbid.user.application.MyPageQueryService;
+import org.devbid.user.application.MyPageApplicationService;
 import org.devbid.user.domain.User;
 import org.devbid.user.dto.MyPageData;
 import org.devbid.user.dto.UserRegistrationRequest;
@@ -31,7 +31,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final MyPageQueryService myPageQueryService;
+    private final MyPageApplicationService myPageApplicationService;
 
     @GetMapping("/login")
     public String login() {
@@ -97,7 +97,7 @@ public class UserController {
         Pageable bidPageable = PageRequest.of(bidPage, size);
         Pageable buyoutPageable = PageRequest.of(buyoutPage, size);
 
-        MyPageData data = myPageQueryService.getMyPageData(user.getId(), auctionPageable, productPageable, bidPageable, buyoutPageable);
+        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), auctionPageable, productPageable, bidPageable, buyoutPageable);
 
         model.addAttribute("user", data.getUser());
         model.addAttribute("ongoingAuctionCount", data.getAuctionActiveCount());
@@ -191,7 +191,7 @@ public class UserController {
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        MyPageData data = myPageQueryService.getMyPageData(user.getId(), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5));
+        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5));
 
         Map<String, Object> response = new HashMap<>();
         response.put("items", data.getRecentAuctions());
@@ -207,7 +207,7 @@ public class UserController {
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        MyPageData data = myPageQueryService.getMyPageData(user.getId(), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5));
+        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5));
 
         Map<String, Object> response = new HashMap<>();
         response.put("items", data.getRecentProducts());
@@ -223,7 +223,7 @@ public class UserController {
                                        @RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        MyPageData data = myPageQueryService.getMyPageData(user.getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5));
+        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5));
 
         Map<String, Object> response = new HashMap<>();
         response.put("items", data.getRecentBids());
@@ -239,7 +239,7 @@ public class UserController {
                                           @RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        MyPageData data = myPageQueryService.getMyPageData(user.getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable);
+        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable);
 
         Map<String, Object> response = new HashMap<>();
         response.put("items", data.getRecentBuyouts());

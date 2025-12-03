@@ -1,9 +1,13 @@
-package org.devbid.infrastructure.common.presentation;
+package org.devbid.home.controller;
 
 import lombok.AllArgsConstructor;
+import org.devbid.home.application.HomeApplicationService;
+import org.devbid.home.dto.HomeData;
 import org.devbid.user.domain.User;
 import org.devbid.user.application.UserService;
+import org.devbid.user.security.AuthUser;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     private final UserService userService;
+    private final HomeApplicationService homeApplicationService;
 
     @GetMapping
     public String home(Model model) {
@@ -34,6 +39,16 @@ public class HomeController {
         } else {
             model.addAttribute("isLoggedIn", false);
         }
+
+
+        HomeData homeData = homeApplicationService.getHomeData();
+        model.addAttribute("totalOngoingAuctions", homeData.getTotalOngoingAuctions());
+        model.addAttribute("totalProducts", homeData.getTotalProducts());
+        model.addAttribute("userCount", homeData.getUserCount());
+        model.addAttribute("todayDeals", homeData.getTodayDeals());
+        model.addAttribute("hotAuctions", homeData.getHotAuctions());
+        model.addAttribute("recentAuctions", homeData.getRecentAuctions());
+
         return "index";
     }
 }

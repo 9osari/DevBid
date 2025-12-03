@@ -7,11 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
-
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
     int countByBidderId(Long bidderId);
+
+    @Query("SELECT COUNT(b) FROM Bid b " +
+            "WHERE DATE(b.createdAt) = CURRENT DATE")
+    int countTodayTrades();
 
     @Query("SELECT b FROM Bid b WHERE b.bidder.id = :bidderId ORDER BY b.createdAt DESC")
     Page<Bid> findRecentByBidderId(@Param("bidderId") Long bidderId, Pageable pageable);

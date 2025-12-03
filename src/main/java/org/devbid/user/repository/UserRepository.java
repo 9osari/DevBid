@@ -2,6 +2,7 @@ package org.devbid.user.repository;
 
 import org.devbid.user.domain.Email;
 import org.devbid.user.domain.User;
+import org.devbid.user.domain.UserStatus;
 import org.devbid.user.domain.Username;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,4 +25,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(Email email);
 
     long count();
+    int countByStatus(UserStatus status);
 }

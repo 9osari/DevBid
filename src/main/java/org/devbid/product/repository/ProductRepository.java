@@ -51,4 +51,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     long countBySellerIdAndSaleStatusNot(Long sellerId, ProductStatus status);
     int countBySellerId(Long sellerId);
+    int countBySaleStatusNot(ProductStatus status);
 }

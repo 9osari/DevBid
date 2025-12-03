@@ -38,6 +38,19 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     //스케줄러 경매 시작 -> 종료
     List<Auction> findByStatusAndEndTimeBefore(AuctionStatus status, LocalDateTime endTime);
 
+    @Query("SELECT a FROM Auction a " +
+        "LEFT JOIN a.product b " +
+        "WHERE a.status != :status " +
+        "ORDER BY COALESCE(a.updatedAt, a.createdAt) DESC ")
+    List<Auction> findAllByStatusNot(@Param("status") AuctionStatus status);
+
+    @Query("SELECT a FROM Auction a " +
+        "LEFT JOIN a.product b " +
+        "WHERE a.status != 'CANCELLED'" +
+        "ORDER BY a.bidCount DESC, a.updatedAt DESC ")
+    List<Auction> findHotAuction();
+
     int countByProductSellerId(Long sellerId);
     int countByProductSellerIdAndStatus(Long sellerId, AuctionStatus status);
+    int countByStatus(AuctionStatus status);
 }

@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MyPageQueryService {
+public class MyPageApplicationService {
     private final UserRepository userRepository;
     private final AuctionRepository auctionRepository;
     private final ProductRepository productRepository;
@@ -43,9 +43,6 @@ public class MyPageQueryService {
         Page<Product> products = productRepository.findRecentProduct(userId, productPageable);
         Page<Bid> bids = bidRepository.findRecentByBidderId(userId, bidPageable);
         Page<Bid> buyouts = bidRepository.findRecentBuyOutByUserId(userId, buyoutPageable);
-
-        // 디자인 패턴 = 목적
-        // 퍼사드의 목적 => 인터페이스를 활용 => 구체적인 로직을 감추고 추상화된 메시지로 제공
 
         List<RecentAuctionDto> recentAuctions = auctions.stream()
                 .map(this::toRecentAuctionDto)
