@@ -4,12 +4,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Getter
 @Embeddable
-public class Email {
+public class Email implements Serializable {
     private static final String EMAIL_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private static final Pattern PATTERN = Pattern.compile(EMAIL_PATTERN);
 

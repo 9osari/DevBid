@@ -4,11 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
 @Embeddable
-public class Username {
+public class Username implements Serializable {
     @Column(name = "username")
     private String value;
 
@@ -19,13 +20,17 @@ public class Username {
         this.value = value;
     }
 
+    public static Username from(String value) {
+        return new Username(value);
+    }
+
     private void validateUsername(String value) {
         if (value == null || value.isEmpty()) {
             throw new IllegalArgumentException("Username cannot be empty");
         }
-        if (value.length() < 2 || value.length() > 20) {
+        /*if (value.length() < 2 || value.length() > 20) {
             throw new IllegalArgumentException("Username length should be between 2 and 20 characters");
-        }
+        }*/
     }
 
     @Override

@@ -4,9 +4,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 @Getter
 @Embeddable
-public class SocialAuthInfo {
+public class SocialAuthInfo implements Serializable {
     @Column(name = "provider")
     private String providerId;
 

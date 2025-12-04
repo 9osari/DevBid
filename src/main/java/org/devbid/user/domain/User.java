@@ -73,10 +73,23 @@ public class User extends BaseEntity {
     }
 
     //소셜 회원가입
-    public static User createFromSocialAuth(SocialAuthInfo socialAuthInfo) {
+    public static User createFromSocialAuth(SocialAuthInfo socialAuthInfo,
+                                            Email email,
+                                            Nickname nickname
+    ) {
         User user = new User();
-        user.password = null;
         user.socialAuthInfo = socialAuthInfo;
+        user.email = email;
+        user.nickname = nickname;
+        user.password = null;
+        user.phone = null;
+        user.address = null;
+        user.username = null;
+        user.status = UserStatus.ACTIVE;
+
+        String generatedUsername = socialAuthInfo.getProviderId() + "-" + socialAuthInfo.getProviderUserId();
+        user.username = Username.from(generatedUsername);
+
         return user;
     }
 

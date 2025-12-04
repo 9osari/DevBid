@@ -23,10 +23,14 @@ public class UserFactory {
 
     public static User createSocialUser(
             String providerId,
-            String providerUserId
+            String providerUserId,
+            Email email,
+            Nickname nickname
     ) {
         return User.createFromSocialAuth(
-                new SocialAuthInfo(providerId, providerUserId)
+                new SocialAuthInfo(providerId, providerUserId),
+                email,
+                nickname
         );
     }
 }

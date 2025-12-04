@@ -15,6 +15,85 @@
 
     <!-- Common CSS -->
     <link href="/css/common.css" rel="stylesheet">
+
+    <style>
+        /* 소셜 로그인 스타일 */
+        .social-login {
+            margin-top: 24px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .divider span {
+            padding: 0 12px;
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .social-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .social-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: calc(var(--radius) - 2px);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid hsl(var(--border));
+        }
+
+        .social-button i {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .social-button.kakao {
+            background: #FEE500;
+            color: #000000;
+            border-color: #FEE500;
+        }
+
+        .social-button.kakao:hover {
+            background: #FDD835;
+            border-color: #FDD835;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(254, 229, 0, 0.3);
+        }
+
+        .social-button.google {
+            background: #FFFFFF;
+            color: #1F1F1F;
+            border-color: #DADCE0;
+        }
+
+        .social-button.google:hover {
+            background: #F8F9FA;
+            border-color: #DADCE0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
     <!-- Background Effects -->
@@ -54,6 +133,26 @@
                         </div>
                         <button type="submit" class="form-button glow">로그인</button>
                     </form>
+
+                    <div class="social-login">
+                        <div class="divider">
+                            <span>또는 간편 로그인</span>
+                        </div>
+
+                        <div class="social-buttons">
+                            <!-- 카카오 버튼 -->
+                            <a href="/oauth2/authorization/kakao" class="social-button kakao">
+                                <i data-lucide="message-circle"></i>
+                                <span>카카오로 로그인</span>
+                            </a>
+
+                            <!-- 구글 버튼 -->
+                            <a href="/oauth2/authorization/google" class="social-button google">
+                                <i data-lucide="chrome"></i>
+                                <span>구글로 로그인</span>
+                            </a>
+                        </div>
+                    </div>
 
                     <div class="form-footer">
                         <p style="margin-bottom: 12px; color: hsl(var(--muted-foreground)); font-size: 0.875rem;">계정이 없으신가요?</p>

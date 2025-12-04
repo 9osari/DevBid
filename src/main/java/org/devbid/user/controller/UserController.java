@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.devbid.user.application.MyPageApplicationService;
+import org.devbid.user.domain.CustomOAuth2User;
 import org.devbid.user.domain.User;
 import org.devbid.user.dto.MyPageData;
 import org.devbid.user.dto.UserRegistrationRequest;
@@ -85,7 +86,7 @@ public class UserController {
     }
 
     @GetMapping("/users/myPage")
-    public String myPage(@AuthenticationPrincipal AuthUser user,
+    public String myPage(@AuthenticationPrincipal CustomOAuth2User auth2User,
                          Model model,
                          @RequestParam(defaultValue = "0") int auctionPage,
                          @RequestParam(defaultValue = "0") int productPage,
@@ -97,7 +98,7 @@ public class UserController {
         Pageable bidPageable = PageRequest.of(bidPage, size);
         Pageable buyoutPageable = PageRequest.of(buyoutPage, size);
 
-        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), auctionPageable, productPageable, bidPageable, buyoutPageable);
+        MyPageData data = myPageApplicationService.getMyPageData(auth2User.getUser().getId(), auctionPageable, productPageable, bidPageable, buyoutPageable);
 
         model.addAttribute("user", data.getUser());
         model.addAttribute("ongoingAuctionCount", data.getAuctionActiveCount());
@@ -148,8 +149,11 @@ public class UserController {
     }
 
     @PostMapping("/users/{id}/edit")
-    public String userUpdateProc(@PathVariable Long id, @Valid @ModelAttribute("form") UserUpdateRequest request, BindingResult result,
-                                 Authentication auth, RedirectAttributes ra, Model model) {
+    public String userUpdateProc(@PathVariable Long id,
+                                 @Valid @ModelAttribute("form") UserUpdateRequest request,
+                                 BindingResult result,
+                                 RedirectAttributes ra,
+                                 Model model) {
         if (result.hasErrors()) {
             User user = userService.findById(id);
             model.addAttribute("user", user);
@@ -187,11 +191,11 @@ public class UserController {
     // AJAX API 엔드포인트들
     @GetMapping("/api/users/myPage/auctions")
     @ResponseBody
-    public Map<String, Object> getAuctions(@AuthenticationPrincipal AuthUser user,
+    public Map<String, Object> getAuctions(@AuthenticationPrincipal CustomOAuth2User auth2User,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5));
+        MyPageData data = myPageApplicationService.getMyPageData(auth2User.getUser().getId(), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5));
 
         Map<String, Object> response = new HashMap<>();
         response.put("items", data.getRecentAuctions());
@@ -203,11 +207,11 @@ public class UserController {
 
     @GetMapping("/api/users/myPage/products")
     @ResponseBody
-    public Map<String, Object> getProducts(@AuthenticationPrincipal AuthUser user,
+    public Map<String, Object> getProducts(@AuthenticationPrincipal CustomOAuth2User auth2User,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5));
+        MyPageData data = myPageApplicationService.getMyPageData(auth2User.getUser().getId(), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5), PageRequest.of(0, 5));
 
         Map<String, Object> response = new HashMap<>();
         response.put("items", data.getRecentProducts());
@@ -219,11 +223,11 @@ public class UserController {
 
     @GetMapping("/api/users/myPage/bids")
     @ResponseBody
-    public Map<String, Object> getBids(@AuthenticationPrincipal AuthUser user,
+    public Map<String, Object> getBids(@AuthenticationPrincipal CustomOAuth2User auth2User,
                                        @RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5));
+        MyPageData data = myPageApplicationService.getMyPageData(auth2User.getUser().getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable, PageRequest.of(0, 5));
 
         Map<String, Object> response = new HashMap<>();
         response.put("items", data.getRecentBids());
@@ -235,11 +239,11 @@ public class UserController {
 
     @GetMapping("/api/users/myPage/buyouts")
     @ResponseBody
-    public Map<String, Object> getBuyouts(@AuthenticationPrincipal AuthUser user,
+    public Map<String, Object> getBuyouts(@AuthenticationPrincipal CustomOAuth2User auth2User,
                                           @RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        MyPageData data = myPageApplicationService.getMyPageData(user.getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable);
+        MyPageData data = myPageApplicationService.getMyPageData(auth2User.getUser().getId(), PageRequest.of(0, 5), PageRequest.of(0, 5), PageRequest.of(0, 5), pageable);
 
         Map<String, Object> response = new HashMap<>();
         response.put("items", data.getRecentBuyouts());

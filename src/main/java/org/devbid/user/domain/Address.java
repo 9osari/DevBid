@@ -4,18 +4,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
 @Embeddable
-public class Address {
-    @Column(name = "zip_code", length = 10, nullable = false)
+public class Address implements Serializable {
+    @Column(name = "zip_code", length = 10)
     private String zipCode;
 
-    @Column(name = "street", nullable = false)
+    @Column(name = "street")
     private String street;
 
-    @Column(name = "detail", nullable = false)
+    @Column(name = "detail")
     private String detail;
 
     protected Address() {}

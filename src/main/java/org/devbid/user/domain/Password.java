@@ -4,11 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
 @Embeddable
-public class Password {
+public class Password implements Serializable {
     @Column(name = "password")
     private String encryptedValue;
 

@@ -3,6 +3,7 @@ package org.devbid.home.controller;
 import lombok.AllArgsConstructor;
 import org.devbid.home.application.HomeApplicationService;
 import org.devbid.home.dto.HomeData;
+import org.devbid.user.domain.CustomOAuth2User;
 import org.devbid.user.domain.User;
 import org.devbid.user.application.UserService;
 import org.devbid.user.security.AuthUser;
@@ -21,21 +22,14 @@ public class HomeController {
     private final HomeApplicationService homeApplicationService;
 
     @GetMapping
-    public String home(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+    public String home(@AuthenticationPrincipal CustomOAuth2User auth2User,
+                       Model model) {
+        if (auth2User != null) {
             model.addAttribute("isLoggedIn", true);
-
-            try {
-                User user = userService.findByUsername(auth.getName());
-                model.addAttribute("nickname", user.getNickname().getValue());
-                model.addAttribute("status", user.getStatus());
-                model.addAttribute("userId", user.getId());
-            } catch (Exception e) {
-                // 사용자 조회 실패시 로그아웃 상태로 처리
-                model.addAttribute("isLoggedIn", false);
-            }
+            User user = auth2User.getUser();
+            model.addAttribute("nickname", user.getNickname().getValue());
+            model.addAttribute("status", user.getStatus());
+            model.addAttribute("userId", user.getId());
         } else {
             model.addAttribute("isLoggedIn", false);
         }

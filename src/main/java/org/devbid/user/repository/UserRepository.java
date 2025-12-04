@@ -1,9 +1,6 @@
 package org.devbid.user.repository;
 
-import org.devbid.user.domain.Email;
-import org.devbid.user.domain.User;
-import org.devbid.user.domain.UserStatus;
-import org.devbid.user.domain.Username;
+import org.devbid.user.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long count();
     int countByStatus(UserStatus status);
+
+    Optional<User> findBySocialAuthInfo_ProviderIdAndSocialAuthInfo_ProviderUserId(String providerId, String socialAuthInfoId);
 }

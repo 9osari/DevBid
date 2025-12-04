@@ -4,12 +4,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Getter
 @Embeddable
-public class Phone {
+public class Phone implements Serializable {
     private static final String PHONE_PATTERN = "^01[0-9]-[0-9]{4}-[0-9]{4}$";
     private static final Pattern PATTERN = Pattern.compile(PHONE_PATTERN);
 
