@@ -22,6 +22,9 @@ public class User extends BaseEntity {
     private Username username;
 
     @Embedded
+    private SocialAuthInfo socialAuthInfo;
+
+    @Embedded
     private Email email;
 
     @Embedded
@@ -54,12 +57,12 @@ public class User extends BaseEntity {
         this.address = address;
     }
 
-    public static User of(Username username,
-                          Email email,
-                          Password password,
-                          Nickname nickname,
-                          Phone phone,
-                          Address address) {
+    public static User create(Username username,
+                              Email email,
+                              Password password,
+                              Nickname nickname,
+                              Phone phone,
+                              Address address) {
         return new User(
                 username,
                 email,
@@ -67,6 +70,14 @@ public class User extends BaseEntity {
                 nickname,
                 phone,
                 address);
+    }
+
+    //소셜 회원가입
+    public static User createFromSocialAuth(SocialAuthInfo socialAuthInfo) {
+        User user = new User();
+        user.password = null;
+        user.socialAuthInfo = socialAuthInfo;
+        return user;
     }
 
     public boolean updateProfile(String email, String nickname, String phone,  String zipCode, String street, String detail) {

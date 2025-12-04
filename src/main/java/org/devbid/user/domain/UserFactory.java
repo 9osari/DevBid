@@ -11,13 +11,22 @@ public class UserFactory {
             String street,
             String detail
     ) {
-        return User.of(
+        return User.create(
                 new Username(username),
                 new Email(email),
                 new Password(encodedPassword),
                 new Nickname(nickname),
                 new Phone(phone),
                 new Address(zipcode, street, detail)
+        );
+    }
+
+    public static User createSocialUser(
+            String providerId,
+            String providerUserId
+    ) {
+        return User.createFromSocialAuth(
+                new SocialAuthInfo(providerId, providerUserId)
         );
     }
 }
