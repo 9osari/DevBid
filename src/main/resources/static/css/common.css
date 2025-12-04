@@ -616,6 +616,74 @@ body {
     line-height: 1.6;
 }
 
+/* ===== Quick Actions ===== */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.action-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    min-width: 3.5rem;
+    border-radius: 0.75rem;
+    background: hsl(var(--primary) / 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.action-icon i {
+    width: 2rem;
+    height: 2rem;
+    color: hsl(var(--primary));
+    transition: all 0.3s ease;
+}
+
+.action-card:hover .action-icon {
+    background: hsl(var(--primary));
+    transform: scale(1.1);
+}
+
+.action-card:hover .action-icon i {
+    color: hsl(var(--primary-foreground));
+}
+
+.action-content {
+    flex: 1;
+}
+
+.action-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.25rem;
+    transition: color 0.3s ease;
+}
+
+.action-card:hover .action-title {
+    color: hsl(var(--primary));
+}
+
+.action-desc {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.5;
+}
+
 /* ===== Quick Links ===== */
 .quick-links {
     padding: 1rem;
