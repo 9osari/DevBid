@@ -54,7 +54,7 @@ UserEntity가 너무 많은 책임을 가지고 있어 SRP/DIP 위반 문제가 
 | **Frontend** | Thymeleaf, HTML/CSS/JS |
 
 ## 문서
-- [아키텍처](Architecture)
-- [요구사항](Product-Requirements)
-- [Use Case](UseCase)
+- [아키텍처](docs/Architecture.md)
+- [요구사항](docs/Product-Requirements.md)
+- [Use Case](docs/UseCase.md)
 - [📝 블로그 - 트러블슈팅 전체 보기](https://9osari.netlify.app/)
