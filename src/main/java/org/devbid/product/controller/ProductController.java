@@ -13,7 +13,7 @@ import org.devbid.product.dto.ProductRegistrationRequest;
 import org.devbid.product.dto.ProductUpdateRequest;
 import org.devbid.user.application.UserService;
 import org.devbid.user.domain.User;
-import org.devbid.user.security.AuthUser;
+import org.devbid.user.security.oauth2.CustomOAuth2User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -59,8 +59,8 @@ public class ProductController {
     }
 
     @GetMapping("/products/new")
-    public String newProduct(@AuthenticationPrincipal AuthUser authUser, Model model) {
-        User user = userService.findById(authUser.getId());
+    public String newProduct(@AuthenticationPrincipal CustomOAuth2User authUser, Model model) {
+        User user = userService.findById(authUser.getUser().getId());
         model.addAttribute("user", user);
 
         List<CategoryDto> categoryDtoList = categoryService.getCategoryTree();
@@ -72,7 +72,7 @@ public class ProductController {
     @PostMapping("/products")
     public String createProduct(
             ProductRegistrationRequest request,
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal CustomOAuth2User authUser,
             BindingResult result,
             RedirectAttributes ra
     ) {
@@ -85,7 +85,7 @@ public class ProductController {
                 request.description(),
                 request.categoryId(),
                 request.condition(),
-                authUser.getId(),
+                authUser.getUser().getId(),
                 request.mainImageKey(),
                 request.subImageKeys()
         );
@@ -103,18 +103,18 @@ public class ProductController {
 
     @GetMapping("/products/{id}/edit")
     public String editProduct(@PathVariable Long id,
-                              @AuthenticationPrincipal AuthUser authUser,
+                              @AuthenticationPrincipal CustomOAuth2User authUser,
                               Model model) {
-        model.addAttribute("product", productService.findEditableByIdAndSeller(id, authUser.getId()));
+        model.addAttribute("product", productService.findEditableByIdAndSeller(id, authUser.getUser().getId()));
         model.addAttribute("category", categoryService.findAllCategoryTree());
         return "products/edit";
     }
 
     @PostMapping("/products/{id}/edit")
     public String updateProduct(@PathVariable Long id,
-                                @AuthenticationPrincipal AuthUser authUser,
+                                @AuthenticationPrincipal CustomOAuth2User authUser,
                                 @Valid @ModelAttribute("form") ProductUpdateRequest req) {
-        productService.update(id, authUser.getId(), req);
+        productService.update(id, authUser.getUser().getId(), req);
         return "redirect:/products/my";
     }
 
@@ -141,24 +141,24 @@ public class ProductController {
 
     @GetMapping("/products/my")
     public String myProductList(Model model,
-                                @AuthenticationPrincipal AuthUser authUser,
+                                @AuthenticationPrincipal CustomOAuth2User authUser,
                                 @RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductListResponse> productPage = productService.findAllProductsBySellerId(authUser.getId(), pageable);
+        Page<ProductListResponse> productPage = productService.findAllProductsBySellerId(authUser.getUser().getId(), pageable);
         model.addAttribute("products", productPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
         model.addAttribute("totalElements", productPage.getTotalElements());
-        model.addAttribute("productCount", productService.countBySellerIdAndStatusNot(authUser.getId()));
+        model.addAttribute("productCount", productService.countBySellerIdAndStatusNot(authUser.getUser().getId()));
         return "products/myList";
     }
 
     @PostMapping("/products/{id}")
     public String deleteProduct(@PathVariable Long id,
-                                @AuthenticationPrincipal AuthUser authUser) {
-        ProductListResponse currentProduct = productService.findEditableByIdAndSeller(id, authUser.getId());
+                                @AuthenticationPrincipal CustomOAuth2User authUser) {
+        ProductListResponse currentProduct = productService.findEditableByIdAndSeller(id, authUser.getUser().getId());
         if (currentProduct == null) {
             throw new IllegalArgumentException("Product not found");
         }

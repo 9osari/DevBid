@@ -13,6 +13,7 @@ import org.devbid.auction.dto.BuyOutEvent;
 import org.devbid.product.application.ProductService;
 import org.devbid.product.dto.ProductListResponse;
 import org.devbid.user.security.AuthUser;
+import org.devbid.user.security.oauth2.CustomOAuth2User;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,11 +50,11 @@ public class AuctionController {
 
     @GetMapping("/auctions/my")
     public String myAuctions(Model model,
-                             @AuthenticationPrincipal AuthUser authUser,
+                             @AuthenticationPrincipal CustomOAuth2User authUser,
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<AuctionListResponse> auctionPage = auctionService.findAllAuctionsById(authUser.getId(), pageable);
+        Page<AuctionListResponse> auctionPage = auctionService.findAllAuctionsById(authUser.getUser().getId(), pageable);
         model.addAttribute("auctions", auctionPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", auctionPage.getTotalPages());
@@ -62,8 +63,8 @@ public class AuctionController {
     }
 
     @GetMapping("/auctions/{productId}")
-    public String newAuction(@PathVariable("productId") Long productId, @AuthenticationPrincipal AuthUser authUser, Model model) {
-        Long sellerId = authUser.getId();
+    public String newAuction(@PathVariable("productId") Long productId, @AuthenticationPrincipal CustomOAuth2User authUser, Model model) {
+        Long sellerId = authUser.getUser().getId();
         ProductListResponse product = productService.findEditableByIdAndSeller(productId, sellerId);
         AuctionRegistrationRequest auctionRegistrationRequest = new AuctionRegistrationRequest(
                 productId,
@@ -80,16 +81,16 @@ public class AuctionController {
     
     @PostMapping("/auctions/{productId}")
     public String createAuction(@ModelAttribute("auctionCreateRequest") AuctionRegistrationRequest request,
-                                @AuthenticationPrincipal AuthUser authUser,
+                                @AuthenticationPrincipal CustomOAuth2User authUser,
                                 BindingResult result,
                                 RedirectAttributes ra,
                                 Model model) {
         if(result.hasErrors()) {
-            ProductListResponse product = productService.findEditableByIdAndSeller(request.productId(), authUser.getId());
+            ProductListResponse product = productService.findEditableByIdAndSeller(request.productId(), authUser.getUser().getId());
             model.addAttribute("product", product);
             return "auctions/new";
         }
-        Long sellerId = authUser.getId();
+        Long sellerId = authUser.getUser().getId();
         AuctionRegistrationRequest auctionRegistrationRequest = new AuctionRegistrationRequest(
                 request.productId(),
                 request.startingPrice(),
@@ -122,13 +123,13 @@ public class AuctionController {
 
     @PostMapping("/auctions/{id}/edit")
     public String updateAuction(@PathVariable Long id,
-                                @AuthenticationPrincipal AuthUser authUser,
+                                @AuthenticationPrincipal CustomOAuth2User authUser,
                                 @Valid @ModelAttribute("auctionEditRequest") AuctionEditRequest request,
                                 BindingResult result) {
         if(result.hasErrors()) {
             return "auctions/edit";
         }
-        auctionService.updateAuction(id, request, authUser.getId());
+        auctionService.updateAuction(id, request, authUser.getUser().getId());
         return "redirect:/auctions/my";
     }
 
@@ -142,10 +143,10 @@ public class AuctionController {
     @PostMapping("/auctions/bid/{auctionId}")
     public String bid(@PathVariable Long auctionId,
                       @RequestParam("bidAmount") BigDecimal bidAmount,
-                      @AuthenticationPrincipal AuthUser authUser,
+                      @AuthenticationPrincipal CustomOAuth2User authUser,
                       RedirectAttributes ra) {
         try {
-            BidPlacedEvent event = auctionFacade.placeBid(auctionId, authUser.getId(), bidAmount);
+            BidPlacedEvent event = auctionFacade.placeBid(auctionId, authUser.getUser().getId(), bidAmount);
 
             eventPublisher.publishEvent(event);
 
@@ -161,10 +162,10 @@ public class AuctionController {
 
     @PostMapping("/auctions/{auctionId}/buyout")
     public String buyout(@PathVariable Long auctionId,
-                         @AuthenticationPrincipal AuthUser authUser,
+                         @AuthenticationPrincipal CustomOAuth2User authUser,
                          RedirectAttributes ra) {
         try{
-            BuyOutEvent event = auctionFacade.buyOut(auctionId, authUser.getId());
+            BuyOutEvent event = auctionFacade.buyOut(auctionId, authUser.getUser().getId());
 
             eventPublisher.publishEvent(event);
 
@@ -189,12 +190,12 @@ public class AuctionController {
 
     @PostMapping("auction/{id}")
     public String deleteAuction(@PathVariable Long id,
-                                @AuthenticationPrincipal AuthUser authUser) {
+                                @AuthenticationPrincipal CustomOAuth2User authUser) {
         AuctionListResponse currentAuction = auctionService.getAuctionDetail(id);
         if (currentAuction == null) {
             throw new IllegalArgumentException("Auction not found");
         }
-        auctionService.deleteAuction(id, authUser.getId());
+        auctionService.deleteAuction(id, authUser.getUser().getId());
         return "redirect:/auctions/my";
     }
 

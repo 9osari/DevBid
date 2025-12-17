@@ -5,7 +5,6 @@ import org.devbid.home.application.HomeApplicationService;
 import org.devbid.home.dto.HomeData;
 import org.devbid.user.security.oauth2.CustomOAuth2User;
 import org.devbid.user.domain.User;
-import org.devbid.user.application.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @AllArgsConstructor
 public class HomeController {
 
-    private final UserService userService;
     private final HomeApplicationService homeApplicationService;
 
     @GetMapping
