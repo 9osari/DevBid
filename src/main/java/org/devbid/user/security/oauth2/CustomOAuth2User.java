@@ -1,7 +1,9 @@
-package org.devbid.user.domain;
+package org.devbid.user.security.oauth2;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.devbid.user.domain.User;
+import org.devbid.user.domain.UserStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,14 +26,14 @@ public class CustomOAuth2User implements OAuth2User, UserDetails, Serializable {
         if(user.getPassword() == null) {
             return "";
         }
-        return "{bcrypt}" + user.getPassword().getEncryptedValue();
+        return "{bcrypt}" + user.getPassword().getEncryptedValue(); //prefix 필수
     }
 
     @Override
     public String getUsername() {
         return user.getUsername() != null
             ? user.getUsername().getValue()
-            : user.getEmail().getValue();
+            : user.getEmail().getValue(); // prefix 필수
     }
 
     @Override

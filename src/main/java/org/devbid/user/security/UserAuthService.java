@@ -1,7 +1,7 @@
 package org.devbid.user.security;
 
 import lombok.RequiredArgsConstructor;
-import org.devbid.user.domain.CustomOAuth2User;
+import org.devbid.user.security.oauth2.CustomOAuth2User;
 import org.devbid.user.domain.User;
 import org.devbid.user.domain.UserStatus;
 import org.devbid.user.domain.Username;

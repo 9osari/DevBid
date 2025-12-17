@@ -81,7 +81,7 @@ public class User extends BaseEntity {
         user.socialAuthInfo = socialAuthInfo;
         user.email = email;
         user.nickname = nickname;
-        user.password = null;
+        user.password = null; // 소셜 로그인은 비밀번호 불필요
         user.phone = null;
         user.address = null;
         user.username = null;
