@@ -20,7 +20,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+    public CustomOAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest); // 부모 클래스로 유저 정보 가져오기
         String providerId = getProviderId(userRequest); //provider 구분 (kakao/google)
         log.info("OAuth2User 로그인 시도: {}, 플랫폼: {}" + oAuth2User.getAttributes() + providerId);
